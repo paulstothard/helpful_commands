@@ -11,22 +11,22 @@ Change all **.fasta** files in the current directory to **.fna** files:
 for f in *.fasta; do new=`echo $f | sed 's/\(.*\)\.fasta/\1.fna/'`; mv "$f" "$new"; done
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) | while read f; do wc -l "$f"; done
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f"; done
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory and redirect the results to a single file:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) | while read f; do wc -l "$f" >> output.txt; done
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" >> output.txt; done
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory and redirect the results to separate files:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
 ```
 
 ### Using find with -exec
@@ -37,22 +37,22 @@ Change all **.fasta** files in current directory to **.fna** files:
 find . -type f -name "*.fasta" -exec mv {} {}.fna \;
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) -exec wc -l {} \;
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \;
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory and redirect the results to a single file:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) -exec wc -l {} \; > output.txt
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \; > output.txt
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory and redirect the results to separate files:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) -exec sh -c 'wc -l "$1" > "$1.output.txt"' -- {} \;
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$1.output.txt"' -- {} \;
 ```
 
 ### Using find with xargs
@@ -63,28 +63,28 @@ Change all **.fasta** files in current directory to **.fna** files:
 find . -type f -name "*.fasta" -print0 | xargs -0 -I{} mv {} {}.fna
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) -print0 | xargs -0 -I{} wc -l {}
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {}
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory and redirect the results to a single file:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) -print0 | xargs -0 -I{} wc -l {} > output.txt
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {} > output.txt
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory and redirect the results to separate files:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
 ```
 
-Print the number of lines in every **.html** or **.htm** file in or below current directory and redirect the results to separate files; process up to 4 files in parallel:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files; process up to 4 files in parallel:
 
 ```bash
-find . -type f \( -name "*.html" -o -name "*.htm" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
 ```
 
 ## Using grep
@@ -241,11 +241,10 @@ Add a FASTA title to the start of a sequence in RAW format. In this example the 
 perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
 ```
 
-Remove commas located within quoted fields in a CSV file:
+Remove commas located within quoted fields in a CSV file and create a tab-delimited file:
 
 ```bash
-perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\'';
- for(@new){s/,/ /g} print join "\t", @new' input.csv > output.csv
+perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
 ```
 
 Replace tabs with commas and remove quotes in a CSV file:
