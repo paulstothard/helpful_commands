@@ -81,7 +81,7 @@ Print the number of lines in every **.csv** or **.tab** file in or below current
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files; process up to 4 files in parallel:
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files. Process up to **4** files in parallel:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
@@ -175,10 +175,10 @@ Write each row to a separate file named after the value in a specific column. In
 awk -F '\t' '{ fname = $1 ".txt"; print >>fname; close(fname) }' input.tab
 ```
 
-Split a mulit-FASTA file into separate files, one per sequence named according to the sequence title. In this example the sequences are written to a directory called **output\_directory**:
+Split a multi-FASTA file into separate files, one per sequence named according to the sequence title. In this example the sequences are written to a directory called **out**:
 
 ```bash
-outputdir=output_directory/
+outputdir=out/
 mkdir -p "$outputdir"
 awk '/^>/ {OUT=substr($0,2); split(OUT, a, " "); sub(/[^A-Za-z_0-9\.\-]/, "", a[1]); OUT = "'"$outputdir"'" a[1] ".fa"}; OUT {print >>OUT; close(OUT)}' input.fasta
 ```
@@ -265,4 +265,83 @@ Add a header to all files with a certain extension, getting the header from anot
 
 ```bash
 for f in *.tab; do new=`echo $f | sed 's/\(.*\)\.tab/\1.tab.new/'`; paste -sd'\n' \header.txt "$f" > "$new"; done
+```
+
+## Using sbatch
+
+### Counting lines in compressed fastq files
+
+In this example, the number of lines in several **.fastq.gz** files is quickly determined by submitting jobs to Slurm using sbatch.
+
+The naming scheme of the **.fastq.gz** files is as follows (the sample name is in the file name, for example **DG15B032198-1**):
+
+```
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R2.fastq.gz
+HI.5173.002.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz
+HI.5173.002.NEBNext_Index_12.DG15B032198-1_R2.fastq.gz
+HI.5173.003.NEBNext_Index_14.DG15B032179-1_R1.fastq.gz
+HI.5173.003.NEBNext_Index_14.DG15B032179-1_R2.fastq.gz
+HI.5173.004.NEBNext_Index_14.DG15B032179-1_R1.fastq.gz
+HI.5173.004.NEBNext_Index_14.DG15B032179-1_R2.fastq.gz
+```
+
+First create a sbatch script called **fastq.gz.lines.sbatch** to run zcat and wc (used to count lines in a compressed file):
+
+```bash
+#!/bin/bash
+#SBATCH --account=rrg-stothard-ac
+#SBATCH --ntasks=1
+#SBATCH --mem=1000M
+#SBATCH --time=0-0:30
+
+LINES="`zcat $1 | wc -l`"
+echo "$1 $LINES"
+```
+
+Then use the following commands to submit a job for each **.fastq.gz** file:
+
+```bash
+files=$(find . -name "*fastq.gz" -printf '%P\n')
+for f in $files
+do
+  command="sbatch -o ${f}.out -e ${f}.err fastq.gz.lines.sbatch $f"
+  echo "Submitting a job using the following command:"
+  echo "$command"
+  eval "$command"
+  sleep 1
+done
+```
+
+Each job should create two files for each input file, for example:
+
+```
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.out
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.err
+```
+
+The **out** file will contain the name of the input file and the number of lines, for example:
+
+```
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz 229623444
+```
+
+To quickly check the **err** files:
+
+```bash
+cat *.err | more
+```
+
+To add up the line counts for each sample using the R1 and R2 files:
+
+```bash
+cat *R1.fastq.gz.out | perl -nl -e 's/^.+?([^_\.]{10,})\S*\s*(\d+)/$1/g;' -e 'print $1 . "\t" . $2' | sort | awk '{a[$1]+=$2} END {for(i in a) print i,a[i]}' > line_counts_per_sample_R1.tab
+
+cat *R2.fastq.gz.out | perl -nl -e 's/^.+?([^_\.]{10,})\S*\s*(\d+)/$1/g;' -e 'print $1 . "\t" . $2' | sort | awk '{a[$1]+=$2} END {for(i in a) print i,a[i]}' > line_counts_per_sample_R2.tab
+```
+
+To compare the counts obtained using the R1 and R2 files:
+
+```bash
+diff line_counts_per_sample_R1.tab line_counts_per_sample_R2.tab
 ```
