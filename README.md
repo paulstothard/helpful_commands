@@ -209,7 +209,7 @@ Change filenames using a regular expression. In this example **chr30** is replac
 for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
 ```
 
-## Using perl
+## Using Perl
 
 Get a random sample of lines from a text file when you don't want to include a header line. In this example a random sample of 20 lines is obtained:
 
@@ -255,7 +255,7 @@ perl -p -e 's/\t/,/g;' -e 's/"//g' input.csv > output.csv
 
 ## Other
 
-Combine the columns in two tab-delimited files.
+Combine the columns in two tab-delimited files:
 
 ```bash
 paste -d"\t" input1.tab input2.tab > output.tab
@@ -265,6 +265,18 @@ Add a header to all files with a certain extension, getting the header from anot
 
 ```bash
 for f in *.tab; do new=`echo $f | sed 's/\(.*\)\.tab/\1.tab.new/'`; paste -sd'\n' \header.txt "$f" > "$new"; done
+```
+
+View STDOUT and append it to a file:
+
+```bash
+some_command | tee -a output.txt
+```
+
+Redirect STDERR to STDOUT and view both and append both to a file:
+
+```bash
+some_command 2>&1 | tee -a log
 ```
 
 ## Using sbatch
@@ -354,3 +366,61 @@ To view statistics related to the efficiency of resource usage of a completed jo
 seff <jobid>
 ```
 
+To view your jobs:
+
+```bash
+squeue -u <username>
+```
+
+To view your running jobs:
+
+```bash
+squeue -u <username> -t RUNNING
+```
+
+To view your pending jobs:
+
+```bash
+squeue -u <username> -t PENDING
+```
+
+To view detailed information for a specific job:
+
+```bash
+scontrol show job -dd <jobid>
+```
+
+To view accounting information for your completed jobs:
+
+```bash
+sacct -s CD --format=JobID,JobName,MaxRSS,ReqMem,Elapsed,End,State,NodeList
+```
+
+To cancel a job:
+
+```bash
+scancel <jobid>
+```
+
+To cancel all your jobs:
+
+```bash
+scancel -u <username>
+```
+
+Starting an interactive session:
+
+```bash
+salloc --time=2:0:0 --ntasks=1 --mem-per-cpu=2000M --account=def-someuser
+```
+
+### Sharing data with project group members
+
+```bash
+cd projects/some_project
+chmod g+x my_dir
+cd my_dir
+mkdir shared_dir
+chmod g+x shared_dir
+chmod +t shared_dir
+```
