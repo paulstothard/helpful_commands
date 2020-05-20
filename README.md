@@ -345,3 +345,12 @@ To compare the counts obtained using the R1 and R2 files:
 ```bash
 diff line_counts_per_sample_R1.tab line_counts_per_sample_R2.tab
 ```
+
+### General Slurm commands
+
+To view statistics related to the efficiency of resource usage of a completed job:
+
+```bash
+seff <jobid>
+```
+
