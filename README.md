@@ -360,55 +360,55 @@ diff line_counts_per_sample_R1.tab line_counts_per_sample_R2.tab
 
 ### General Slurm commands
 
-To view statistics related to the efficiency of resource usage of a completed job:
+View statistics related to the efficiency of resource usage of a completed job:
 
 ```bash
 seff <jobid>
 ```
 
-To view your jobs:
+View jobs:
 
 ```bash
 squeue -u <username>
 ```
 
-To view your running jobs:
+View running jobs:
 
 ```bash
 squeue -u <username> -t RUNNING
 ```
 
-To view your pending jobs:
+View pending jobs:
 
 ```bash
 squeue -u <username> -t PENDING
 ```
 
-To view detailed information for a specific job:
+View detailed information for a specific job:
 
 ```bash
 scontrol show job -dd <jobid>
 ```
 
-To view accounting information for your completed jobs:
+View accounting information for completed jobs:
 
 ```bash
 sacct -s CD --format=JobID,JobName,MaxRSS,ReqMem,Elapsed,End,State,NodeList
 ```
 
-To cancel a job:
+Cancel a job:
 
 ```bash
 scancel <jobid>
 ```
 
-To cancel all your jobs:
+Cancel all jobs:
 
 ```bash
 scancel -u <username>
 ```
 
-Starting an interactive session:
+Start an interactive session:
 
 ```bash
 salloc --time=2:0:0 --ntasks=1 --mem-per-cpu=2000M --account=def-someuser
