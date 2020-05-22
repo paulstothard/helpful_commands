@@ -424,3 +424,38 @@ mkdir shared_dir
 chmod g+x shared_dir
 chmod +t shared_dir
 ```
+
+## Using Conda to install NGS tools
+
+Install Miniconda and create an environment called **ngs** with several NGS-related tools:
+
+```bash
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -b
+source ~/miniconda3/bin/activate
+conda init
+source ~/.bashrc
+conda update -y -n base -c defaults conda
+conda create -y --name ngs 
+conda activate ngs
+conda install -y -c bioconda -c conda-forge multiqc fastqc trimmomatic bowtie2 subread samtools
+```
+
+To deactivate the environment:
+
+```bash
+conda deactivate
+```
+
+To activate the environment:
+
+```bash
+conda activate ngs
+```
+
+To add additional programs to the ngs environment (e.g. picard):
+
+```bash
+conda activate ngs
+conda install -y -c bioconda -c conda-forge picard
+```
