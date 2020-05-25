@@ -302,7 +302,7 @@ First create a sbatch script called **fastq.gz.lines.sbatch** to run zcat and wc
 
 ```bash
 #!/bin/bash
-#SBATCH --account=rrg-stothard-ac
+#SBATCH --account=def-someuser
 #SBATCH --ntasks=1
 #SBATCH --mem=1000M
 #SBATCH --time=0-0:30
