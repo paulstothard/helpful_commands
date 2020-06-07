@@ -414,7 +414,7 @@ Start an interactive session:
 salloc --time=2:0:0 --ntasks=1 --mem-per-cpu=2000M --account=def-someuser
 ```
 
-### Sharing data with project group members
+## Sharing data with project group members
 
 ```bash
 cd projects/some_project
