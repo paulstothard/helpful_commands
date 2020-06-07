@@ -87,7 +87,7 @@ Print the number of lines in every **.csv** or **.tab** file in or below current
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
 ```
 
-## Using grep
+## grep
 
 Count matches. In this example the number of lines with a match to **>** is returned:
 
@@ -119,7 +119,7 @@ Keep everything except lines starting with **#**:
 grep -v '^#' input.txt > output.txt
 ```
 
-## Using awk
+## awk
 
 Convert a CSV file to a FASTA file. In this example column **1** contains the sequence title and column **3** contains the sequence:
 
@@ -195,7 +195,7 @@ Print only the lines coming after a certain starting line and before a certain e
 awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv > output.csv
 ``` 
 
-## Using sed
+## sed
 
 Print a specific line of a file. In this example line **26404**:
 
@@ -209,7 +209,7 @@ Change filenames using a regular expression. In this example **chr30** is replac
 for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
 ```
 
-## Using Perl
+## Perl
 
 Get a random sample of lines from a text file when you don't want to include a header line. In this example a random sample of 20 lines is obtained:
 
@@ -279,7 +279,7 @@ Redirect STDERR to STDOUT and view both and append both to a file:
 some_command 2>&1 | tee -a log
 ```
 
-## Using sbatch
+## sbatch
 
 ### Counting lines in compressed fastq files
 
@@ -459,3 +459,77 @@ To add additional programs to the ngs environment (e.g. picard):
 conda activate ngs
 conda install -y -c bioconda -c conda-forge picard
 ```
+
+## Running a program using Docker
+
+In this example, a Docker container is used to run legacy BLAST.
+
+Download the legacy BLAST Docker image:
+
+```bash
+docker pull quay.io/biocontainers/blast-legacy:2.2.26--2
+```
+
+Create a container from the image and run formatdb to create a formatted database. In this example the database is created from a DNA sequence file called **sequence.fasta**, located in the current directory:
+
+```bash
+docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 formatdb -i sequence.fasta -p F
+```
+
+To perform a blastn search using the formatted database and a query called **query.fasta** when the file is also located in the current directory:
+
+```bash
+docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d sequence.fasta -i query.fasta
+```
+
+To perform a blastn search using the formatted database and a query called **query.fasta** when the query is located in a different directory (in this example your home directory):
+
+```bash
+docker run -it --rm -v $(pwd):/directory/database -v ${HOME}:/directory/query -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database/sequence.fasta -i query/query.fasta
+```
+
+## Using brew to install software
+
+For a listing of installed packages:
+
+```bash
+brew list
+```
+
+For a listing of all packages available from the core tap via the Homebrew package manager for macOS see [https://formulae.brew.sh/formula/](https://formulae.brew.sh/formula/)
+
+To install a package, in this example **parallel**:
+
+```bash
+brew install parallel
+```
+
+To add a third-party repository, in this example **brewsci/bio** for bioinformatics software:
+
+```bash
+brew tap brewsci/bio
+```
+
+To install directly from a third-party repository, in this example **clustal-w** from **brewsci/bio**:
+
+```bash
+brew install brewsci/bio/clustal-w
+```
+
+For a listing of packages available from **brewsci/bio** see [https://github.com/brewsci/homebrew-bio/tree/develop/Formula](https://github.com/brewsci/homebrew-bio/tree/develop/Formula)
+
+
+For a listing of installed graphical applications:
+
+```bash
+brew cask list
+```
+
+For a listing of all graphical applications available from the cask tap via the Homebrew package manager for macOS see [https://formulae.brew.sh/cask/](https://formulae.brew.sh/cask/)
+
+To install a graphical application, in this example the Firefox browser:
+
+```bash
+brew cask install firefox
+```
+
