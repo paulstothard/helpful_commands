@@ -1,5 +1,5 @@
 # helpful_commands
-Useful Bash commands for performing a variety of tasks, mostly related to bioinformatics
+Command-line tools and commands for performing a variety of tasks, several related to bioinformatics.
 
 ## Processing multiple files
 
