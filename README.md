@@ -462,7 +462,7 @@ conda install -y -c bioconda -c conda-forge picard
 
 ## Running a program using Docker
 
-In this example, a Docker container is used to run legacy BLAST.
+In this example a Docker container is used to run legacy BLAST.
 
 Download the legacy BLAST Docker image:
 
@@ -496,7 +496,9 @@ For a listing of installed packages:
 brew list
 ```
 
-For a listing of all packages available from the core tap via the Homebrew package manager for macOS see [https://formulae.brew.sh/formula/](https://formulae.brew.sh/formula/)
+For a listing of all packages available from the core tap via the Homebrew package manager for macOS:
+
+* [https://formulae.brew.sh/formula/](https://formulae.brew.sh/formula/)
 
 To install a package, in this example **parallel**:
 
@@ -516,7 +518,9 @@ To install directly from a third-party repository, in this example **clustal-w**
 brew install brewsci/bio/clustal-w
 ```
 
-For a listing of packages available from **brewsci/bio** see [https://github.com/brewsci/homebrew-bio/tree/develop/Formula](https://github.com/brewsci/homebrew-bio/tree/develop/Formula)
+For a listing of packages available from **brewsci/bio**:
+
+* [https://github.com/brewsci/homebrew-bio/tree/develop/Formula](https://github.com/brewsci/homebrew-bio/tree/develop/Formula)
 
 
 For a listing of installed graphical applications:
@@ -525,7 +529,9 @@ For a listing of installed graphical applications:
 brew cask list
 ```
 
-For a listing of all graphical applications available from the cask tap via the Homebrew package manager for macOS see [https://formulae.brew.sh/cask/](https://formulae.brew.sh/cask/)
+For a listing of all graphical applications available from the cask tap via the Homebrew package manager for macOS:
+
+* [https://formulae.brew.sh/cask/](https://formulae.brew.sh/cask/)
 
 To install a graphical application, in this example the Firefox browser:
 
