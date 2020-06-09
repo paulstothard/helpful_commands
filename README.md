@@ -539,3 +539,185 @@ To install a graphical application, in this example the Firefox browser:
 brew cask install firefox
 ```
 
+## Version Control with Git
+
+See [Github's Git documentation](https://help.github.com/en) for more information
+
+### Creating a new Git repository
+
+```
+git init
+```
+
+### Syncing a repository to your local machine
+
+
+First, copy the clone URL on the Github repository page by clicking **Clone or Download**. Then, enter the following command in a terminal window. The helpful_commands repository is used as an example:
+```
+git clone https://github.com/stothard-group/helpful_commands.git
+```
+
+### Marking changed files to be included in the next commit
+
+To add one or more files:
+```
+git add <filename1> <filename2>
+```
+To add all current modifications in your project (including deletions and new files):
+```
+git add --all
+```
+
+### Undoing a Git add **before** a commit
+
+To undo a list of files:
+
+```
+git reset <filename1>
+```
+
+To undo all changes:
+
+```
+git reset
+``` 
+
+
+### Removing files from the repository
+
+Note that the following instructions will remove the file/directory from both the working tree and the index.
+
+To remove one or more files:
+```
+git rm <filename>
+```
+
+To remove a directory:
+```
+git rm -r <directory>
+```
+
+To remove a file from the index (this untracks the file, it does not delete the file itself):
+```
+git rm --cached <filename>
+```
+
+These changes must be committed with git commit.
+
+### Moving or renaming a file or directory
+
+```
+git mv <filename-old> <filename-new>
+```
+This change must be committed with git commit.
+
+
+
+### Saving the marked files to the local Git repository
+
+The commit should include a message using the -m option:
+```
+git commit -m "A concise description of the changes"
+```
+
+The following changes can be made to commits that have **not** been pushed to a remote repository:
+To rewrite the very last commit, with any currently staged changes:
+```
+git commit --amend -m "An updated message"
+```
+
+To commit any currently staged changes without rewriting the commit (this essentially adds the staged changes to the previous commit):
+```
+git commit --amend --no-edit
+```
+
+### To push a commit on your local branch to a remote repository
+
+```
+git push <remote> <branch>
+```
+
+For example, to push to the master branch:
+
+```
+git push -u origin master
+```
+
+### Adding or editing a remote repository
+
+To add a new remote:
+
+```
+git remote add origin <repo-url>
+```
+
+To edit an existing remote:
+
+```
+git remote set-url origin <new-repo-url>
+```
+
+To verify that the remote URL has changed:
+
+```
+git remote -v
+```
+
+### Creating and merging Git branches
+
+To view the branches in a repository:
+```
+git branch
+```
+
+To create a new branch and switch to it:
+```
+git checkout -b <new-branch>
+```
+
+To switch to a remote branch:
+```
+git fetch --all
+git checkout <remote-branch>
+```
+
+After adding and committing some changes, to push this branch to remote:
+```
+git push -u origin <new-branch>
+```
+
+To merge a branch into Master (local) and push the changes to remote:
+
+```
+git checkout master
+git merge <new-branch>
+git push -u origin master
+```
+
+Git merge conflicts can arise easily. For information on resolving a merge conflict, see [Resolving a merged conflict using the command line](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line)
+
+### Specifying intentionally untracked files to ignore
+
+Create a .gitignore file:
+```
+touch .gitignore
+```
+
+Add text or patterns to exclude:
+
+```
+echo sensitive_data.txt >> .gitignore
+echo test/*.vcf >> .gitignore
+git add .gitignore
+git commit -m "add .gitignore file"
+git push -u origin master
+```
+In this example, the following files will no longer be tracked: `sensitive_data.txt`, and all files with a .vcf extension in the directory `test`.
+
+Note that adding a .gitignore file will not remove tracked files; this must be done with `git rm`. See [Removing files from the repository](#removing-files-from-the-repository)
+
+### Checking the status of a working directory
+
+```
+git status
+```
