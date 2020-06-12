@@ -545,7 +545,7 @@ See [Github's Git documentation](https://help.github.com/en) for more informatio
 
 ### Creating a new Git repository
 
-```
+```bash
 git init
 ```
 
@@ -553,7 +553,7 @@ git init
 
 First, copy the clone URL on the Github repository page by clicking **Clone or Download**. Then, enter the following command in a terminal window. The helpful_commands repository is used as an example:
 
-```
+```bash
 git clone https://github.com/stothard-group/helpful_commands.git
 ```
 
@@ -561,13 +561,13 @@ git clone https://github.com/stothard-group/helpful_commands.git
 
 To add one or more files:
 
-```
+```bash
 git add <filename1> <filename2>
 ```
 
 To add all current modifications in your project (including deletions and new files):
 
-```
+```bash
 git add --all
 ```
 
@@ -575,13 +575,13 @@ git add --all
 
 To undo a list of files:
 
-```
+```bash
 git reset <filename1>
 ```
 
 To undo all changes:
 
-```
+```bash
 git reset
 ```
 
@@ -591,19 +591,19 @@ Note that the following instructions will remove the file/directory from both th
 
 To remove one or more files:
 
-```
+```bash
 git rm <filename>
 ```
 
 To remove a directory:
 
-```
+```bash
 git rm -r <directory>
 ```
 
 To remove a file from the index (this untracks the file, it does not delete the file itself):
 
-```
+```bash
 git rm --cached <filename>
 ```
 
@@ -621,32 +621,32 @@ This change must be committed with git commit.
 
 The commit should include a message using the -m option:
 
-```
+```bash
 git commit -m "A concise description of the changes"
 ```
 
 The following changes can be made to commits that have **not** been pushed to a remote repository:
 To rewrite the very last commit, with any currently staged changes:
 
-```
+```bash
 git commit --amend -m "An updated message"
 ```
 
 To commit any currently staged changes without rewriting the commit (this essentially adds the staged changes to the previous commit):
 
-```
+```bash
 git commit --amend --no-edit
 ```
 
 ### To push a commit on your local branch to a remote repository
 
-```
+```bash
 git push <remote> <branch>
 ```
 
 For example, to push to the master branch:
 
-```
+```bash
 git push -u origin master
 ```
 
@@ -654,19 +654,19 @@ git push -u origin master
 
 To add a new remote:
 
-```
+```bash
 git remote add origin <repo-url>
 ```
 
 To edit an existing remote:
 
-```
+```bash
 git remote set-url origin <new-repo-url>
 ```
 
 To verify that the remote URL has changed:
 
-```
+```bash
 git remote -v
 ```
 
@@ -674,32 +674,32 @@ git remote -v
 
 To view the branches in a repository:
 
-```
+```bash
 git branch
 ```
 
 To create a new branch and switch to it:
 
-```
+```bash
 git checkout -b <new-branch>
 ```
 
 To switch to a remote branch:
 
-```
+```bash
 git fetch --all
 git checkout <remote-branch>
 ```
 
 After adding and committing some changes, to push this branch to remote:
 
-```
+```bash
 git push -u origin <new-branch>
 ```
 
 To merge a branch into Master (local) and push the changes to remote:
 
-```
+```bash
 git checkout master
 git merge <new-branch>
 git push -u origin master
@@ -711,13 +711,13 @@ Git merge conflicts can arise easily. For information on resolving a merge confl
 
 Create a .gitignore file:
 
-```
+```bash
 touch .gitignore
 ```
 
 Add text or patterns to exclude:
 
-```
+```bash
 echo sensitive_data.txt >> .gitignore
 echo test/*.vcf >> .gitignore
 git add .gitignore
@@ -725,12 +725,34 @@ git commit -m "add .gitignore file"
 git push -u origin master
 ```
 
-In this example, the following files will no longer be tracked: `sensitive_data.txt`, and all files with a .vcf extension in the directory `test`.
+In this example, the following files will no longer be tracked: `sensitive_data.txt`, and all files with a **.vcf** extension in the directory `test`.
 
 Note that adding a .gitignore file will not remove tracked files; this must be done with `git rm`. See [Removing files from the repository](#removing-files-from-the-repository)
 
 ### Checking the status of a working directory
 
-```
+```bash
 git status
+```
+
+## vim
+
+### Search and replace across multiple files
+
+In this example search and replace operations are perfomed on all the **.html** files in a directory. First, open the files in multiple buffers in vim:
+
+```bash
+vim *.html
+```
+
+Then use **argdo** to perform a search and replace across all the files. In this example blank lines are removed:
+
+```
+:argdo %s/^$//ge
+```
+
+In this example the text between `<p class="lastupdated">` and `</p>` are replaced with the current date. Note the use of **\zs** and **\ze** so that the text between those tags is replaced and not the tags themselves:
+
+```
+:argdo %s/<p class="lastupdated">\zs[^<]*\ze<\/p>/\=strftime("%c")/ge
 ```
