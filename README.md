@@ -1,4 +1,5 @@
 # helpful_commands
+
 Command-line tools and commands for performing a variety of tasks, several related to bioinformatics.
 
 ## Processing multiple files
@@ -133,7 +134,7 @@ Print lines in file when a certain column contains a specific value. In this exa
 awk -F, '{if ($1 == 9913) print $0}' input.csv > output.csv
 ```
 
-Replace certain values in specific columns. In this example **1** and **-1** in column **23** are replaced with **forward** and **reverse**, respectively: 
+Replace certain values in specific columns. In this example **1** and **-1** in column **23** are replaced with **forward** and **reverse**, respectively:
 
 ```bash
 awk -F\\t 'BEGIN {OFS = "\t"} {sub(/^1/, "forward", $23); sub(/^-1/, "reverse", $23); print}' input.tab > output.tab
@@ -157,7 +158,7 @@ Print the types of values observed in a specific column, along with the number o
 awk -F $'\t' '{count[$9]++}END{for(j in count) print j,"("count[j]" counts)"}' input.tab
 ```
 
-Print the number of lines exhibiting each distinct number of fields: 
+Print the number of lines exhibiting each distinct number of fields:
 
 ```bash
 awk -F $'\t' '{count[NF]++}END{for(j in count) print "line length " j,"("count[j]" counts)"}' input.tab
@@ -193,7 +194,7 @@ Print only the lines coming after a certain starting line and before a certain e
 
 ```bash
 awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv > output.csv
-``` 
+```
 
 ## sed
 
@@ -436,7 +437,7 @@ source ~/miniconda3/bin/activate
 conda init
 source ~/.bashrc
 conda update -y -n base -c defaults conda
-conda create -y --name ngs 
+conda create -y --name ngs
 conda activate ngs
 conda install -y -c bioconda -c conda-forge multiqc fastqc trimmomatic bowtie2 subread samtools
 ```
@@ -498,7 +499,7 @@ brew list
 
 For a listing of all packages available from the core tap via the Homebrew package manager for macOS:
 
-* [https://formulae.brew.sh/formula/](https://formulae.brew.sh/formula/)
+- [https://formulae.brew.sh/formula/](https://formulae.brew.sh/formula/)
 
 To install a package, in this example **parallel**:
 
@@ -520,8 +521,7 @@ brew install brewsci/bio/clustal-w
 
 For a listing of packages available from **brewsci/bio**:
 
-* [https://github.com/brewsci/homebrew-bio/tree/develop/Formula](https://github.com/brewsci/homebrew-bio/tree/develop/Formula)
-
+- [https://github.com/brewsci/homebrew-bio/tree/develop/Formula](https://github.com/brewsci/homebrew-bio/tree/develop/Formula)
 
 For a listing of installed graphical applications:
 
@@ -531,7 +531,7 @@ brew cask list
 
 For a listing of all graphical applications available from the cask tap via the Homebrew package manager for macOS:
 
-* [https://formulae.brew.sh/cask/](https://formulae.brew.sh/cask/)
+- [https://formulae.brew.sh/cask/](https://formulae.brew.sh/cask/)
 
 To install a graphical application, in this example the Firefox browser:
 
@@ -551,8 +551,8 @@ git init
 
 ### Syncing a repository to your local machine
 
-
 First, copy the clone URL on the Github repository page by clicking **Clone or Download**. Then, enter the following command in a terminal window. The helpful_commands repository is used as an example:
+
 ```
 git clone https://github.com/stothard-group/helpful_commands.git
 ```
@@ -560,10 +560,13 @@ git clone https://github.com/stothard-group/helpful_commands.git
 ### Marking changed files to be included in the next commit
 
 To add one or more files:
+
 ```
 git add <filename1> <filename2>
 ```
+
 To add all current modifications in your project (including deletions and new files):
+
 ```
 git add --all
 ```
@@ -580,24 +583,26 @@ To undo all changes:
 
 ```
 git reset
-``` 
-
+```
 
 ### Removing files from the repository
 
 Note that the following instructions will remove the file/directory from both the working tree and the index.
 
 To remove one or more files:
+
 ```
 git rm <filename>
 ```
 
 To remove a directory:
+
 ```
 git rm -r <directory>
 ```
 
 To remove a file from the index (this untracks the file, it does not delete the file itself):
+
 ```
 git rm --cached <filename>
 ```
@@ -609,24 +614,26 @@ These changes must be committed with git commit.
 ```
 git mv <filename-old> <filename-new>
 ```
+
 This change must be committed with git commit.
-
-
 
 ### Saving the marked files to the local Git repository
 
 The commit should include a message using the -m option:
+
 ```
 git commit -m "A concise description of the changes"
 ```
 
 The following changes can be made to commits that have **not** been pushed to a remote repository:
 To rewrite the very last commit, with any currently staged changes:
+
 ```
 git commit --amend -m "An updated message"
 ```
 
 To commit any currently staged changes without rewriting the commit (this essentially adds the staged changes to the previous commit):
+
 ```
 git commit --amend --no-edit
 ```
@@ -666,22 +673,26 @@ git remote -v
 ### Creating and merging Git branches
 
 To view the branches in a repository:
+
 ```
 git branch
 ```
 
 To create a new branch and switch to it:
+
 ```
 git checkout -b <new-branch>
 ```
 
 To switch to a remote branch:
+
 ```
 git fetch --all
 git checkout <remote-branch>
 ```
 
 After adding and committing some changes, to push this branch to remote:
+
 ```
 git push -u origin <new-branch>
 ```
@@ -699,6 +710,7 @@ Git merge conflicts can arise easily. For information on resolving a merge confl
 ### Specifying intentionally untracked files to ignore
 
 Create a .gitignore file:
+
 ```
 touch .gitignore
 ```
@@ -712,6 +724,7 @@ git add .gitignore
 git commit -m "add .gitignore file"
 git push -u origin master
 ```
+
 In this example, the following files will no longer be tracked: `sensitive_data.txt`, and all files with a .vcf extension in the directory `test`.
 
 Note that adding a .gitignore file will not remove tracked files; this must be done with `git rm`. See [Removing files from the repository](#removing-files-from-the-repository)
