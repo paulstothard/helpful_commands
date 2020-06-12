@@ -1,4 +1,4 @@
-# helpful_commands
+# helpful\_commands
 
 Command-line tools and commands for performing a variety of tasks, several related to bioinformatics.
 
@@ -230,13 +230,13 @@ Count the number of lines that match a regular expression:
 perl -lne '$a++ if /\tyes\t/; END {print $a+0}' < input.txt
 ```
 
-Extract FASTA sequences from a file based on a file of sequence names of interest. In this example the sequence names of interest are in the file **names.txt** and the FASTA sequences are in the file **input.fasta**:
+Extract FASTA sequences from a file based on a file of sequence names of interest. In this example the sequence names of interest are in the file `names.txt` and the FASTA sequences are in the file `input.fasta`:
 
 ```bash
 cat names.txt | xargs -I{} perl -w -076 -e '$count = 0; open(SEQ, "<" . $ARGV[0]); while (<SEQ>) {if ($_ =~ m/\Q$ARGV[1]\E/) {$record = $_; $record =~ s/[\s>]+$//g; print ">$record\n"; $count = $count + 1;}} if ($count == 0) {print STDERR "No matches found for $ARGV[1]\n"} elsif ($count > 1) {print STDERR "Multiple matches found for $ARGV[1]\n"} close(SEQ);' input.fasta {} > output.fasta
 ```
 
-Add a FASTA title to the start of a sequence in RAW format. In this example the title **>KL1** is added to the beginning of the sequence in **KL1sequence.txt**:
+Add a FASTA title to the start of a sequence in RAW format. In this example the title **>KL1** is added to the beginning of the sequence in `KL1sequence.txt`:
 
 ```bash
 perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
@@ -262,7 +262,7 @@ Combine the columns in two tab-delimited files:
 paste -d"\t" input1.tab input2.tab > output.tab
 ```
 
-Add a header to all files with a certain extension, getting the header from another file. In this example the header is added to **.tab** files and comes from a file called **header.txt**. The files with the header added are saved with a **.new** extension added:
+Add a header to all files with a certain extension, getting the header from another file. In this example the header is added to **.tab** files and comes from a file called `header.txt`. The files with the header added are saved with a **.new** extension added:
 
 ```bash
 for f in *.tab; do new=`echo $f | sed 's/\(.*\)\.tab/\1.tab.new/'`; paste -sd'\n' \header.txt "$f" > "$new"; done
@@ -299,7 +299,7 @@ HI.5173.004.NEBNext_Index_14.DG15B032179-1_R1.fastq.gz
 HI.5173.004.NEBNext_Index_14.DG15B032179-1_R2.fastq.gz
 ```
 
-First create a sbatch script called **fastq.gz.lines.sbatch** to run zcat and wc (used to count lines in a compressed file):
+First create a sbatch script called `fastq.gz.lines.sbatch` to run zcat and wc (used to count lines in a compressed file):
 
 ```bash
 #!/bin/bash
@@ -471,19 +471,19 @@ Download the legacy BLAST Docker image:
 docker pull quay.io/biocontainers/blast-legacy:2.2.26--2
 ```
 
-Create a container from the image and run formatdb to create a formatted database. In this example the database is created from a DNA sequence file called **sequence.fasta**, located in the current directory:
+Create a container from the image and run formatdb to create a formatted database. In this example the database is created from a DNA sequence file called `sequence.fasta`, located in the current directory:
 
 ```bash
 docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 formatdb -i sequence.fasta -p F
 ```
 
-To perform a blastn search using the formatted database and a query called **query.fasta** when the file is also located in the current directory:
+To perform a blastn search using the formatted database and a query called `query.fasta` when the file is also located in the current directory:
 
 ```bash
 docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d sequence.fasta -i query.fasta
 ```
 
-To perform a blastn search using the formatted database and a query called **query.fasta** when the query is located in a different directory (in this example your home directory):
+To perform a blastn search using the formatted database and a query called `query.fasta` when the query is located in a different directory (in this example your home directory):
 
 ```bash
 docker run -it --rm -v $(pwd):/directory/database -v ${HOME}:/directory/query -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database/sequence.fasta -i query/query.fasta
@@ -571,7 +571,7 @@ To add all current modifications in your project (including deletions and new fi
 git add --all
 ```
 
-### Undoing a Git add **before** a commit
+### Undoing a Git add before a commit
 
 To undo a list of files:
 
