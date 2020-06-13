@@ -254,6 +254,14 @@ Replace tabs with commas and remove quotes in a CSV file:
 perl -p -e 's/\t/,/g;' -e 's/"//g' input.csv > output.csv
 ```
 
+## find
+
+Performing a series of commands on files returned by find. In this example `$'...'` is used for quoting, as it can contain escaped single quotes, and tail is used to skip a header line, awk is used to count the number of occurrences of each category in column 3 and print the category and counts, and sort is used to sort the categories by count from largest to smallest with ties broken by sorting on category name:
+
+```bash
+find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
+```
+
 ## Other
 
 Combine the columns in two tab-delimited files:
