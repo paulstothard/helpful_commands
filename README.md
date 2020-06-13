@@ -32,7 +32,7 @@ find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f
 
 ### Using find with -exec
 
-Change all **.fasta** files in current directory to **.fna** files:
+Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
 
 ```bash
 find . -type f -name "*.fasta" -exec mv {} {}.fna \;
@@ -58,7 +58,7 @@ find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$
 
 ### Using find with xargs
 
-Change all **.fasta** files in current directory to **.fna** files:
+Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
 
 ```bash
 find . -type f -name "*.fasta" -print0 | xargs -0 -I{} mv {} {}.fna
@@ -266,6 +266,12 @@ Add a header to all files with a certain extension, getting the header from anot
 
 ```bash
 for f in *.tab; do new=`echo $f | sed 's/\(.*\)\.tab/\1.tab.new/'`; paste -sd'\n' \header.txt "$f" > "$new"; done
+```
+
+To replace the **.tab** files the **.new** files:
+
+```bash
+for f in *.new; do new=`echo $f | sed 's/\(.*\)\.new/\1/'`; mv "$f" "$new"; done
 ```
 
 View STDOUT and append it to a file:
