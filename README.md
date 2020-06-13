@@ -741,6 +741,17 @@ Note that adding a .gitignore file will not remove tracked files; this must be d
 git status
 ```
 
+### Tagging a release
+
+A tag allows a specific release version of code to be identified, and creates a release that can be downloaded from GitHub. A tagged version serves as a snapshot that does not change.
+
+```bash
+git tag -a v2.0.0 -m "version 2.0.0"
+git push origin v2.0.0
+```
+
+Information on how to choose version numbers if availble [here](https://semver.org).
+
 ## vim
 
 ### Search and replace across multiple files
@@ -761,4 +772,12 @@ In this example the text between `<p class="lastupdated">` and `</p>` are replac
 
 ```
 :argdo %s/<p class="lastupdated">\zs[^<]*\ze<\/p>/\=strftime("%c")/ge
+```
+
+### Search and replace newlines
+
+In replacement syntax use **\r** instead of **\n** to represent newlines. For example, to replace **,** with newlines:
+
+```
+:%s/,/\r/g 
 ```
