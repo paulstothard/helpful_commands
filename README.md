@@ -784,7 +784,7 @@ In this example the text between `<p class="lastupdated">` and `</p>` are replac
 
 ### Search and replace newlines
 
-In replacement syntax use **\r** instead of **\n** to represent newlines. For example, to replace **,** with newlines:
+In replacement syntax use **\r** instead of **\n** to represent newlines. For example, to replace commas with newlines:
 
 ```
 :%s/,/\r/g 
