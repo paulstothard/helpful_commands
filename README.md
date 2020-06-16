@@ -353,13 +353,13 @@ HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.out
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.err
 ```
 
-The **out** file will contain the name of the input file and the number of lines, for example:
+The **.out** files will contain the name of the input file and the number of lines, for example:
 
 ```
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz 229623444
 ```
 
-To quickly check the **err** files:
+To quickly check the **.err** files:
 
 ```bash
 cat *.err | more
