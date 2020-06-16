@@ -256,7 +256,7 @@ perl -p -e 's/\t/,/g;' -e 's/"//g' input.csv > output.csv
 
 ## find
 
-Performing a series of commands on files returned by find. In this example `$'...'` is used for quoting, as it can contain escaped single quotes, and tail is used to skip a header line, awk is used to count the number of occurrences of each category in column 3 and print the category and counts, and sort is used to sort the categories by count from largest to smallest with ties broken by sorting on category name:
+Performing a series of commands on files returned by **find**. In this example `$'...'` is used for quoting, as it can contain escaped single quotes, and **tail** is used to skip a header line, **awk** is used to count the number of occurrences of each category in column 3 and print the category and counts, and **sort** is used to sort the categories by count from largest to smallest with ties broken by sorting on category name:
 
 ```bash
 find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
@@ -292,6 +292,12 @@ Redirect STDERR to STDOUT and view both and append both to a file:
 
 ```bash
 some_command 2>&1 | tee -a log
+```
+
+Convert **.pdf** files to **.png**. The following uses **find** and the **pdftoppm** command from the **poppler** package to generate a png image of the first page of every pdf file in the working directory:
+
+```bash
+find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
 ```
 
 ## sbatch
@@ -485,7 +491,7 @@ Download the legacy BLAST Docker image:
 docker pull quay.io/biocontainers/blast-legacy:2.2.26--2
 ```
 
-Create a container from the image and run formatdb to create a formatted database. In this example the database is created from a DNA sequence file called `sequence.fasta`, located in the current directory:
+Create a container from the image and run **formatdb** to create a formatted database. In this example the database is created from a DNA sequence file called `sequence.fasta`, located in the current directory:
 
 ```bash
 docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 formatdb -i sequence.fasta -p F
