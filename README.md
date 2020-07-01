@@ -3,9 +3,10 @@
 <!-- toc -->
 
 - [Process multiple files](#process-multiple-files)
-  * [Use loops](#use-loops)
-  * [Use find with -exec](#use-find-with--exec)
-  * [Use find with xargs](#use-find-with-xargs)
+  * [for loop](#for-loop)
+  * [while loop](#while-loop)
+  * [find with -exec](#find-with--exec)
+  * [find with xargs](#find-with-xargs)
 - [grep](#grep)
   * [Count matches](#count-matches)
   * [Get the line number of a match](#get-the-line-number-of-a-match)
@@ -96,13 +97,15 @@
 
 ## Process multiple files
 
-### Use loops
+### for loop
 
 Change all **.fasta** files in the current directory to **.fna** files:
 
 ```bash
 for f in *.fasta; do new=`echo $f | sed 's/\(.*\)\.fasta/\1.fna/'`; mv "$f" "$new"; done
 ```
+
+### while loop
 
 Print the number of lines in every **.csv** or **.tab** file in or below current directory:
 
@@ -122,7 +125,7 @@ Print the number of lines in every **.csv** or **.tab** file in or below current
 find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
 ```
 
-### Use find with -exec
+### find with -exec
 
 Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
 
@@ -148,7 +151,7 @@ Print the number of lines in every **.csv** or **.tab** file in or below current
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$1.output.txt"' -- {} \;
 ```
 
-### Use find with xargs
+### find with xargs
 
 Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
 
