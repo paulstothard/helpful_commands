@@ -85,13 +85,14 @@
   * [Save the marked files to the local Git repository](#save-the-marked-files-to-the-local-git-repository)
   * [Push a commit on your local branch to a remote repository](#push-a-commit-on-your-local-branch-to-a-remote-repository)
   * [Add or edit a remote repository](#add-or-edit-a-remote-repository)
-  * [Creat and merge Git branches](#creat-and-merge-git-branches)
+  * [Create and merge Git branches](#create-and-merge-git-branches)
   * [Specify files to ignore](#specify-files-to-ignore)
   * [Check the status of a working directory](#check-the-status-of-a-working-directory)
   * [Tag a release](#tag-a-release)
 - [vim](#vim)
   * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
   * [Search and replace newlines](#search-and-replace-newlines)
+  * [Compare two files](#compare-two-files)
 
 <!-- tocstop -->
 
@@ -733,7 +734,7 @@ git init
 
 ### Sync a repository to your local machine
 
-First, copy the clone URL on the Github repository page by clicking **Clone or Download**. Then, enter the following command in a terminal window. The helpful_commands repository is used as an example:
+First, copy the clone URL on the Github repository page by clicking **Clone or Download**. Then, enter the following command in a terminal window. The helpful\_commands repository is used as an example:
 
 ```bash
 git clone https://github.com/stothard-group/helpful_commands.git
@@ -852,7 +853,7 @@ To verify that the remote URL has changed:
 git remote -v
 ```
 
-### Creat and merge Git branches
+### Create and merge Git branches
 
 To view the branches in a repository:
 
@@ -926,13 +927,13 @@ git tag -a v2.0.0 -m "version 2.0.0"
 git push origin v2.0.0
 ```
 
-Information on how to choose version numbers if availble [here](https://semver.org).
+Information on how to choose version numbers if available [here](https://semver.org).
 
 ## vim
 
 ### Search and replace across multiple files
 
-In this example search and replace operations are perfomed on all the **.html** files in a directory. First, open the files in multiple buffers in vim:
+In this example search and replace operations are performed on all the **.html** files in a directory. First, open the files in multiple buffers in vim:
 
 ```bash
 vim *.html
@@ -956,4 +957,10 @@ In replacement syntax use **\r** instead of **\n** to represent newlines. For ex
 
 ```
 :%s/,/\r/g 
+```
+
+### Compare two files
+
+```bash
+vimdiff file1 file2 
 ```
