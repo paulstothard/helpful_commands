@@ -47,7 +47,7 @@
   * [Convert pdf files to png](#convert-pdf-files-to-png)
 - [sbatch](#sbatch)
   * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
-- [General Slurm commands](#general-slurm-commands)
+- [Use Slurm to manage jobs](#use-slurm-to-manage-jobs)
   * [View statistics related to the efficiency of resource usage of a completed job](#view-statistics-related-to-the-efficiency-of-resource-usage-of-a-completed-job)
   * [View jobs](#view-jobs)
   * [View running jobs](#view-running-jobs)
@@ -65,6 +65,8 @@
   * [Activate an environment](#activate-an-environment)
 - [Add additional programs to an environment](#add-additional-programs-to-an-environment)
 - [Run a program using Docker](#run-a-program-using-docker)
+  * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
+  * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
 - [Use brew to install software](#use-brew-to-install-software)
   * [List installed packages](#list-installed-packages)
   * [View available packages](#view-available-packages)
@@ -75,7 +77,7 @@
   * [List installed graphical applications](#list-installed-graphical-applications)
   * [View available graphical applications](#view-available-graphical-applications)
   * [Install a graphical application](#install-a-graphical-application)
-- [Version Control with Git](#version-control-with-git)
+- [Version control with Git](#version-control-with-git)
   * [Create a new Git repository](#create-a-new-git-repository)
   * [Sync a repository to your local machine](#sync-a-repository-to-your-local-machine)
   * [Mark changed files to be included in the next commit](#mark-changed-files-to-be-included-in-the-next-commit)
@@ -523,7 +525,7 @@ To compare the counts obtained using the R1 and R2 files:
 diff line_counts_per_sample_R1.tab line_counts_per_sample_R2.tab
 ```
 
-## General Slurm commands
+## Use Slurm to manage jobs
 
 ### View statistics related to the efficiency of resource usage of a completed job
 
@@ -634,7 +636,7 @@ conda install -y -c bioconda -c conda-forge picard
 
 ## Run a program using Docker
 
-In this example a Docker container is used to run legacy BLAST.
+### Perform a sequence comparison using legacy BLAST
 
 Download the legacy BLAST Docker image:
 
@@ -658,6 +660,46 @@ To perform a blastn search using the formatted database and a query called `quer
 
 ```bash
 docker run -it --rm -v $(pwd):/directory/database -v ${HOME}:/directory/query -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database/sequence.fasta -i query/query.fasta
+```
+
+### Annotate sequence variants using VEP
+
+Download the VEP Docker image:
+
+```bash
+docker pull ensemblorg/ensembl-vep
+```
+
+Download cache files for the bovine genome and VEP plugins:
+
+```bash
+docker run -t -i -v $(pwd):/opt/vep/.vep ensemblorg/ensembl-vep perl INSTALL.pl -a cfp -s bos_taurus -y ARS-UCD1.2 -g all
+```
+
+Create directories for input and output files:
+
+```bash
+mkdir input
+mkdir output
+```
+
+Copy the VCF files to be annotated to the newly created `input` directory and process them as follows:
+
+```bash
+find ./input -name "*.vcf" | while read f; do
+    filename=$(basename -- "$f")
+    filename_no_extension="${filename%.*}"
+    docker run -v $(pwd):/opt/vep/.vep ensemblorg/ensembl-vep \
+        ./vep --cache --format vcf --tab --force_overwrite \
+        --dir_cache /opt/vep/.vep/ \
+        --dir_plugins /opt/vep/.vep/Plugins/ \
+        --input_file /opt/vep/.vep/input/${filename} \
+        --output_file /opt/vep/.vep/output/${filename_no_extension}.tab \
+        --species bos_taurus --assembly ARS-UCD1.2 \
+        --plugin Conservation,/opt/vep/.vep/Plugins/gerp_conservation_scores.bos_taurus.ARS-UCD1.2.bw --plugin Blosum62 --plugin Downstream --plugin Phenotypes --plugin TSSDistance --plugin miRNA \
+        --variant_class --sift b --nearest gene --overlaps --gene_phenotype --regulatory --protein --symbol --ccds --uniprot --biotype --domains --check_existing --pubmed \
+        --verbose
+done
 ```
 
 ## Use brew to install software
@@ -722,7 +764,7 @@ In this example the Firefox browser:
 brew cask install firefox
 ```
 
-## Version Control with Git
+## Version control with Git
 
 See [Github's Git documentation](https://help.github.com/en) for more information
 
