@@ -39,12 +39,6 @@
   * [Replace tabs with commas and remove quotes in a CSV file](#replace-tabs-with-commas-and-remove-quotes-in-a-csv-file)
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
-- [Other](#other)
-  * [Combine the columns in two tab-delimited files](#combine-the-columns-in-two-tab-delimited-files)
-  * [Add a header to all files with a certain extension, getting the header from another file](#add-a-header-to-all-files-with-a-certain-extension-getting-the-header-from-another-file)
-  * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
-  * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
-  * [Convert pdf files to png](#convert-pdf-files-to-png)
 - [sbatch](#sbatch)
   * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
 - [Use Slurm to manage jobs](#use-slurm-to-manage-jobs)
@@ -95,6 +89,15 @@
   * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
   * [Search and replace newlines](#search-and-replace-newlines)
   * [Compare two files](#compare-two-files)
+- [vcftools and bcftools](#vcftools-and-bcftools)
+  * [Extract variants from a region of interest and write to a new vcf file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
+  * [Extract variants from multiple regions of interest and write to a new vcf file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
+- [Other](#other)
+  * [Combine the columns in two tab-delimited files](#combine-the-columns-in-two-tab-delimited-files)
+  * [Add a header to all files with a certain extension, getting the header from another file](#add-a-header-to-all-files-with-a-certain-extension-getting-the-header-from-another-file)
+  * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
+  * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
+  * [Convert pdf files to png](#convert-pdf-files-to-png)
 
 <!-- tocstop -->
 
@@ -402,48 +405,6 @@ In this example `$'...'` is used for quoting, as it can contain escaped single q
 
 ```bash
 find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
-```
-
-## Other
-
-### Combine the columns in two tab-delimited files
-
-```bash
-paste -d"\t" input1.tab input2.tab > output.tab
-```
-
-### Add a header to all files with a certain extension, getting the header from another file
-
-In this example the header is added to **.tab** files and comes from a file called `header.txt`. The files with the header added are saved with a **.new** extension added:
-
-```bash
-for f in *.tab; do new=`echo $f | sed 's/\(.*\)\.tab/\1.tab.new/'`; paste -sd'\n' \header.txt "$f" > "$new"; done
-```
-
-To replace the **.tab** files the **.new** files:
-
-```bash
-for f in *.new; do new=`echo $f | sed 's/\(.*\)\.new/\1/'`; mv "$f" "$new"; done
-```
-
-### View STDOUT and append it to a file
-
-```bash
-some_command | tee -a output.txt
-```
-
-### Redirect STDERR to STDOUT and view both and append both to a file
-
-```bash
-some_command 2>&1 | tee -a log
-```
-
-### Convert pdf files to png
-
-The following uses **find** and the **pdftoppm** command from the **poppler** package to generate a png image of the first page of every pdf file in the working directory:
-
-```bash
-find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
 ```
 
 ## sbatch
@@ -1005,4 +966,64 @@ In replacement syntax use **\r** instead of **\n** to represent newlines. For ex
 
 ```bash
 vimdiff file1 file2 
+```
+
+## vcftools and bcftools
+
+### Extract variants from a region of interest and write to a new vcf file
+
+Note that if the vcf file is gzip compressed (i.e. has a **.gz** extension), use `--gzvcf` instead of `--vcf`.
+
+```bash
+vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 --recode --recode-INFO-all
+```
+
+### Extract variants from multiple regions of interest and write to a new vcf file
+
+```bash
+bgzip Chr5.vcf
+tabix -fp vcf Chr5.vcf.gz 
+bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
+``` 
+
+## Other
+
+### Combine the columns in two tab-delimited files
+
+```bash
+paste -d"\t" input1.tab input2.tab > output.tab
+```
+
+### Add a header to all files with a certain extension, getting the header from another file
+
+In this example the header is added to **.tab** files and comes from a file called `header.txt`. The files with the header added are saved with a **.new** extension added:
+
+```bash
+for f in *.tab; do new=`echo $f | sed 's/\(.*\)\.tab/\1.tab.new/'`; paste -sd'\n' \header.txt "$f" > "$new"; done
+```
+
+To replace the **.tab** files the **.new** files:
+
+```bash
+for f in *.new; do new=`echo $f | sed 's/\(.*\)\.new/\1/'`; mv "$f" "$new"; done
+```
+
+### View STDOUT and append it to a file
+
+```bash
+some_command | tee -a output.txt
+```
+
+### Redirect STDERR to STDOUT and view both and append both to a file
+
+```bash
+some_command 2>&1 | tee -a log
+```
+
+### Convert pdf files to png
+
+The following uses **find** and the **pdftoppm** command from the **poppler** package to generate a png image of the first page of every pdf file in the working directory:
+
+```bash
+find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
 ```
