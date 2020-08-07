@@ -98,6 +98,7 @@
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
   * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
   * [Convert pdf files to png](#convert-pdf-files-to-png)
+  * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
 
 <!-- tocstop -->
 
@@ -1027,3 +1028,51 @@ The following uses **find** and the **pdftoppm** command from the **poppler** pa
 ```bash
 find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
 ```
+
+### Run commands at scheduled times using cron
+
+The following uses **cron** to run a script to copy various files and directories to a directory backed up by Dropbox.
+
+Create the script the `copy_to_dropbox.sh` script, editing as needed:
+
+```bash
+#!/bin/bash
+
+PATH=/bin:/usr/bin/
+
+home=/Users/myhome
+
+target=${home}/Dropbox/backup
+
+if [[ ! -e $target ]]; then
+    mkdir -p $target
+elif [[ ! -d $target ]]; then
+    echo "$target already exists but is not a directory" 1>&2
+fi
+
+#copy files and directories of interest to $target
+rsync --update -razv ${home}/.bash_profile $target/bash_profile
+rsync --update -razv ${home}/lib $target
+rsync --update -razv ${home}/bin $target
+```
+
+Test the script as follows:
+
+```bash
+chmod u+x copy_to_dropbox.sh
+sudo env -i ./copy_to_dropbox.sh
+```
+
+Use `crontab -e` to edit the crontab (cron table) file. Add the following to the crontab to run the script everyday at noon (changing the path to `copy_to_dropbox.sh`):
+
+```bash
+0 12 * * * /path/to/copy_to_dropbox.sh >/dev/null 2>&1
+```
+
+Alternatively, use the following to run the script once per hour between 8 am and 5 pm on weekdays:
+
+```bash
+0 8-17 * * 1-5 /path/to/copy_to_dropbox.sh >/dev/null 2>&1
+```
+
+To display the crontab use `crontab -l`.
