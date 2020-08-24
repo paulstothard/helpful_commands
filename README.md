@@ -97,6 +97,7 @@
   * [Add a header to all files with a certain extension, getting the header from another file](#add-a-header-to-all-files-with-a-certain-extension-getting-the-header-from-another-file)
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
   * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
+  * [Change the extension for multiple files](#change-the-extension-for-multiple-files)
   * [Convert pdf files to png](#convert-pdf-files-to-png)
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
 
@@ -1019,6 +1020,16 @@ some_command | tee -a output.txt
 
 ```bash
 some_command 2>&1 | tee -a log
+```
+
+### Change the extension for multiple files
+
+The following changes the **.gbff** extension to **.gbk**:
+
+```bash
+for f in *.gbff; do 
+    mv -- "$f" "${f%.gbff}.gbk"
+done
 ```
 
 ### Convert pdf files to png
