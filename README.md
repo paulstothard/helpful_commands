@@ -39,6 +39,7 @@
   * [Replace tabs with commas and remove quotes in a CSV file](#replace-tabs-with-commas-and-remove-quotes-in-a-csv-file)
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
+  * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
 - [sbatch](#sbatch)
   * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
 - [Use Slurm to manage jobs](#use-slurm-to-manage-jobs)
@@ -409,11 +410,19 @@ In this example `$'...'` is used for quoting, as it can contain escaped single q
 find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
 ```
 
+### Switch to the directory containing each file and execute a command
+
+The -execdir option instructs **find** to switch to the directory containing each matching file before executing the specified command. In this example the command creates a **.zip** file for each **.vcf** file that is found:
+
+```bash
+find . -name "*.vcf" -type f -execdir zip '{}.zip' '{}' \;
+```  
+
 ## sbatch
 
 ### Count lines in compressed fastq files
 
-In this example, the number of lines in several **.fastq.gz** files is quickly determined by submitting jobs to Slurm using sbatch.
+In this example the number of lines in several **.fastq.gz** files is quickly determined by submitting jobs to Slurm using sbatch.
 
 The naming scheme of the **.fastq.gz** files is as follows (the sample name is in the file name, for example **DG15B032198-1**):
 
