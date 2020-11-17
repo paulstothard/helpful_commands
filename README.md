@@ -40,6 +40,7 @@
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
   * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
+  * [Find large files](#find-large-files)
 - [sbatch](#sbatch)
   * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
 - [Use Slurm to manage jobs](#use-slurm-to-manage-jobs)
@@ -94,13 +95,22 @@
   * [Extract variants from a region of interest and write to a new vcf file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
   * [Extract variants from multiple regions of interest and write to a new vcf file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
 - [Other](#other)
+  * [Obtain your public IP address and network information](#obtain-your-public-ip-address-and-network-information)
+  * [Copy an ssh public key to another system](#copy-an-ssh-public-key-to-another-system)
   * [Combine the columns in two tab-delimited files](#combine-the-columns-in-two-tab-delimited-files)
   * [Add a header to all files with a certain extension, getting the header from another file](#add-a-header-to-all-files-with-a-certain-extension-getting-the-header-from-another-file)
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
   * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
-  * [Change the extension for multiple files](#change-the-extension-for-multiple-files)
-  * [Convert pdf files to png](#convert-pdf-files-to-png)
+  * [Change the extension of multiple files](#change-the-extension-of-multiple-files)
+  * [Convert PDF files to PNG files](#convert-pdf-files-to-png-files)
+  * [Convert PNG files to a single PDF file](#convert-png-files-to-a-single-pdf-file)
+  * [Convert a DOCX file to a PDF file](#convert-a-docx-file-to-a-pdf-file)
+  * [Convert an HTML file to a PDF file](#convert-an-html-file-to-a-pdf-file)
+  * [Convert an HTML file to a PNG file](#convert-an-html-file-to-a-png-file)
+  * [Format a CSV file into columns and examine its content](#format-a-csv-file-into-columns-and-examine-its-content)
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
+  * [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
+  * [Create a collection of MP3 files from a YouTube playlist](#create-a-collection-of-mp3-files-from-a-youtube-playlist)
 
 <!-- tocstop -->
 
@@ -416,7 +426,15 @@ The -execdir option instructs **find** to switch to the directory containing eac
 
 ```bash
 find . -name "*.vcf" -type f -execdir zip '{}.zip' '{}' \;
-```  
+```
+
+### Find large files
+
+The following reports the 10 largest files in the current directory or its subdirectories, sorted by size:
+
+```bash
+find . -type f -print0 | xargs -0 du -h | sort -hr | head -10
+```
 
 ## sbatch
 
@@ -999,6 +1017,26 @@ bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
 
 ## Other
 
+### Obtain your public IP address and network information
+
+```bash
+curl ifconfig.me/all
+```
+
+### Copy an ssh public key to another system
+
+Generate the key pair:
+
+```bash
+ssh-keygen
+```
+
+Copy the public key to the `.ssh/authorized_keys` file on the other system using **ssh-copy-id**:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@remote-host.com
+```
+
 ### Combine the columns in two tab-delimited files
 
 ```bash
@@ -1031,7 +1069,7 @@ some_command | tee -a output.txt
 some_command 2>&1 | tee -a log
 ```
 
-### Change the extension for multiple files
+### Change the extension of multiple files
 
 The following changes the **.gbff** extension to **.gbk**:
 
@@ -1041,12 +1079,68 @@ for f in *.gbff; do
 done
 ```
 
-### Convert pdf files to png
+If **rename** is available, this may work:
 
-The following uses **find** and the **pdftoppm** command from the **poppler** package to generate a png image of the first page of every pdf file in the working directory:
+```bash
+rename 's/\.gbff$/.gbk/' *.gbff 
+```
+
+Or this, depending on which **rename** is installed:
+
+```bash
+rename .gbff .gbk *.gbff 
+```
+
+### Convert PDF files to PNG files
+
+The following uses **find** and the **pdftoppm** command from the **poppler** package to generate a PNG image of the first page of every PDF file in the working directory:
 
 ```bash
 find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
+```
+
+### Convert PNG files to a single PDF file
+
+The following uses **imagemagick**:
+
+```bash
+convert *.png output.pdf
+```
+
+### Convert a DOCX file to a PDF file
+
+The following uses **LibreOffice**:
+
+```bash
+soffice --headless --convert-to pdf --outdir . word_file.docx
+```
+
+The following uses **pandoc** and on macOS also requires **basictex**:
+
+```bash
+pandoc word_file.docx --output word_file.pdf
+```
+
+### Convert an HTML file to a PDF file
+
+The following uses **wkhtmltopdf**:
+
+```bash
+wkhtmltopdf http://google.com google.pdf
+```
+
+### Convert an HTML file to a PNG file
+
+The following uses **wkhtmltoimage**:
+
+```bash
+wkhtmltoimage -f png http://google.com google.png
+```
+
+### Format a CSV file into columns and examine its content
+
+```bash
+cat data.csv | perl -pe 's/((?<=,)|(?<=^)),/ ,/g;' | column -t -s, | less -S
 ```
 
 ### Run commands at scheduled times using cron
@@ -1096,3 +1190,25 @@ Alternatively, use the following to run the script once per hour between 8 am an
 ```
 
 To display the crontab use `crontab -l`.
+
+### Create an animated GIF from a YouTube video
+
+The following requires **youtube-dl**, **mplayer**, **imagemagick**, and **gifsicle**:
+
+```bash
+mkdir gif; cd gif
+url=https://youtu.be/_YUAu0aP4DA
+start=00:37; length=10
+youtube-dl -f mp4 -o video_for_gif.mp4 $url
+mplayer video_for_gif.mp4 -ao null -ss $start -endpos $length -vo png -vf scale=400:225
+mogrify -format gif *.png
+gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > animation.gif
+```
+
+### Create a collection of MP3 files from a YouTube playlist
+
+The following requires **youtube-dl** and **ffmpeg**:
+
+```bash
+youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass https://www.youtube.com/playlist?list=PL92319EECC1754042
+```
