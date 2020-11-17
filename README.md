@@ -106,6 +106,7 @@
   * [Convert PNG files to a single PDF file](#convert-png-files-to-a-single-pdf-file)
   * [Convert a DOCX file to a PDF file](#convert-a-docx-file-to-a-pdf-file)
   * [Convert an HTML file to a PDF file](#convert-an-html-file-to-a-pdf-file)
+  * [Convert a website to a PDF file](#convert-a-website-to-a-pdf-file)
   * [Convert an HTML file to a PNG file](#convert-an-html-file-to-a-png-file)
   * [Format a CSV file into columns and examine its content](#format-a-csv-file-into-columns-and-examine-its-content)
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
@@ -1127,6 +1128,17 @@ The following uses **wkhtmltopdf**:
 
 ```bash
 wkhtmltopdf http://google.com google.pdf
+```
+
+### Convert a website to a PDF file
+
+The following uses **wkhtmltopdf** and **gs**:
+
+```bash
+url=http://www.3rs-reduction.co.uk/html/main_menu.html; depth=1
+wget --spider --force-html -r -l${depth} ${url} 2>&1 | grep '^--' | awk '{ print $3 }' | grep -i '\.\(html\|htm\)$' | uniq > url-list.txt
+while read i; do wkhtmltopdf "$i" "$(echo "$i" | sed -e 's/https\?:\/\///' -e 's/\//-/g' ).pdf"; done < url-list.txt
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged-output.pdf $(ls -lrt -1 *.pdf)
 ```
 
 ### Convert an HTML file to a PNG file
