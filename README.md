@@ -98,6 +98,7 @@
 - [Other](#other)
   * [Obtain your public IP address and network information](#obtain-your-public-ip-address-and-network-information)
   * [Copy an ssh public key to another system](#copy-an-ssh-public-key-to-another-system)
+  * [Download files from an FTP server](#download-files-from-an-ftp-server)
   * [Combine the columns in two tab-delimited files](#combine-the-columns-in-two-tab-delimited-files)
   * [Add a header to all files with a certain extension, getting the header from another file](#add-a-header-to-all-files-with-a-certain-extension-getting-the-header-from-another-file)
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
@@ -764,7 +765,7 @@ brew cask install firefox
 
 ## Version control with Git
 
-See [Github's Git documentation](https://help.github.com/en) for more information
+See [GitHub's Git documentation](https://help.github.com/en) for more information
 
 ### Create a new Git repository
 
@@ -774,7 +775,7 @@ git init
 
 ### Sync a repository to your local machine
 
-First, copy the clone URL on the Github repository page by clicking **Clone or Download**. Then, enter the following command in a terminal window. The helpful\_commands repository is used as an example:
+First, copy the clone URL on the GitHub repository page by clicking **Clone or Download**. Then, enter the following command in a terminal window. The helpful\_commands repository is used as an example:
 
 ```bash
 git clone https://github.com/stothard-group/helpful_commands.git
@@ -1044,6 +1045,15 @@ Copy the public key to the `.ssh/authorized_keys` file on the other system using
 ```bash
 ssh-copy-id -i ~/.ssh/id_rsa.pub user@remote-host.com
 ```
+
+### Download files from an FTP server
+
+Replace `host`, `account`, `password`, and `port` with their corresponding values in the following command:
+
+```bash
+wget -S -d -c -t 45 -v -r ftp://account:password@host:port/*
+```
+
 
 ### Combine the columns in two tab-delimited files
 
