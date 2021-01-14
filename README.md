@@ -59,7 +59,8 @@
   * [Create an environment and install some programs](#create-an-environment-and-install-some-programs)
   * [Deactivate an environment](#deactivate-an-environment)
   * [Activate an environment](#activate-an-environment)
-- [Add additional programs to an environment](#add-additional-programs-to-an-environment)
+  * [Add additional programs to an environment](#add-additional-programs-to-an-environment)
+  * [List environments](#list-environments)
 - [Run a program using Docker](#run-a-program-using-docker)
   * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
   * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
@@ -618,11 +619,17 @@ conda deactivate
 conda activate ngs
 ```
 
-## Add additional programs to an environment
+### Add additional programs to an environment
 
 ```bash
 conda activate ngs
 conda install -y -c bioconda -c conda-forge picard
+```
+
+### List environments
+
+```bash
+conda info --envs
 ```
 
 ## Run a program using Docker
