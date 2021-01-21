@@ -64,7 +64,7 @@
 - [Run a program using Docker](#run-a-program-using-docker)
   * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
   * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
-  * [Annotate a bacterial genome using Prokka:](#annotate-a-bacterial-genome-using-prokka)
+  * [Annotate a bacterial genome using Prokka](#annotate-a-bacterial-genome-using-prokka)
 - [Use brew to install software](#use-brew-to-install-software)
   * [List installed packages](#list-installed-packages)
   * [View available packages](#view-available-packages)
@@ -702,7 +702,7 @@ find ./input -name "*.vcf" | while read f; do
 done
 ```
 
-### Annotate a bacterial genome using Prokka:
+### Annotate a bacterial genome using Prokka
 
 Download the Prokka Docker image:
 
