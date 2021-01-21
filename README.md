@@ -64,6 +64,7 @@
 - [Run a program using Docker](#run-a-program-using-docker)
   * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
   * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
+  * [Annotate a bacterial genome using Prokka:](#annotate-a-bacterial-genome-using-prokka)
 - [Use brew to install software](#use-brew-to-install-software)
   * [List installed packages](#list-installed-packages)
   * [View available packages](#view-available-packages)
@@ -699,6 +700,20 @@ find ./input -name "*.vcf" | while read f; do
         --variant_class --sift b --nearest gene --overlaps --gene_phenotype --regulatory --protein --symbol --ccds --uniprot --biotype --domains --check_existing --pubmed \
         --verbose
 done
+```
+
+### Annotate a bacterial genome using Prokka:
+
+Download the Prokka Docker image:
+
+```bash
+docker pull staphb/prokka:latest
+```
+
+Create a container from the image and run **prokka** to annotate the sequence. In this example the genome sequence to be annotated is in a file called `sequence.fasta`, located in the current directory, and four CPUs are used:
+
+```bash
+docker run --rm -v $(pwd):/dir -w /dir staphb/prokka:latest prokka sequence.fasta --genus --cpus 4
 ```
 
 ## Use brew to install software
