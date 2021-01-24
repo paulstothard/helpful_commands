@@ -98,6 +98,8 @@
   * [Extract variants from multiple regions of interest and write to a new vcf file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
 - [R](#r)
   * [Compare two data sets to find differences](#compare-two-data-sets-to-find-differences)
+  * [Visualize the degree of overlap among gene sets](#visualize-the-degree-of-overlap-among-gene-sets)
+  * [Cluster gene lists based on overlap and identify shared genes](#cluster-gene-lists-based-on-overlap-and-identify-shared-genes)
 - [Other](#other)
   * [Obtain your public IP address and network information](#obtain-your-public-ip-address-and-network-information)
   * [Copy an ssh public key to another system](#copy-an-ssh-public-key-to-another-system)
@@ -107,6 +109,8 @@
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
   * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
   * [Change the extension of multiple files](#change-the-extension-of-multiple-files)
+  * [Add text or a header to the beginning of all files with a particular file extension](#add-text-or-a-header-to-the-beginning-of-all-files-with-a-particular-file-extension)
+  * [Find common lines between files](#find-common-lines-between-files)
   * [Convert PDF files to PNG files](#convert-pdf-files-to-png-files)
   * [Convert PNG files to a single PDF file](#convert-png-files-to-a-single-pdf-file)
   * [Convert a DOCX file to a PDF file](#convert-a-docx-file-to-a-pdf-file)
@@ -1064,6 +1068,76 @@ output_file <- paste("positions", "algorithm1_results", "vs", paste("algorithm2_
 create_output_table(ctable, output_type="xlsx", file_name=output_file, limit=1000000)
 ```
 
+### Visualize the degree of overlap among gene sets
+
+In this example, an UpSet plot is used to visualize the overlap among all combinations of gene lists in the **gene_lists** directory. In this directory each list is given as a separate **.txt** file, with a single header row and one gene name or ID per row, for example:
+
+```
+Gene name or identifier
+ENSG00000264954.2
+ENSG00000224383.8
+CCDS54157.1.1
+```
+
+The UpSet plot is generated using the **UpSetR** package:
+
+```r
+library(UpSetR)
+
+setwd('/path/to/gene_lists')
+filenames <- list.files(pattern = "*.txt", full.names = FALSE)
+
+#create list of character vectors, each named after the source filename
+#assumes each file has single header line (skip = 1)
+gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
+
+#remove underscores from vector names
+names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
+
+#remove file extension from vector names
+names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
+
+upset(fromList(gl), nsets = length(gl), order.by = "freq")
+```
+
+The resulting plot displays the number of items shared among all possible combinations of overlapping sets in an easy-to-interpret and parse manner (unlike a traditional Venn diagram).
+
+### Cluster gene lists based on overlap and identify shared genes
+
+In this example a heatmap is used to visualize gene presence and absence for all gene lists in the **gene_lists** directory. In this directory each list is given as a separate **.txt** file, with a single header row and one gene name or ID per row, for example:
+
+```
+Gene name or identifier
+ENSG00000264954.2
+ENSG00000224383.8
+CCDS54157.1.1
+```
+
+The following uses the **purrr** and **RVenn** packages:
+
+```r
+library(purrr)
+library(RVenn)
+
+setwd('/path/to/gene_lists')
+filenames <- list.files(pattern = "*.txt", full.names = FALSE)
+
+#create list of character vectors, each named after the source filename
+#assumes each file has single header line (skip = 1)
+gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
+
+#remove underscores from vector names
+names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
+
+#remove file extension from vector names
+names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
+
+venn = Venn(gl)
+setmap(venn, element_fontsize = 4, set_fontsize = 4)
+```
+
+The resulting heatmap displays genes and gene lists as rows and columns, respectively. The columns and rows are arranged so that genes and gene lists with similar presence / absence patterns are grouped together. 
+
 ## Other
 
 ### Obtain your public IP address and network information
@@ -1147,6 +1221,35 @@ Or this, depending on which **rename** is installed:
 
 ```bash
 rename .gbff .gbk *.gbff 
+```
+
+### Add text or a header to the beginning of all files with a particular file extension
+
+Add **my header text** to the start of all **.csv** files in the current directory (works on macOS):
+
+```bash
+find . -name "*.csv" -exec sed -i '.bak' '1s/^/my header text\'$'\n/g' {} \;
+```
+
+Add **my header text** to the start of all **.csv** files in the current directory (works on Linux):
+
+```bash
+find . -name "*.csv" -exec sed -i '1s/^/my header text\n/' {} \;
+```
+
+### Find common lines between files
+
+Between two files, named **file1.txt** and **file2.txt**:
+
+```bash
+comm -12 <( sort file1.txt ) <( sort file2.txt )
+```
+
+Among all **.txt** files in the current directory:
+
+```bash
+number_of_files=$(find . -name "*.txt" -print | wc -l | sed 's/[^0-9]*//g')
+cat *.txt | sort | uniq -c | sed -n -e "s/^ *$number_of_files \(.*\)/\1/p"
 ```
 
 ### Convert PDF files to PNG files
