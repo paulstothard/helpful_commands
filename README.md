@@ -990,7 +990,7 @@ perl -p -e 's/\t/,/g;' -e 's/"//g' input.csv > output.csv
 ### Sort sections in a Markdown file based on headings
 
 ```bash
-perl -0777 -ne '(undef,@paragraphs) = split /^##(?=[^##])/m; print map {"##$_"} sort { "\U$a" cmp "\U$b" } @paragraphs;' input.md
+perl -0777 -ne '(undef,@paragraphs) = split /^#(?=[^#])/m; print map {"#$_"} sort { "\U$a" cmp "\U$b" } @paragraphs;' input.md
 ```
 
 ## Process multiple files
