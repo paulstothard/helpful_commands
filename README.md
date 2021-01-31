@@ -167,7 +167,7 @@ In this example the first row of the input file contains the column names:
 awk -F $'\t' 'NR>1{exit};{for (i = 1; i <= NF; i++) print "column " i,"is " $i}' input.tab
 ```
 
-### Print the types of values observed in a specific column, along with the number of times each type is observed 
+### Print the values observed in a specific column, along with the number of times each value is observed 
 
 In this example the counts for each distinct value in column **9** are printed:
 
