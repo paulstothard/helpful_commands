@@ -8,7 +8,7 @@
   * [Replace certain values in specific columns](#replace-certain-values-in-specific-columns)
   * [Sum values in one column based on categories given in another column](#sum-values-in-one-column-based-on-categories-given-in-another-column)
   * [Print column names and numbers](#print-column-names-and-numbers)
-  * [Print the types of values observed in a specific column, along with the number of times each type is observed](#print-the-types-of-values-observed-in-a-specific-column-along-with-the-number-of-times-each-type-is-observed)
+  * [Print the values observed in a specific column, along with the number of times each value is observed](#print-the-values-observed-in-a-specific-column-along-with-the-number-of-times-each-value-is-observed)
   * [Print the number of lines exhibiting each distinct number of fields](#print-the-number-of-lines-exhibiting-each-distinct-number-of-fields)
   * [Print lines where certain fields contain values of interest](#print-lines-where-certain-fields-contain-values-of-interest)
   * [Write each row to a separate file named after the value in a specific column](#write-each-row-to-a-separate-file-named-after-the-value-in-a-specific-column)
