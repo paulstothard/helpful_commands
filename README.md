@@ -2,17 +2,6 @@
 
 <!-- toc -->
 
-- [Process multiple files](#process-multiple-files)
-  * [for loop](#for-loop)
-  * [while loop](#while-loop)
-  * [find with -exec](#find-with--exec)
-  * [find with xargs](#find-with-xargs)
-- [grep](#grep)
-  * [Count matches](#count-matches)
-  * [Get the line number of a match](#get-the-line-number-of-a-match)
-  * [Remove files that contain a match](#remove-files-that-contain-a-match)
-  * [Remove files that do not contain a match](#remove-files-that-do-not-contain-a-match)
-  * [Remove lines that match](#remove-lines-that-match)
 - [awk](#awk)
   * [Convert a CSV file to a FASTA file](#convert-a-csv-file-to-a-fasta-file)
   * [Print lines in file when a certain column contains a specific value](#print-lines-in-file-when-a-certain-column-contains-a-specific-value)
@@ -26,46 +15,7 @@
   * [Split a multi-FASTA file into separate files named according to the sequence title](#split-a-multi-fasta-file-into-separate-files-named-according-to-the-sequence-title)
   * [Print only specific columns, identified by name in the first row](#print-only-specific-columns-identified-by-name-in-the-first-row)
   * [Print only the lines coming after a certain starting line and before a certain ending line](#print-only-the-lines-coming-after-a-certain-starting-line-and-before-a-certain-ending-line)
-- [sed](#sed)
-  * [Print a specific line of a file](#print-a-specific-line-of-a-file)
-  * [Change filenames using a regular expression](#change-filenames-using-a-regular-expression)
-- [Perl](#perl)
-  * [Get a random sample of lines from a text file while excluding the header line](#get-a-random-sample-of-lines-from-a-text-file-while-excluding-the-header-line)
-  * [Convert a FASTA file to a CSV file with column names](#convert-a-fasta-file-to-a-csv-file-with-column-names)
-  * [Count the number of lines that match a regular expression](#count-the-number-of-lines-that-match-a-regular-expression)
-  * [Extract FASTA sequences from a file based on a file of sequence names of interest](#extract-fasta-sequences-from-a-file-based-on-a-file-of-sequence-names-of-interest)
-  * [Add a FASTA title to the start of a sequence in RAW format](#add-a-fasta-title-to-the-start-of-a-sequence-in-raw-format)
-  * [Remove commas located within quoted fields in a CSV file and create a tab-delimited file](#remove-commas-located-within-quoted-fields-in-a-csv-file-and-create-a-tab-delimited-file)
-  * [Replace tabs with commas and remove quotes in a CSV file](#replace-tabs-with-commas-and-remove-quotes-in-a-csv-file)
-- [find](#find)
-  * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
-  * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
-  * [Find large files](#find-large-files)
-- [sbatch](#sbatch)
-  * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
-- [Use Slurm to manage jobs](#use-slurm-to-manage-jobs)
-  * [View statistics related to the efficiency of resource usage of a completed job](#view-statistics-related-to-the-efficiency-of-resource-usage-of-a-completed-job)
-  * [View jobs](#view-jobs)
-  * [View running jobs](#view-running-jobs)
-  * [View pending jobs](#view-pending-jobs)
-  * [View detailed information for a specific job](#view-detailed-information-for-a-specific-job)
-  * [View accounting information for completed jobs](#view-accounting-information-for-completed-jobs)
-  * [Cancel a job](#cancel-a-job)
-  * [Cancel all jobs](#cancel-all-jobs)
-  * [Start an interactive session](#start-an-interactive-session)
-- [Share data with project group members](#share-data-with-project-group-members)
-- [Use Conda to install NGS tools](#use-conda-to-install-ngs-tools)
-  * [Install Miniconda](#install-miniconda)
-  * [Create an environment and install some programs](#create-an-environment-and-install-some-programs)
-  * [Deactivate an environment](#deactivate-an-environment)
-  * [Activate an environment](#activate-an-environment)
-  * [Add additional programs to an environment](#add-additional-programs-to-an-environment)
-  * [List environments](#list-environments)
-- [Run a program using Docker](#run-a-program-using-docker)
-  * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
-  * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
-  * [Annotate a bacterial genome using Prokka](#annotate-a-bacterial-genome-using-prokka)
-- [Use brew to install software](#use-brew-to-install-software)
+- [brew](#brew)
   * [List installed packages](#list-installed-packages)
   * [View available packages](#view-available-packages)
   * [Install a package](#install-a-package)
@@ -75,7 +25,22 @@
   * [List installed graphical applications](#list-installed-graphical-applications)
   * [View available graphical applications](#view-available-graphical-applications)
   * [Install a graphical application](#install-a-graphical-application)
-- [Version control with Git](#version-control-with-git)
+- [Conda](#conda)
+  * [Install Miniconda](#install-miniconda)
+  * [Create an environment and install some programs](#create-an-environment-and-install-some-programs)
+  * [Deactivate an environment](#deactivate-an-environment)
+  * [Activate an environment](#activate-an-environment)
+  * [Add additional programs to an environment](#add-additional-programs-to-an-environment)
+  * [List environments](#list-environments)
+- [Docker](#docker)
+  * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
+  * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
+  * [Annotate a bacterial genome using Prokka](#annotate-a-bacterial-genome-using-prokka)
+- [find](#find)
+  * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
+  * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
+  * [Find large files](#find-large-files)
+- [Git](#git)
   * [Create a new Git repository](#create-a-new-git-repository)
   * [Sync a repository to your local machine](#sync-a-repository-to-your-local-machine)
   * [Mark changed files to be included in the next commit](#mark-changed-files-to-be-included-in-the-next-commit)
@@ -89,17 +54,12 @@
   * [Specify files to ignore](#specify-files-to-ignore)
   * [Check the status of a working directory](#check-the-status-of-a-working-directory)
   * [Tag a release](#tag-a-release)
-- [vim](#vim)
-  * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
-  * [Search and replace newlines](#search-and-replace-newlines)
-  * [Compare two files](#compare-two-files)
-- [vcftools and bcftools](#vcftools-and-bcftools)
-  * [Extract variants from a region of interest and write to a new vcf file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
-  * [Extract variants from multiple regions of interest and write to a new vcf file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
-- [R](#r)
-  * [Compare two data sets to find differences](#compare-two-data-sets-to-find-differences)
-  * [Visualize the degree of overlap among gene sets](#visualize-the-degree-of-overlap-among-gene-sets)
-  * [Cluster gene lists based on overlap and identify shared genes](#cluster-gene-lists-based-on-overlap-and-identify-shared-genes)
+- [grep](#grep)
+  * [Count matches](#count-matches)
+  * [Get the line number of a match](#get-the-line-number-of-a-match)
+  * [Remove files that contain a match](#remove-files-that-contain-a-match)
+  * [Remove files that do not contain a match](#remove-files-that-do-not-contain-a-match)
+  * [Remove lines that match](#remove-lines-that-match)
 - [Other](#other)
   * [Obtain your public IP address and network information](#obtain-your-public-ip-address-and-network-information)
   * [Copy an ssh public key to another system](#copy-an-ssh-public-key-to-another-system)
@@ -121,138 +81,49 @@
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
   * [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
   * [Create a collection of MP3 files from a YouTube playlist](#create-a-collection-of-mp3-files-from-a-youtube-playlist)
+- [Perl](#perl)
+  * [Get a random sample of lines from a text file while excluding the header line](#get-a-random-sample-of-lines-from-a-text-file-while-excluding-the-header-line)
+  * [Convert a FASTA file to a CSV file with column names](#convert-a-fasta-file-to-a-csv-file-with-column-names)
+  * [Count the number of lines that match a regular expression](#count-the-number-of-lines-that-match-a-regular-expression)
+  * [Extract FASTA sequences from a file based on a file of sequence names of interest](#extract-fasta-sequences-from-a-file-based-on-a-file-of-sequence-names-of-interest)
+  * [Add a FASTA title to the start of a sequence in RAW format](#add-a-fasta-title-to-the-start-of-a-sequence-in-raw-format)
+  * [Remove commas located within quoted fields in a CSV file and create a tab-delimited file](#remove-commas-located-within-quoted-fields-in-a-csv-file-and-create-a-tab-delimited-file)
+  * [Replace tabs with commas and remove quotes in a CSV file](#replace-tabs-with-commas-and-remove-quotes-in-a-csv-file)
+  * [Sort sections in a Markdown file based on headings](#sort-sections-in-a-markdown-file-based-on-headings)
+- [Process multiple files](#process-multiple-files)
+  * [for loop](#for-loop)
+  * [while loop](#while-loop)
+  * [find with -exec](#find-with--exec)
+  * [find with xargs](#find-with-xargs)
+- [R](#r)
+  * [Compare two data sets to find differences](#compare-two-data-sets-to-find-differences)
+  * [Visualize the degree of overlap among gene sets](#visualize-the-degree-of-overlap-among-gene-sets)
+  * [Cluster gene lists based on overlap and identify shared genes](#cluster-gene-lists-based-on-overlap-and-identify-shared-genes)
+- [sbatch](#sbatch)
+  * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
+- [sed](#sed)
+  * [Print a specific line of a file](#print-a-specific-line-of-a-file)
+  * [Change filenames using a regular expression](#change-filenames-using-a-regular-expression)
+- [Share data with project group members](#share-data-with-project-group-members)
+- [Slurm](#slurm)
+  * [View statistics related to the efficiency of resource usage of a completed job](#view-statistics-related-to-the-efficiency-of-resource-usage-of-a-completed-job)
+  * [View jobs](#view-jobs)
+  * [View running jobs](#view-running-jobs)
+  * [View pending jobs](#view-pending-jobs)
+  * [View detailed information for a specific job](#view-detailed-information-for-a-specific-job)
+  * [View accounting information for completed jobs](#view-accounting-information-for-completed-jobs)
+  * [Cancel a job](#cancel-a-job)
+  * [Cancel all jobs](#cancel-all-jobs)
+  * [Start an interactive session](#start-an-interactive-session)
+- [vcftools and bcftools](#vcftools-and-bcftools)
+  * [Extract variants from a region of interest and write to a new vcf file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
+  * [Extract variants from multiple regions of interest and write to a new vcf file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
+- [vim](#vim)
+  * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
+  * [Search and replace newlines](#search-and-replace-newlines)
+  * [Compare two files](#compare-two-files)
 
 <!-- tocstop -->
-
-## Process multiple files
-
-### for loop
-
-Change all **.fasta** files in the current directory to **.fna** files:
-
-```bash
-for f in *.fasta; do new=`echo $f | sed 's/\(.*\)\.fasta/\1.fna/'`; mv "$f" "$new"; done
-```
-
-### while loop
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f"; done
-```
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" >> output.txt; done
-```
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
-```
-
-### find with -exec
-
-Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
-
-```bash
-find . -type f -name "*.fasta" -exec mv {} {}.fna \;
-```
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \;
-```
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \; > output.txt
-```
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$1.output.txt"' -- {} \;
-```
-
-### find with xargs
-
-Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
-
-```bash
-find . -type f -name "*.fasta" -print0 | xargs -0 -I{} mv {} {}.fna
-```
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {}
-```
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {} > output.txt
-```
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
-```
-
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files. Process up to **4** files in parallel:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
-```
-
-## grep
-
-### Count matches
-
-In this example the number of lines with a match to **>** is returned:
-
-```bash
-grep -c ">" input.fasta
-```
-
-### Get the line number of a match
-
-In this example the line numbers of lines with a match to **234829** are reported:
-
-```bash
-grep -n "234829" input.txt
-```
-
-### Remove files that contain a match
-
-In this example **.fasta** files are removed that contain the text **complete genome** on a single line:
-
-```bash
-grep -l "complete genome" *.fasta | xargs -I{} rm -f {}
-```
-
-### Remove files that do not contain a match
-
-In this example **.fasta** files are removed that do not contain the text **complete genome** on a single line:
-
-```bash
-grep -L "complete genome" *.fasta | xargs -I{} rm -f {}
-```
-
-### Remove lines that match
-
-Keep everything except lines starting with **#**:
-
-```bash
-grep -v '^#' input.txt > output.txt
-```
 
 ## awk
 
@@ -352,247 +223,69 @@ In this example the lines coming after a line starting with **IlmnID** and befor
 awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv > output.csv
 ```
 
-## sed
+## brew
 
-### Print a specific line of a file
-
-In this example line **26404**:
+### List installed packages
 
 ```bash
-sed -n "26404p" input.txt
+brew list
 ```
 
-### Change filenames using a regular expression
+### View available packages
 
-In this example **chr30** is replaced with **chrX**:
+To view packages available from the core tap via the Homebrew package manager for macOS:
+
+- [https://formulae.brew.sh/formula/](https://formulae.brew.sh/formula/)
+
+### Install a package
+
+In this example **parallel**:
 
 ```bash
-for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
+brew install parallel
 ```
 
-## Perl
+### Add a third-party repository
 
-### Get a random sample of lines from a text file while excluding the header line
-
-In this example a random sample of 20 lines is obtained:
+In this example **brewsci/bio** for bioinformatics software:
 
 ```bash
-tail -n +2 input.txt | perl -MList::Util -e 'print List::Util::shuffle <>' | head -n 20 > output.txt
+brew tap brewsci/bio
 ```
 
-### Convert a FASTA file to a CSV file with column names
+### Install directly from a third-party repository
+
+In this example **clustal-w** from **brewsci/bio**:
 
 ```bash
-cat input.fasta | perl -n -0777 -e 'BEGIN{print "SNP_Name,Sequence\n"}' -e 'while ($_ =~ m/^>([^\n]+)\n([^>]+)/gm) {$name = $1; $seq = $2; $seq =~s/\s//g; print $name . "," . $seq . "\n"}' > output.csv
+brew install brewsci/bio/clustal-w
 ```
 
-### Count the number of lines that match a regular expression
+### View packages available from brewsci/bio
+
+- [https://github.com/brewsci/homebrew-bio/tree/develop/Formula](https://github.com/brewsci/homebrew-bio/tree/develop/Formula)
+
+### List installed graphical applications
 
 ```bash
-perl -lne '$a++ if /\tyes\t/; END {print $a+0}' < input.txt
+brew cask list
 ```
 
-### Extract FASTA sequences from a file based on a file of sequence names of interest
+### View available graphical applications
 
-In this example the sequence names of interest are in the file `names.txt` and the FASTA sequences are in the file `input.fasta`:
+To view graphical applications available from the cask tap via the Homebrew package manager for macOS:
+
+- [https://formulae.brew.sh/cask/](https://formulae.brew.sh/cask/)
+
+### Install a graphical application 
+
+In this example the Firefox browser:
 
 ```bash
-cat names.txt | xargs -I{} perl -w -076 -e '$count = 0; open(SEQ, "<" . $ARGV[0]); while (<SEQ>) {if ($_ =~ m/\Q$ARGV[1]\E/) {$record = $_; $record =~ s/[\s>]+$//g; print ">$record\n"; $count = $count + 1;}} if ($count == 0) {print STDERR "No matches found for $ARGV[1]\n"} elsif ($count > 1) {print STDERR "Multiple matches found for $ARGV[1]\n"} close(SEQ);' input.fasta {} > output.fasta
+brew cask install firefox
 ```
 
-### Add a FASTA title to the start of a sequence in RAW format
-
-In this example the title **>KL1** is added to the beginning of the sequence in `KL1sequence.txt`:
-
-```bash
-perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
-```
-
-### Remove commas located within quoted fields in a CSV file and create a tab-delimited file
-
-```bash
-perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
-```
-
-### Replace tabs with commas and remove quotes in a CSV file
-
-```bash
-perl -p -e 's/\t/,/g;' -e 's/"//g' input.csv > output.csv
-```
-
-## find
-
-### Perform a series of commands on files returned by find
-
-In this example `$'...'` is used for quoting, as it can contain escaped single quotes, and **tail** is used to skip a header line, **awk** is used to count the number of occurrences of each category in column 3 and print the category and counts, and **sort** is used to sort the categories by count from largest to smallest with ties broken by sorting on category name:
-
-```bash
-find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
-```
-
-### Switch to the directory containing each file and execute a command
-
-The -execdir option instructs **find** to switch to the directory containing each matching file before executing the specified command. In this example the command creates a **.zip** file for each **.vcf** file that is found:
-
-```bash
-find . -name "*.vcf" -type f -execdir zip '{}.zip' '{}' \;
-```
-
-### Find large files
-
-The following reports the 10 largest files in the current directory or its subdirectories, sorted by size:
-
-```bash
-find . -type f -print0 | xargs -0 du -h | sort -hr | head -10
-```
-
-## sbatch
-
-### Count lines in compressed fastq files
-
-In this example the number of lines in several **.fastq.gz** files is quickly determined by submitting jobs to Slurm using sbatch.
-
-The naming scheme of the **.fastq.gz** files is as follows (the sample name is in the file name, for example **DG15B032198-1**):
-
-```
-HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz
-HI.5173.001.NEBNext_Index_12.DG15B032198-1_R2.fastq.gz
-HI.5173.002.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz
-HI.5173.002.NEBNext_Index_12.DG15B032198-1_R2.fastq.gz
-HI.5173.003.NEBNext_Index_14.DG15B032179-1_R1.fastq.gz
-HI.5173.003.NEBNext_Index_14.DG15B032179-1_R2.fastq.gz
-HI.5173.004.NEBNext_Index_14.DG15B032179-1_R1.fastq.gz
-HI.5173.004.NEBNext_Index_14.DG15B032179-1_R2.fastq.gz
-```
-
-First create a sbatch script called `fastq.gz.lines.sbatch` to run zcat and wc (used to count lines in a compressed file):
-
-```bash
-#!/bin/bash
-#SBATCH --account=def-someuser
-#SBATCH --ntasks=1
-#SBATCH --mem=1000M
-#SBATCH --time=0-0:30
-
-LINES="`zcat $1 | wc -l`"
-echo "$1 $LINES"
-```
-
-Then use the following commands to submit a job for each **.fastq.gz** file:
-
-```bash
-files=$(find . -name "*fastq.gz" -printf '%P\n')
-for f in $files
-do
-  command="sbatch -o ${f}.out -e ${f}.err fastq.gz.lines.sbatch $f"
-  echo "Submitting a job using the following command:"
-  echo "$command"
-  eval "$command"
-  sleep 1
-done
-```
-
-Each job should create two files for each input file, for example:
-
-```
-HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.out
-HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.err
-```
-
-The **.out** files will contain the name of the input file and the number of lines, for example:
-
-```
-HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz 229623444
-```
-
-To quickly check the **.err** files:
-
-```bash
-cat *.err | more
-```
-
-To add up the line counts for each sample using the R1 and R2 files:
-
-```bash
-cat *R1.fastq.gz.out | perl -nl -e 's/^.+?([^_\.]{10,})\S*\s*(\d+)/$1/g;' -e 'print $1 . "\t" . $2' | sort | awk '{a[$1]+=$2} END {for(i in a) print i,a[i]}' > line_counts_per_sample_R1.tab
-
-cat *R2.fastq.gz.out | perl -nl -e 's/^.+?([^_\.]{10,})\S*\s*(\d+)/$1/g;' -e 'print $1 . "\t" . $2' | sort | awk '{a[$1]+=$2} END {for(i in a) print i,a[i]}' > line_counts_per_sample_R2.tab
-```
-
-To compare the counts obtained using the R1 and R2 files:
-
-```bash
-diff line_counts_per_sample_R1.tab line_counts_per_sample_R2.tab
-```
-
-## Use Slurm to manage jobs
-
-### View statistics related to the efficiency of resource usage of a completed job
-
-```bash
-seff <jobid>
-```
-
-### View jobs
-
-```bash
-squeue -u <username>
-```
-
-### View running jobs
-
-```bash
-squeue -u <username> -t RUNNING
-```
-
-### View pending jobs
-
-```bash
-squeue -u <username> -t PENDING
-```
-
-### View detailed information for a specific job
-
-```bash
-scontrol show job -dd <jobid>
-```
-
-### View accounting information for completed jobs
-
-```bash
-sacct -s CD --format=JobID,JobName,MaxRSS,ReqMem,Elapsed,End,State,NodeList
-```
-
-### Cancel a job
-
-```bash
-scancel <jobid>
-```
-
-### Cancel all jobs
-
-```bash
-scancel -u <username>
-```
-
-### Start an interactive session
-
-```bash
-salloc --time=2:0:0 --ntasks=1 --mem-per-cpu=2000M --account=def-someuser
-```
-
-## Share data with project group members
-
-```bash
-cd projects/some_project
-chmod g+x my_dir
-cd my_dir
-mkdir shared_dir
-chmod g+x shared_dir
-chmod +t shared_dir
-```
-
-## Use Conda to install NGS tools
+## Conda
 
 ### Install Miniconda
 
@@ -640,7 +333,7 @@ conda install -y -c bioconda -c conda-forge picard
 conda info --envs
 ```
 
-## Run a program using Docker
+## Docker
 
 ### Perform a sequence comparison using legacy BLAST
 
@@ -722,69 +415,33 @@ Create a container from the image and run **prokka** to annotate the sequence. I
 docker run --rm -v $(pwd):/dir -w /dir staphb/prokka:latest prokka sequence.fasta --genus --cpus 4
 ```
 
-## Use brew to install software
+## find
 
-### List installed packages
+### Perform a series of commands on files returned by find
 
-```bash
-brew list
-```
-
-### View available packages
-
-To view packages available from the core tap via the Homebrew package manager for macOS:
-
-- [https://formulae.brew.sh/formula/](https://formulae.brew.sh/formula/)
-
-### Install a package
-
-In this example **parallel**:
+In this example `$'...'` is used for quoting, as it can contain escaped single quotes, and **tail** is used to skip a header line, **awk** is used to count the number of occurrences of each category in column 3 and print the category and counts, and **sort** is used to sort the categories by count from largest to smallest with ties broken by sorting on category name:
 
 ```bash
-brew install parallel
+find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
 ```
 
-### Add a third-party repository
+### Switch to the directory containing each file and execute a command
 
-In this example **brewsci/bio** for bioinformatics software:
+The -execdir option instructs **find** to switch to the directory containing each matching file before executing the specified command. In this example the command creates a **.zip** file for each **.vcf** file that is found:
 
 ```bash
-brew tap brewsci/bio
+find . -name "*.vcf" -type f -execdir zip '{}.zip' '{}' \;
 ```
 
-### Install directly from a third-party repository
+### Find large files
 
-In this example **clustal-w** from **brewsci/bio**:
+The following reports the 10 largest files in the current directory or its subdirectories, sorted by size:
 
 ```bash
-brew install brewsci/bio/clustal-w
+find . -type f -print0 | xargs -0 du -h | sort -hr | head -10
 ```
 
-### View packages available from brewsci/bio
-
-- [https://github.com/brewsci/homebrew-bio/tree/develop/Formula](https://github.com/brewsci/homebrew-bio/tree/develop/Formula)
-
-### List installed graphical applications
-
-```bash
-brew cask list
-```
-
-### View available graphical applications
-
-To view graphical applications available from the cask tap via the Homebrew package manager for macOS:
-
-- [https://formulae.brew.sh/cask/](https://formulae.brew.sh/cask/)
-
-### Install a graphical application 
-
-In this example the Firefox browser:
-
-```bash
-brew cask install firefox
-```
-
-## Version control with Git
+## Git
 
 See [GitHub's Git documentation](https://help.github.com/en) for more information
 
@@ -991,152 +648,47 @@ git push origin v2.0.0
 
 Information on how to choose version numbers if available [here](https://semver.org).
 
-## vim
+## grep
 
-### Search and replace across multiple files
+### Count matches
 
-In this example search and replace operations are performed on all the **.html** files in a directory. First, open the files in multiple buffers in vim:
-
-```bash
-vim *.html
-```
-
-Then use **argdo** to perform a search and replace across all the files. In this example blank lines are removed:
-
-```
-:argdo %s/^$//ge
-```
-
-In this example the text between `<p class="lastupdated">` and `</p>` are replaced with the current date. Note the use of **\zs** and **\ze** so that the text between those tags is replaced and not the tags themselves:
-
-```
-:argdo %s/<p class="lastupdated">\zs[^<]*\ze<\/p>/\=strftime("%c")/ge
-```
-
-### Search and replace newlines
-
-In replacement syntax use **\r** instead of **\n** to represent newlines. For example, to replace commas with newlines:
-
-```
-:%s/,/\r/g 
-```
-
-### Compare two files
+In this example the number of lines with a match to **>** is returned:
 
 ```bash
-vimdiff file1 file2 
+grep -c ">" input.fasta
 ```
 
-## vcftools and bcftools
+### Get the line number of a match
 
-### Extract variants from a region of interest and write to a new vcf file
-
-Note that if the vcf file is gzip compressed (i.e. has a **.gz** extension), use `--gzvcf` instead of `--vcf`.
+In this example the line numbers of lines with a match to **234829** are reported:
 
 ```bash
-vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 --recode --recode-INFO-all
+grep -n "234829" input.txt
 ```
 
-### Extract variants from multiple regions of interest and write to a new vcf file
+### Remove files that contain a match
+
+In this example **.fasta** files are removed that contain the text **complete genome** on a single line:
 
 ```bash
-bgzip Chr5.vcf
-tabix -fp vcf Chr5.vcf.gz 
-bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
-``` 
-
-## R
-
-### Compare two data sets to find differences
-
-In this example SNP location information assigned by two different algorithms is compared using the **compareDF** package. The two data sets (position information) generated by the differing algorithms are read from files. SNP name is used to match rows across the data sets, and then the 'chromosome' and 'position' are compared. SNP records for which 'chromosome' or 'position' differ between the data sets are written to an Excel file:
-
-```r
-library(compareDF)
-
-algorithm1_results <- read.csv2("algorithm1_results.csv", comment.char = "#", sep = ",", header = TRUE)
-algorithm1_results_snp_positions <- data.frame(algorithm1_results$marker_name, algorithm1_results$chromosome, algorithm1_results$position)
-colnames(algorithm1_results_snp_positions) <- c('SNP_name', 'chromosome', 'position')
-
-algorithm2_results <- read.csv2("algorithm2_results.csv", comment.char = "#", sep = ",", header = TRUE)
-algorithm2_results_snp_positions <- data.frame(algorithm2_results$SNP_name, algorithm2_results$chromosome, algorithm2_results$position)
-colnames(algorithm2_results_snp_positions) <- c('SNP_name', 'chromosome', 'position')
-
-#compare positions between data sets, matching based on SNP_name
-ctable = compare_df(algorithm1_results_snp_positions, algorithm2_results_snp_positions, c('SNP_name'))
-output_file <- paste("positions", "algorithm1_results", "vs", paste("algorithm2_results", ".xlsx", sep=""), sep="_")
-create_output_table(ctable, output_type="xlsx", file_name=output_file, limit=1000000)
+grep -l "complete genome" *.fasta | xargs -I{} rm -f {}
 ```
 
-### Visualize the degree of overlap among gene sets
+### Remove files that do not contain a match
 
-In this example, an UpSet plot is used to visualize the overlap among all combinations of gene lists in the **gene_lists** directory. In this directory each list is given as a separate **.txt** file, with a single header row and one gene name or ID per row, for example:
+In this example **.fasta** files are removed that do not contain the text **complete genome** on a single line:
 
-```
-Gene name or identifier
-ENSG00000264954.2
-ENSG00000224383.8
-CCDS54157.1.1
+```bash
+grep -L "complete genome" *.fasta | xargs -I{} rm -f {}
 ```
 
-The UpSet plot is generated using the **UpSetR** package:
+### Remove lines that match
 
-```r
-library(UpSetR)
+Keep everything except lines starting with **#**:
 
-setwd('/path/to/gene_lists')
-filenames <- list.files(pattern = "*.txt", full.names = FALSE)
-
-#create list of character vectors, each named after the source filename
-#assumes each file has single header line (skip = 1)
-gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
-
-#remove underscores from vector names
-names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
-
-#remove file extension from vector names
-names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
-
-upset(fromList(gl), nsets = length(gl), order.by = "freq")
+```bash
+grep -v '^#' input.txt > output.txt
 ```
-
-The resulting plot displays the number of items shared among all possible combinations of overlapping sets in an easy-to-interpret and parse manner (unlike a traditional Venn diagram).
-
-### Cluster gene lists based on overlap and identify shared genes
-
-In this example a heatmap is used to visualize gene presence and absence for all gene lists in the **gene_lists** directory. In this directory each list is given as a separate **.txt** file, with a single header row and one gene name or ID per row, for example:
-
-```
-Gene name or identifier
-ENSG00000264954.2
-ENSG00000224383.8
-CCDS54157.1.1
-```
-
-The following uses the **purrr** and **RVenn** packages:
-
-```r
-library(purrr)
-library(RVenn)
-
-setwd('/path/to/gene_lists')
-filenames <- list.files(pattern = "*.txt", full.names = FALSE)
-
-#create list of character vectors, each named after the source filename
-#assumes each file has single header line (skip = 1)
-gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
-
-#remove underscores from vector names
-names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
-
-#remove file extension from vector names
-names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
-
-venn = Venn(gl)
-setmap(venn, element_fontsize = 4, set_fontsize = 4)
-```
-
-The resulting heatmap displays genes and gene lists as rows and columns, respectively. The columns and rows are arranged so that genes and gene lists with similar presence / absence patterns are grouped together. 
 
 ## Other
 
@@ -1383,4 +935,459 @@ The following requires **youtube-dl** and **ffmpeg**:
 
 ```bash
 youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass https://www.youtube.com/playlist?list=PL92319EECC1754042
+```
+
+## Perl
+
+### Get a random sample of lines from a text file while excluding the header line
+
+In this example a random sample of 20 lines is obtained:
+
+```bash
+tail -n +2 input.txt | perl -MList::Util -e 'print List::Util::shuffle <>' | head -n 20 > output.txt
+```
+
+### Convert a FASTA file to a CSV file with column names
+
+```bash
+cat input.fasta | perl -n -0777 -e 'BEGIN{print "SNP_Name,Sequence\n"}' -e 'while ($_ =~ m/^>([^\n]+)\n([^>]+)/gm) {$name = $1; $seq = $2; $seq =~s/\s//g; print $name . "," . $seq . "\n"}' > output.csv
+```
+
+### Count the number of lines that match a regular expression
+
+```bash
+perl -lne '$a++ if /\tyes\t/; END {print $a+0}' < input.txt
+```
+
+### Extract FASTA sequences from a file based on a file of sequence names of interest
+
+In this example the sequence names of interest are in the file `names.txt` and the FASTA sequences are in the file `input.fasta`:
+
+```bash
+cat names.txt | xargs -I{} perl -w -076 -e '$count = 0; open(SEQ, "<" . $ARGV[0]); while (<SEQ>) {if ($_ =~ m/\Q$ARGV[1]\E/) {$record = $_; $record =~ s/[\s>]+$//g; print ">$record\n"; $count = $count + 1;}} if ($count == 0) {print STDERR "No matches found for $ARGV[1]\n"} elsif ($count > 1) {print STDERR "Multiple matches found for $ARGV[1]\n"} close(SEQ);' input.fasta {} > output.fasta
+```
+
+### Add a FASTA title to the start of a sequence in RAW format
+
+In this example the title **>KL1** is added to the beginning of the sequence in `KL1sequence.txt`:
+
+```bash
+perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
+```
+
+### Remove commas located within quoted fields in a CSV file and create a tab-delimited file
+
+```bash
+perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
+```
+
+### Replace tabs with commas and remove quotes in a CSV file
+
+```bash
+perl -p -e 's/\t/,/g;' -e 's/"//g' input.csv > output.csv
+```
+
+### Sort sections in a Markdown file based on headings
+
+```bash
+perl -0777 -ne '(undef,@paragraphs) = split /^##(?=[^##])/m; print map {"##$_"} sort { "\U$a" cmp "\U$b" } @paragraphs;' input.md
+```
+
+## Process multiple files
+
+### for loop
+
+Change all **.fasta** files in the current directory to **.fna** files:
+
+```bash
+for f in *.fasta; do new=`echo $f | sed 's/\(.*\)\.fasta/\1.fna/'`; mv "$f" "$new"; done
+```
+
+### while loop
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f"; done
+```
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" >> output.txt; done
+```
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
+```
+
+### find with -exec
+
+Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
+
+```bash
+find . -type f -name "*.fasta" -exec mv {} {}.fna \;
+```
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \;
+```
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \; > output.txt
+```
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$1.output.txt"' -- {} \;
+```
+
+### find with xargs
+
+Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
+
+```bash
+find . -type f -name "*.fasta" -print0 | xargs -0 -I{} mv {} {}.fna
+```
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {}
+```
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {} > output.txt
+```
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
+```
+
+Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files. Process up to **4** files in parallel:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
+```
+
+## R
+
+### Compare two data sets to find differences
+
+In this example SNP location information assigned by two different algorithms is compared using the **compareDF** package. The two data sets (position information) generated by the differing algorithms are read from files. SNP name is used to match rows across the data sets, and then the 'chromosome' and 'position' are compared. SNP records for which 'chromosome' or 'position' differ between the data sets are written to an Excel file:
+
+```r
+library(compareDF)
+
+algorithm1_results <- read.csv2("algorithm1_results.csv", comment.char = "#", sep = ",", header = TRUE)
+algorithm1_results_snp_positions <- data.frame(algorithm1_results$marker_name, algorithm1_results$chromosome, algorithm1_results$position)
+colnames(algorithm1_results_snp_positions) <- c('SNP_name', 'chromosome', 'position')
+
+algorithm2_results <- read.csv2("algorithm2_results.csv", comment.char = "#", sep = ",", header = TRUE)
+algorithm2_results_snp_positions <- data.frame(algorithm2_results$SNP_name, algorithm2_results$chromosome, algorithm2_results$position)
+colnames(algorithm2_results_snp_positions) <- c('SNP_name', 'chromosome', 'position')
+
+#compare positions between data sets, matching based on SNP_name
+ctable = compare_df(algorithm1_results_snp_positions, algorithm2_results_snp_positions, c('SNP_name'))
+output_file <- paste("positions", "algorithm1_results", "vs", paste("algorithm2_results", ".xlsx", sep=""), sep="_")
+create_output_table(ctable, output_type="xlsx", file_name=output_file, limit=1000000)
+```
+
+### Visualize the degree of overlap among gene sets
+
+In this example, an UpSet plot is used to visualize the overlap among all combinations of gene lists in the **gene_lists** directory. In this directory each list is given as a separate **.txt** file, with a single header row and one gene name or ID per row, for example:
+
+```
+Gene name or identifier
+ENSG00000264954.2
+ENSG00000224383.8
+CCDS54157.1.1
+```
+
+The UpSet plot is generated using the **UpSetR** package:
+
+```r
+library(UpSetR)
+
+setwd('/path/to/gene_lists')
+filenames <- list.files(pattern = "*.txt", full.names = FALSE)
+
+#create list of character vectors, each named after the source filename
+#assumes each file has single header line (skip = 1)
+gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
+
+#remove underscores from vector names
+names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
+
+#remove file extension from vector names
+names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
+
+upset(fromList(gl), nsets = length(gl), order.by = "freq")
+```
+
+The resulting plot displays the number of items shared among all possible combinations of overlapping sets in an easy-to-interpret and parse manner (unlike a traditional Venn diagram).
+
+### Cluster gene lists based on overlap and identify shared genes
+
+In this example a heatmap is used to visualize gene presence and absence for all gene lists in the **gene_lists** directory. In this directory each list is given as a separate **.txt** file, with a single header row and one gene name or ID per row, for example:
+
+```
+Gene name or identifier
+ENSG00000264954.2
+ENSG00000224383.8
+CCDS54157.1.1
+```
+
+The following uses the **purrr** and **RVenn** packages:
+
+```r
+library(purrr)
+library(RVenn)
+
+setwd('/path/to/gene_lists')
+filenames <- list.files(pattern = "*.txt", full.names = FALSE)
+
+#create list of character vectors, each named after the source filename
+#assumes each file has single header line (skip = 1)
+gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
+
+#remove underscores from vector names
+names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
+
+#remove file extension from vector names
+names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
+
+venn = Venn(gl)
+setmap(venn, element_fontsize = 4, set_fontsize = 4)
+```
+
+The resulting heatmap displays genes and gene lists as rows and columns, respectively. The columns and rows are arranged so that genes and gene lists with similar presence / absence patterns are grouped together. 
+
+## sbatch
+
+### Count lines in compressed fastq files
+
+In this example the number of lines in several **.fastq.gz** files is quickly determined by submitting jobs to Slurm using sbatch.
+
+The naming scheme of the **.fastq.gz** files is as follows (the sample name is in the file name, for example **DG15B032198-1**):
+
+```
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R2.fastq.gz
+HI.5173.002.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz
+HI.5173.002.NEBNext_Index_12.DG15B032198-1_R2.fastq.gz
+HI.5173.003.NEBNext_Index_14.DG15B032179-1_R1.fastq.gz
+HI.5173.003.NEBNext_Index_14.DG15B032179-1_R2.fastq.gz
+HI.5173.004.NEBNext_Index_14.DG15B032179-1_R1.fastq.gz
+HI.5173.004.NEBNext_Index_14.DG15B032179-1_R2.fastq.gz
+```
+
+First create a sbatch script called `fastq.gz.lines.sbatch` to run zcat and wc (used to count lines in a compressed file):
+
+```bash
+#!/bin/bash
+#SBATCH --account=def-someuser
+#SBATCH --ntasks=1
+#SBATCH --mem=1000M
+#SBATCH --time=0-0:30
+
+LINES="`zcat $1 | wc -l`"
+echo "$1 $LINES"
+```
+
+Then use the following commands to submit a job for each **.fastq.gz** file:
+
+```bash
+files=$(find . -name "*fastq.gz" -printf '%P\n')
+for f in $files
+do
+  command="sbatch -o ${f}.out -e ${f}.err fastq.gz.lines.sbatch $f"
+  echo "Submitting a job using the following command:"
+  echo "$command"
+  eval "$command"
+  sleep 1
+done
+```
+
+Each job should create two files for each input file, for example:
+
+```
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.out
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.err
+```
+
+The **.out** files will contain the name of the input file and the number of lines, for example:
+
+```
+HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz 229623444
+```
+
+To quickly check the **.err** files:
+
+```bash
+cat *.err | more
+```
+
+To add up the line counts for each sample using the R1 and R2 files:
+
+```bash
+cat *R1.fastq.gz.out | perl -nl -e 's/^.+?([^_\.]{10,})\S*\s*(\d+)/$1/g;' -e 'print $1 . "\t" . $2' | sort | awk '{a[$1]+=$2} END {for(i in a) print i,a[i]}' > line_counts_per_sample_R1.tab
+
+cat *R2.fastq.gz.out | perl -nl -e 's/^.+?([^_\.]{10,})\S*\s*(\d+)/$1/g;' -e 'print $1 . "\t" . $2' | sort | awk '{a[$1]+=$2} END {for(i in a) print i,a[i]}' > line_counts_per_sample_R2.tab
+```
+
+To compare the counts obtained using the R1 and R2 files:
+
+```bash
+diff line_counts_per_sample_R1.tab line_counts_per_sample_R2.tab
+```
+
+## sed
+
+### Print a specific line of a file
+
+In this example line **26404**:
+
+```bash
+sed -n "26404p" input.txt
+```
+
+### Change filenames using a regular expression
+
+In this example **chr30** is replaced with **chrX**:
+
+```bash
+for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
+```
+
+## Share data with project group members
+
+```bash
+cd projects/some_project
+chmod g+x my_dir
+cd my_dir
+mkdir shared_dir
+chmod g+x shared_dir
+chmod +t shared_dir
+```
+
+## Slurm
+
+### View statistics related to the efficiency of resource usage of a completed job
+
+```bash
+seff <jobid>
+```
+
+### View jobs
+
+```bash
+squeue -u <username>
+```
+
+### View running jobs
+
+```bash
+squeue -u <username> -t RUNNING
+```
+
+### View pending jobs
+
+```bash
+squeue -u <username> -t PENDING
+```
+
+### View detailed information for a specific job
+
+```bash
+scontrol show job -dd <jobid>
+```
+
+### View accounting information for completed jobs
+
+```bash
+sacct -s CD --format=JobID,JobName,MaxRSS,ReqMem,Elapsed,End,State,NodeList
+```
+
+### Cancel a job
+
+```bash
+scancel <jobid>
+```
+
+### Cancel all jobs
+
+```bash
+scancel -u <username>
+```
+
+### Start an interactive session
+
+```bash
+salloc --time=2:0:0 --ntasks=1 --mem-per-cpu=2000M --account=def-someuser
+```
+
+## vcftools and bcftools
+
+### Extract variants from a region of interest and write to a new vcf file
+
+Note that if the vcf file is gzip compressed (i.e. has a **.gz** extension), use `--gzvcf` instead of `--vcf`.
+
+```bash
+vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 --recode --recode-INFO-all
+```
+
+### Extract variants from multiple regions of interest and write to a new vcf file
+
+```bash
+bgzip Chr5.vcf
+tabix -fp vcf Chr5.vcf.gz 
+bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
+``` 
+
+## vim
+
+### Search and replace across multiple files
+
+In this example search and replace operations are performed on all the **.html** files in a directory. First, open the files in multiple buffers in vim:
+
+```bash
+vim *.html
+```
+
+Then use **argdo** to perform a search and replace across all the files. In this example blank lines are removed:
+
+```
+:argdo %s/^$//ge
+```
+
+In this example the text between `<p class="lastupdated">` and `</p>` are replaced with the current date. Note the use of **\zs** and **\ze** so that the text between those tags is replaced and not the tags themselves:
+
+```
+:argdo %s/<p class="lastupdated">\zs[^<]*\ze<\/p>/\=strftime("%c")/ge
+```
+
+### Search and replace newlines
+
+In replacement syntax use **\r** instead of **\n** to represent newlines. For example, to replace commas with newlines:
+
+```
+:%s/,/\r/g 
+```
+
+### Compare two files
+
+```bash
+vimdiff file1 file2 
 ```
