@@ -99,6 +99,9 @@
   * [Compare two data sets to find differences](#compare-two-data-sets-to-find-differences)
   * [Visualize the degree of overlap among gene sets](#visualize-the-degree-of-overlap-among-gene-sets)
   * [Cluster gene lists based on overlap and identify shared genes](#cluster-gene-lists-based-on-overlap-and-identify-shared-genes)
+  * [Transpose a data frame](#transpose-a-data-frame)
+  * [Split two-allele genotypes into two columns](#split-two-allele-genotypes-into-two-columns)
+  * [Split multi-locus genotype strings into multiple columns and decode genotypes](#split-multi-locus-genotype-strings-into-multiple-columns-and-decode-genotypes)
 - [sbatch](#sbatch)
   * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
 - [sed](#sed)
@@ -1173,6 +1176,141 @@ setmap(venn, element_fontsize = 4, set_fontsize = 4)
 ```
 
 The resulting heatmap displays genes and gene lists as rows and columns, respectively. The columns and rows are arranged so that genes and gene lists with similar presence / absence patterns are grouped together. 
+
+### Transpose a data frame
+
+To convert this:
+
+```
+snp                 sample1  sample2
+ABCA12              AA       AA
+APAF1               CC       CC
+ARS-BFGL-BAC-10172  GG       AG
+ARS-BFGL-BAC-1020   AA       GG
+```
+
+To this:
+
+```
+snp      ABCA12  APAF1  ARS-BFGL-BAC-10172  ARS-BFGL-BAC-1020
+sample1  AA      CC     GG                  AA
+sample2  AA      CC     AG                  GG
+```
+
+Use this:
+
+```r
+library(dplyr)
+library(tidyr)
+library(janitor)
+
+#prepare sample data frame
+snp <- c('ABCA12', 'APAF1', 'ARS-BFGL-BAC-10172', 'ARS-BFGL-BAC-1020')
+sample1 <- c('AA', 'CC', 'GG', 'AA')
+sample2 <- c('AA', 'CC', 'AG', 'GG')
+genotypes <- data.frame(snp, sample1, sample2)
+
+genotypes %>%
+  tibble::rownames_to_column() %>%  
+  pivot_longer(-rowname) %>% 
+  pivot_wider(names_from=rowname, values_from=value) ->
+  genotypes_transposed
+  
+genotypes_transposed %>%
+  row_to_names(row_number = 1) ->
+  genotypes_transposed_with_column_names
+  
+write.table(genotypes_transposed_with_column_names, file = "genotypes_transposed_with_column_names.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+```
+
+### Split two-allele genotypes into two columns
+
+To convert this:
+
+```
+sample   ABCA12  APAF1  ARS-BFGL-BAC-10172  ARS-BFGL-BAC-1020
+sample1  AA      CC     GG                  AA
+sample2  AA      CC     AG                  GG
+```
+
+To this:
+
+```
+sample   ABCA12_1  ABCA12_2  APAF1_1  APAF1_2  ARS-BFGL-BAC-10172_1  ARS-BFGL-BAC-10172_2  ARS-BFGL-BAC-1020_1  ARS-BFGL-BAC-1020_2
+sample1  A         A         C        C        G                     G                     A                    A
+sample2  A         A         C        C        A                     G                     G                    G
+```
+
+Use this:
+
+```r
+library(dplyr)
+library(tidyr)
+
+#prepare sample data frame
+sample <- c('sample1', 'sample2')
+ABCA12 <- c('AA', 'AA')
+APAF1 <- c('CC', 'CC')
+ARS-BFGL-BAC-10172 <- c('GG', 'AG')
+ARS-BFGL-BAC-1020 <- c('AA', 'GG')
+genotypes <- data.frame(sample, ABCA12, APAF1, ARS-BFGL-BAC-10172, ARS-BFGL-BAC-1020)
+
+#[-1] prevents first column from being split
+for(column_name in names(genotypes)[-1]){
+  genotypes %>%
+    separate(column_name, c(paste(column_name, "1", sep = "_"), paste(column_name, "2", sep = "_")), sep = 1) ->
+    genotypes_split
+}
+
+write.table(genotypes_split, file = "genotypes_split.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+```
+
+### Split multi-locus genotype strings into multiple columns and decode genotypes
+
+To convert this:
+
+```
+sample          alleles
+HOCANF12689774  1000112112
+HOCANF12689787  2011112012
+HOCANF12689790  1011002122
+```
+
+To this:
+
+```
+sample          Hapmap43437-BTA-101873  ARS-BFGL-NGS-16466  Hapmap34944-BES1_Contig627_1906  ARS-BFGL-NGS-98142  Hapmap53946-rs29015852  ARS-BFGL-NGS-114208  ARS-BFGL-NGS-66449  ARS-BFGL-BAC-32770  ARS-BFGL-NGS-65067  ARS-BFGL-BAC-32722
+HOCANF12689774  AB                      BB                  BB                               BB                  AB                      AB                   AA                  AB                  AB                  AA
+HOCANF12689787  AA                      BB                  AB                               AB                  AB                      AB                   AA                  BB                  AB                  AA
+HOCANF12689790  AB                      BB                  AB                               AB                  BB                      BB                   AA                  AB                  AA                  AA
+```
+
+Use this:
+
+```r
+library(dplyr)
+library(tidyr)
+
+#prepare sample data frame
+sample <- c('HOCANF12689774', 'HOCANF12689787', 'HOCANF12689790')
+alleles <- c('1000112112', '2011112012', '1011002122')
+genotypes <- data.frame(sample, alleles)
+
+#vector of snp names
+snps <- c('Hapmap43437-BTA-101873', 'ARS-BFGL-NGS-16466', 'Hapmap34944-BES1_Contig627_1906', 'ARS-BFGL-NGS-98142', 'Hapmap53946-rs29015852', 'ARS-BFGL-NGS-114208', 'ARS-BFGL-NGS-66449', 'ARS-BFGL-BAC-32770', 'ARS-BFGL-NGS-65067', 'ARS-BFGL-BAC-32722')
+
+genotypes_one_column_per_snp <- separate(genotypes, col = alleles, sep = "(?<=\\d)", into = snps)
+
+#change both instances of 'sample' to match name of first column
+genotypes_one_column_per_snp_decoded = reshape2::dcast(
+  dplyr::mutate(
+    reshape2::melt(genotypes_one_column_per_snp, id.var = "sample"),
+    value=plyr::mapvalues(
+      value, c("0", "1", "2"), c("BB", "AB", "AA"))
+  ),sample~variable)
+
+write.table(genotypes_one_column_per_snp_decoded, file = "genotypes_one_column_per_snp_decoded.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+```
 
 ## sbatch
 
