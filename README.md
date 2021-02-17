@@ -77,8 +77,13 @@
   * [Convert an HTML file to a PDF file](#convert-an-html-file-to-a-pdf-file)
   * [Convert a website to a PDF file](#convert-a-website-to-a-pdf-file)
   * [Convert an HTML file to a PNG file](#convert-an-html-file-to-a-png-file)
+  * [Crop an image and add a white border](#crop-an-image-and-add-a-white-border)
+  * [Resize an image](#resize-an-image)
   * [Format a CSV file into columns and examine its content](#format-a-csv-file-into-columns-and-examine-its-content)
+  * [Format code](#format-code)
+  * [Create PowerPoint slides from a Markdown file](#create-powerpoint-slides-from-a-markdown-file)
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
+  * [Record your terminal to an animated GIF](#record-your-terminal-to-an-animated-gif)
   * [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
   * [Create a collection of MP3 files from a YouTube playlist](#create-a-collection-of-mp3-files-from-a-youtube-playlist)
 - [Perl](#perl)
@@ -90,6 +95,7 @@
   * [Remove commas located within quoted fields in a CSV file and create a tab-delimited file](#remove-commas-located-within-quoted-fields-in-a-csv-file-and-create-a-tab-delimited-file)
   * [Replace tabs with commas and remove quotes in a CSV file](#replace-tabs-with-commas-and-remove-quotes-in-a-csv-file)
   * [Sort sections in a Markdown file based on headings](#sort-sections-in-a-markdown-file-based-on-headings)
+  * [Format Perl code](#format-perl-code)
 - [Process multiple files](#process-multiple-files)
   * [for loop](#for-loop)
   * [while loop](#while-loop)
@@ -118,6 +124,14 @@
   * [Cancel a job](#cancel-a-job)
   * [Cancel all jobs](#cancel-all-jobs)
   * [Start an interactive session](#start-an-interactive-session)
+- [tmux](#tmux)
+  * [Start a tmux session](#start-a-tmux-session)
+  * [Detach a tmux session](#detach-a-tmux-session)
+  * [List tmux sessions](#list-tmux-sessions)
+  * [Join a tmux session](#join-a-tmux-session)
+  * [Create a multi-pane tmux session](#create-a-multi-pane-tmux-session)
+  * [Navigate between tmux panes](#navigate-between-tmux-panes)
+  * [Kill a tmux session](#kill-a-tmux-session)
 - [vcftools and bcftools](#vcftools-and-bcftools)
   * [Extract variants from a region of interest and write to a new vcf file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
   * [Extract variants from multiple regions of interest and write to a new vcf file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
@@ -864,11 +878,242 @@ The following uses **wkhtmltoimage**:
 wkhtmltoimage -f png http://google.com google.png
 ```
 
+Another approach, which may work better for complex web sites, is to use **pageres**. The following creates an image that is 4485 pixels wide (5 * 897):
+
+```bash
+pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
+```
+
+### Crop an image and add a white border
+
+The following uses **imagemagick** to removes any edges that are exactly the same color as the corner pixels. A 30-pixel white border is then added to the sides and the top and bottom:
+
+```bash
+convert input.png -trim -bordercolor White -border 30x30 output.png
+```
+
+### Resize an image 
+
+The following uses **imagemagick** to scale the image so that its width is 4000 pixels:
+
+```bash
+convert input.png -resize 4000 output.png
+```
+
 ### Format a CSV file into columns and examine its content
 
 ```bash
 cat data.csv | perl -pe 's/((?<=,)|(?<=^)),/ ,/g;' | column -t -s, | less -S
 ```
+
+### Format code
+
+The Prettier program supports many languages. The following command uses the `--write` option to reformat files in-place:
+
+```bash
+prettier --write "*html"
+```
+
+### Create PowerPoint slides from a Markdown file
+
+Pandoc can be used to generate PowerPoint slides. The following Markdown text describes several slides with notes:
+
+````
+% Presentation Title
+% Your name here
+% Add the date here
+
+# A Section title
+
+## Slide title
+
+Single bulleted list:
+
+- list item
+- list item
+- list item
+
+::: notes
+
+Speaker notes go here
+
+:::
+
+## Two-column slide with image on right
+
+:::::::::::::: {.columns}
+::: {.column width="50%"}
+Left column:
+
+- Bullet
+- Bullet
+- Bullet
+
+:::
+::: {.column width="50%"}
+![Image caption](image_file.png)
+:::
+::::::::::::::
+
+::: notes
+
+Speaker notes go here
+
+:::
+
+## Slide with image
+
+![Image caption](image_file.png)
+
+::: notes
+
+Speaker notes go here
+
+:::
+
+## Slide with table
+
+| Heading | Heading | Heading | Heading | Heading |
+| --- | --- | --- | --- | --- |
+| Cell | Cell | Cell | Cell | Cell |
+| Cell | Cell | Cell | Cell | Cell |
+| Cell | Cell | Cell | Cell | Cell |
+| Cell | Cell | Cell | Cell | Cell |
+| Cell | Cell | Cell | Cell | Cell |
+
+::: notes
+
+Speaker notes go here
+
+:::
+
+## Bullet lists with indenting
+
+- Bullets work
+  - Indenting works
+  - Indenting works
+    - More indenting works
+- Bullets work
+
+## Ordered lists with indenting
+
+1. Ordered lists work
+   1. Sub-lists in ordered lists
+   1. Sub-lists in ordered lists
+      1. Sub-lists in ordered lists
+   1. Sub-lists in ordered lists
+1. Next item
+
+::: notes
+
+Speaker notes go here
+
+:::
+
+## Two columns each with lists
+
+:::::::::::::: {.columns}
+::: {.column width="50%"}
+Left column:
+
+- Bullets work
+  - Indenting works
+  - Indenting works
+    - More indenting works
+- Bullets work
+
+:::
+::: {.column width="50%"}
+Right column:
+
+1. Ordered lists work
+   1. Sub-lists in ordered lists
+   1. Sub-lists in ordered lists
+      1. Sub-lists in ordered lists
+   1. Sub-lists in ordered lists
+1. Next item
+
+:::
+::::::::::::::
+
+::: notes
+
+Speaker notes go here
+
+:::
+
+## Code
+
+Some R code:
+
+```r
+snp <- c('ABCA12', 'APAF1', 'ARS-BFGL-BAC-10172', 'ARS-BFGL-BAC-1020')
+sample1 <- c('AA', 'CC', 'GG', 'AA')
+sample2 <- c('AA', 'CC', 'AG', 'GG')
+genotypes <- data.frame(snp, sample1, sample2)
+```
+
+Some Perl code:
+ 
+```perl
+sub message {
+    my $verbose = shift;
+    my $message = shift;
+    if ($verbose) {
+        print $message;
+    }
+}
+```
+
+Some Bash code:
+
+```bash
+ls -lrt | grep "something"
+```
+
+::: notes
+
+Speaker notes go here
+
+:::
+
+## Blockquotes
+
+Blockquotes look like this:
+
+> Here is a blockquote
+
+Here is some more text
+
+> Here is another blockquote this time with longer text. When it wraps it will be indented on the left and right margins
+
+::: notes
+
+Speaker notes go here
+
+:::
+
+# Another section
+
+# Yet another section
+
+````
+
+To convert the Markdown file to PowerPoint slides:
+
+```bash
+pandoc input.md -o slides.pptx
+```
+
+Alternatively, to create the slides using an existing PowerPoint template or presentation for formatting:
+
+```bash
+pandoc input.md -o slides.pptx --reference-doc some_template.potx
+```
+
+The formatting of individual slides can then be adjusted in PowerPoint, using the **Design** tab and the **Design Ideas** button. Slide numbers and headers and footers can be added using **View->Slide Master** followed by **Insert**, and then **Header & Footer**.
+
+To reduce the size of the file, use **File->Compress Pictures...**.
 
 ### Run commands at scheduled times using cron
 
@@ -917,6 +1162,26 @@ Alternatively, use the following to run the script once per hour between 8 am an
 ```
 
 To display the crontab use `crontab -l`.
+
+### Record your terminal to an animated GIF
+
+Use Terminalizer to record a session. The following creates a file called `session.yml`:
+
+```bash
+terminalizer record session
+```
+
+To convert the session to an animated GIF:
+
+```bash
+terminalizer render session
+```
+
+For more control over rendering options create an editable configuration file at `~/.terminalizer/config.yml`:
+
+```bash
+terminalizer init
+```
 
 ### Create an animated GIF from a YouTube video
 
@@ -994,6 +1259,14 @@ perl -p -e 's/\t/,/g;' -e 's/"//g' input.csv > output.csv
 
 ```bash
 perl -0777 -ne '(undef,@paragraphs) = split /^#(?=[^#])/m; print map {"#$_"} sort { "\U$a" cmp "\U$b" } @paragraphs;' input.md
+```
+
+### Format Perl code
+
+The following uses **perltidy** to reformat the code in `testfile.pl` and will create a file called `testfile.pl.tdy`.
+
+```bash
+perltidy testfile.pl
 ```
 
 ## Process multiple files
@@ -1474,6 +1747,82 @@ scancel -u <username>
 
 ```bash
 salloc --time=2:0:0 --ntasks=1 --mem-per-cpu=2000M --account=def-someuser
+```
+
+## tmux
+
+### Start a tmux session
+
+```bash
+tmux new -s session_name
+```
+
+### Detach a tmux session
+
+`C-b` refers to Control+B. The following means press Control+B, release, and then press "d":
+
+```bash
+C-b d
+```
+
+### List tmux sessions
+
+```bash
+tmux ls
+```
+
+### Join a tmux session
+
+```bash
+tmux attach -t session_name
+```
+
+### Create a multi-pane tmux session
+
+The following creates three panes: one large one at the top and two smaller ones at the bottom:
+
+```bash
+tmux new-session -s multiple \; \
+split-window -v -p 25 \; \
+split-window -h -p 50 \; \
+select-pane -t 0 \;
+```
+
+The following also creates a three-pane tmux session, and launches **vim** in the largest pane:
+
+```bash
+tmux new-session -s multiple \; \
+send-keys 'vim' C-m \; \
+split-window -v -p 25 \; \
+split-window -h -p 50 \; \
+select-pane -t 0 \; 
+```
+
+The following creates six equally sized panes:
+
+```bash
+tmux new-session -s multiple \; \
+split-window -h \; \
+split-window -v -p 66 \; \
+split-window -v \; \
+select-pane -t 0 \; \
+split-window -v -p 66 \; \
+split-window -v \;
+```
+
+### Navigate between tmux panes
+
+The commands that work will depend on how tmux is configured:
+
+`C-j` moves up.
+`C-k` moves down.
+`C-h` moves left.
+`C-l` moves right.
+
+### Kill a tmux session
+
+```bash
+tmux kill-session -t session_name
 ```
 
 ## vcftools and bcftools
