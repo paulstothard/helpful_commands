@@ -81,6 +81,7 @@
   * [Resize an image](#resize-an-image)
   * [Format a CSV file into columns and examine its content](#format-a-csv-file-into-columns-and-examine-its-content)
   * [Format code](#format-code)
+  * [Take a screenshot of a window on macOS](#take-a-screenshot-of-a-window-on-macos)
   * [Create PowerPoint slides from a Markdown file](#create-powerpoint-slides-from-a-markdown-file)
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
   * [Record your terminal to an animated GIF](#record-your-terminal-to-an-animated-gif)
@@ -913,6 +914,14 @@ The Prettier program supports many languages. The following command uses the `--
 ```bash
 prettier --write "*html"
 ```
+
+### Take a screenshot of a window on macOS
+
+1. Press **Command+Shift+4**.
+2. Press the **space bar**.
+3. Hold **Option** and click on the window.
+
+To keep the drop shadow perform the last step without holding **Option**. 
 
 ### Create PowerPoint slides from a Markdown file
 
