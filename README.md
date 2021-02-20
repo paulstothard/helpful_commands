@@ -1543,18 +1543,18 @@ library(tidyr)
 sample <- c('sample1', 'sample2')
 ABCA12 <- c('AA', 'AA')
 APAF1 <- c('CC', 'CC')
-ARS-BFGL-BAC-10172 <- c('GG', 'AG')
-ARS-BFGL-BAC-1020 <- c('AA', 'GG')
-genotypes <- data.frame(sample, ABCA12, APAF1, ARS-BFGL-BAC-10172, ARS-BFGL-BAC-1020)
+`ARS-BFGL-BAC-10172` <- c('GG', 'AG')
+`ARS-BFGL-BAC-1020` <- c('AA', 'GG')
+genotypes <- tibble(sample, ABCA12, APAF1, `ARS-BFGL-BAC-10172`, `ARS-BFGL-BAC-1020`)
 
 #[-1] prevents first column from being split
 for(column_name in names(genotypes)[-1]){
   genotypes %>%
     separate(column_name, c(paste(column_name, "1", sep = "_"), paste(column_name, "2", sep = "_")), sep = 1) ->
-    genotypes_split
+    genotypes
 }
 
-write.table(genotypes_split, file = "genotypes_split.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+write.table(genotypes, file = "genotypes_split.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
 ```
 
 ### Split multi-locus genotype strings into multiple columns and decode genotypes
