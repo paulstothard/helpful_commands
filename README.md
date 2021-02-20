@@ -71,6 +71,7 @@
   * [Change the extension of multiple files](#change-the-extension-of-multiple-files)
   * [Add text or a header to the beginning of all files with a particular file extension](#add-text-or-a-header-to-the-beginning-of-all-files-with-a-particular-file-extension)
   * [Find common lines between files](#find-common-lines-between-files)
+  * [Convert a CSV file to a Markdown table](#convert-a-csv-file-to-a-markdown-table)
   * [Convert PDF files to PNG files](#convert-pdf-files-to-png-files)
   * [Convert PNG files to a single PDF file](#convert-png-files-to-a-single-pdf-file)
   * [Convert a DOCX file to a PDF file](#convert-a-docx-file-to-a-pdf-file)
@@ -820,6 +821,15 @@ Among all **.txt** files in the current directory:
 ```bash
 number_of_files=$(find . -name "*.txt" -print | wc -l | sed 's/[^0-9]*//g')
 cat *.txt | sort | uniq -c | sed -n -e "s/^ *$number_of_files \(.*\)/\1/p"
+```
+
+### Convert a CSV file to a Markdown table
+
+The following uses **csv2md**. The **awk** command can be used if some rows of the input have missing fields on the end:
+
+```bash
+awk -F, -v OFS="," 'NR==1 {cols=NF} {$1=$1; for (i=NF+1; i <= cols; i++) $i = "."} 1' input.csv > temp.csv
+csv2md -p < temp.csv > output.md
 ```
 
 ### Convert PDF files to PNG files
