@@ -82,6 +82,8 @@
   * [Resize an image](#resize-an-image)
   * [Format a CSV file into columns and examine its content](#format-a-csv-file-into-columns-and-examine-its-content)
   * [Format code](#format-code)
+  * [Change Bash prompt temporarily](#change-bash-prompt-temporarily)
+  * [Check bash/sh shell scripts for potential issues](#check-bashsh-shell-scripts-for-potential-issues)
   * [Take a screenshot of a window on macOS](#take-a-screenshot-of-a-window-on-macos)
   * [Create PowerPoint slides from a Markdown file](#create-powerpoint-slides-from-a-markdown-file)
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
