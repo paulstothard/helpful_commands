@@ -744,7 +744,6 @@ Replace `host`, `account`, `password`, and `port` with their corresponding value
 wget -S -d -c -t 45 -v -r ftp://account:password@host:port/*
 ```
 
-
 ### Combine the columns in two tab-delimited files
 
 ```bash
@@ -928,6 +927,18 @@ The Prettier program supports many languages. The following command uses the `--
 
 ```bash
 prettier --write "*html"
+```
+
+### Change Bash prompt temporarily
+
+```bash
+PS1="$ "
+```
+
+### Check bash/sh shell scripts for potential issues
+
+```bash
+shellcheck some_script.sh
 ```
 
 ### Take a screenshot of a window on macOS
