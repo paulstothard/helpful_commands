@@ -110,6 +110,10 @@
   * [Transpose a data frame](#transpose-a-data-frame)
   * [Split two-allele genotypes into two columns](#split-two-allele-genotypes-into-two-columns)
   * [Split multi-locus genotype strings into multiple columns and decode genotypes](#split-multi-locus-genotype-strings-into-multiple-columns-and-decode-genotypes)
+  * [Change values in a column based on values in another column](#change-values-in-a-column-based-on-values-in-another-column)
+  * [Add comment lines to output](#add-comment-lines-to-output)
+  * [Filter and sort rows](#filter-and-sort-rows)
+  * [Add columns from one tibble to another](#add-columns-from-one-tibble-to-another)
 - [sbatch](#sbatch)
   * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
 - [sed](#sed)
@@ -141,6 +145,7 @@
   * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
   * [Search and replace newlines](#search-and-replace-newlines)
   * [Compare two files](#compare-two-files)
+  * [Copy to the clipboard](#copy-to-the-clipboard)
 
 <!-- tocstop -->
 
@@ -1604,6 +1609,98 @@ genotypes_one_column_per_snp_decoded = reshape2::dcast(
 write.table(genotypes_one_column_per_snp_decoded, file = "genotypes_one_column_per_snp_decoded.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
 ```
 
+### Change values in a column based on values in another column
+
+```r
+library(tidyverse)
+
+tb <- tribble(
+  ~chr, ~pos, ~sample1, ~sample2, ~A,   ~B,
+  #----|-----|---------|---------|-----|-----
+  "1",  2,    "AA",     "AB",     "REF","ALT",
+  "1",  12,   "BB",     "AA",     "ALT","REF",
+  "1",  12,   ".",      "AA",     "ALT","REF",
+)
+
+#get names of sample columns
+names(tb) %>% 
+  str_subset(pattern = "^sample") ->
+  columns_to_decode
+
+#convert genotypes to values from A and B columns
+tb %>% 
+  mutate_at(
+    vars(one_of(columns_to_decode)),
+    list(~case_when(
+      . == "AA" & A == "REF" ~ "0/0",
+      . == "AA" & A == "ALT" ~ "1/1",
+      . == "BB" & B == "REF" ~ "0/0",
+      . == "BB" & B == "ALT" ~ "1/1",
+      . == "AB" ~ "0/1",
+      TRUE ~ './.'))) ->
+  tb_converted
+
+print(tb_converted)
+
+## A tibble: 3 x 6
+#  chr     pos sample1 sample2 A     B    
+#  <chr> <dbl> <chr>   <chr>   <chr> <chr>
+#1 1         2 0/0     0/1     REF   ALT  
+#2 1        12 0/0     1/1     ALT   REF  
+#3 1        12 ./.     1/1     ALT   REF 
+```
+
+### Add comment lines to output
+
+```r
+library(dplyr)
+
+#vcf is a tibble
+#add comment character to start of first column name
+vcf <- rename(vcf, `#CHROM` = CHROM)
+#write out comment line and then column names
+writeLines(c("##fileformat=VCFv4.2", paste(names(vcf), collapse = "\t")), con = "genotypes.vcf")
+write.table(vcf, file = "genotypes.vcf", row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t", append=TRUE)
+```
+
+### Filter and sort rows
+
+```r
+library(tidyverse)
+
+#vcf is tibble
+
+#remove rows where POS is NA
+vcf %>% drop_na(POS) ->
+  vcf
+
+#keep rows with single base in REF and ALT
+vcf %>% 
+  filter(str_detect(REF, "^[GATCN]$")) %>%
+  filter(str_detect(ALT, "^[GATCN]$")) ->
+  vcf
+
+#sort by chromosome then position
+vcf %>% 
+  arrange(CHROM, POS) ->
+  vcf
+```
+
+### Add columns from one tibble to another
+
+```r
+library(purrr)
+library(tibble)
+
+#vcf and genotypes are tibbles
+#add columns from genotypes to vcf
+for (column in names(genotypes)) {
+  vcf %>%
+    add_column(!!(column) := genotypes[[column]]) ->
+    vcf
+}
+```
+
 ## sbatch
 
 ### Count lines in compressed fastq files
@@ -1896,4 +1993,10 @@ In replacement syntax use **\r** instead of **\n** to represent newlines. For ex
 
 ```bash
 vimdiff file1 file2 
+```
+
+### Copy to the clipboard
+
+```
+"+y
 ```
