@@ -15,6 +15,7 @@
   * [Split a multi-FASTA file into separate files named according to the sequence title](#split-a-multi-fasta-file-into-separate-files-named-according-to-the-sequence-title)
   * [Print only specific columns, identified by name in the first row](#print-only-specific-columns-identified-by-name-in-the-first-row)
   * [Print only the lines coming after a certain starting line and before a certain ending line](#print-only-the-lines-coming-after-a-certain-starting-line-and-before-a-certain-ending-line)
+  * [Print only the first non-commented line](#print-only-the-first-non-commented-line)
 - [brew](#brew)
   * [List installed packages](#list-installed-packages)
   * [View available packages](#view-available-packages)
@@ -247,6 +248,12 @@ In this example the lines coming after a line starting with **IlmnID** and befor
 
 ```bash
 awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv > output.csv
+```
+
+### Print only the first non-commented line
+
+```bash
+awk '/^[^#]/ { print $0;exit; }' input
 ```
 
 ## brew
@@ -956,11 +963,11 @@ To keep the drop shadow perform the last step without holding **Option**.
 Pandoc can be used to generate PowerPoint slides. The following Markdown text describes several slides with notes:
 
 ````
-% Presentation Title
-% Your name here
-% Add the date here
+% Presentation title
+% Name
+% Date
 
-# A Section title
+# Section title
 
 ## Slide title
 
@@ -972,116 +979,130 @@ Single bulleted list:
 
 ::: notes
 
-Speaker notes go here
+Speaker notes
 
 :::
 
-## Two-column slide with image on right
+## Slide title
+
+Single bulleted list:
+
+- list item
+  - list item
+  - list item
+    - list item
+- list item
+
+::: notes
+
+Speaker notes
+
+:::
+
+## Slide title
+
+Single ordered list:
+
+1. list item
+   1. list item
+   1. list item
+      1. list item
+   1. list item
+1. list item
+
+::: notes
+
+Speaker notes
+
+:::
+
+## Slide title
 
 :::::::::::::: {.columns}
+
 ::: {.column width="50%"}
+
 Left column:
 
-- Bullet
-- Bullet
-- Bullet
+- list item
+  - list item
+  - list item
+    - list item
+- list item
 
 :::
+
 ::: {.column width="50%"}
-![Image caption](image_file.png)
-:::
-::::::::::::::
 
-::: notes
-
-Speaker notes go here
-
-:::
-
-## Slide with image
-
-![Image caption](image_file.png)
-
-::: notes
-
-Speaker notes go here
-
-:::
-
-## Slide with table
-
-| Heading | Heading | Heading | Heading | Heading |
-| --- | --- | --- | --- | --- |
-| Cell | Cell | Cell | Cell | Cell |
-| Cell | Cell | Cell | Cell | Cell |
-| Cell | Cell | Cell | Cell | Cell |
-| Cell | Cell | Cell | Cell | Cell |
-| Cell | Cell | Cell | Cell | Cell |
-
-::: notes
-
-Speaker notes go here
-
-:::
-
-## Bullet lists with indenting
-
-- Bullets work
-  - Indenting works
-  - Indenting works
-    - More indenting works
-- Bullets work
-
-## Ordered lists with indenting
-
-1. Ordered lists work
-   1. Sub-lists in ordered lists
-   1. Sub-lists in ordered lists
-      1. Sub-lists in ordered lists
-   1. Sub-lists in ordered lists
-1. Next item
-
-::: notes
-
-Speaker notes go here
-
-:::
-
-## Two columns each with lists
-
-:::::::::::::: {.columns}
-::: {.column width="50%"}
-Left column:
-
-- Bullets work
-  - Indenting works
-  - Indenting works
-    - More indenting works
-- Bullets work
-
-:::
-::: {.column width="50%"}
 Right column:
 
-1. Ordered lists work
-   1. Sub-lists in ordered lists
-   1. Sub-lists in ordered lists
-      1. Sub-lists in ordered lists
-   1. Sub-lists in ordered lists
-1. Next item
+1. list item
+   1. list item
+   1. list item
+      1. list item
+   1. list item
+1. list item
 
 :::
+
 ::::::::::::::
 
 ::: notes
 
-Speaker notes go here
+Speaker notes
 
 :::
 
-## Code
+## Slide title
 
-Some R code:
+:::::::::::::: {.columns}
+
+::: {.column width="50%"}
+
+Left column:
+
+- Bullet
+- Bullet
+- Bullet
+
+:::
+
+::: {.column width="50%"}
+
+![image caption](image.png)
+
+:::
+
+::::::::::::::
+
+::: notes
+
+Speaker notes
+
+:::
+
+## Slide title
+
+| Program | Version | Purpose                                   |
+|---------|---------|-------------------------------------------|
+| Prokka  | 1.14.5  | Genome annotation                         |
+| FastQC  | 0.11.9  | Illumina read quality assessment          |
+| Snippy  | 4.6.0   | Genome comparisons                        |
+| CGView  | 2.0.2   | Genome visualization                      |
+| SPAdes  | 3.12.0  | Genome assembly                           |
+| Quast   | 5.0.2   | Genome assembly quality assessment        |
+| NUCmer  | 3.1     | Genome alignment                          |
+| Circos  | 0.69-8  | Genome visualization                      |
+| Infoseq | 6.6.0.0 | Sequence summary statistics               |
+| R       | 3.6.2   | Visualizing overlaps between variant sets |
+
+::: notes
+
+Speaker notes
+
+:::
+
+## Slide title
 
 ```r
 snp <- c('ABCA12', 'APAF1', 'ARS-BFGL-BAC-10172', 'ARS-BFGL-BAC-1020')
@@ -1090,50 +1111,11 @@ sample2 <- c('AA', 'CC', 'AG', 'GG')
 genotypes <- data.frame(snp, sample1, sample2)
 ```
 
-Some Perl code:
- 
-```perl
-sub message {
-    my $verbose = shift;
-    my $message = shift;
-    if ($verbose) {
-        print $message;
-    }
-}
-```
-
-Some Bash code:
-
-```bash
-ls -lrt | grep "something"
-```
-
 ::: notes
 
-Speaker notes go here
+Speaker notes
 
 :::
-
-## Blockquotes
-
-Blockquotes look like this:
-
-> Here is a blockquote
-
-Here is some more text
-
-> Here is another blockquote this time with longer text. When it wraps it will be indented on the left and right margins
-
-::: notes
-
-Speaker notes go here
-
-:::
-
-# Another section
-
-# Yet another section
-
 ````
 
 To convert the Markdown file to PowerPoint slides:
