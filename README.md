@@ -1648,7 +1648,7 @@ print(tb_converted)
 A different approach, using nested ifelse():
 
 ```r
-ibrary(tidyverse)
+library(tidyverse)
 
 tb <- tribble(
   ~chr, ~pos, ~sample1, ~sample2, ~A,   ~B,
@@ -1675,7 +1675,7 @@ convert_genotypes <- function (df, col) {
 }
 
 for (sample in columns_to_decode) {
-  tb<- convert_genotypes(tb, sample)
+  tb <- convert_genotypes(tb, sample)
 }
 
 print(tb)
@@ -1686,6 +1686,55 @@ print(tb)
 #1 1         2 0/0     0/1     REF   ALT
 #2 1        12 0/0     1/1     ALT   REF
 #3 1        12 ./.     1/1     ALT   REF
+```
+
+Yet another approach, by passing column names to a function that uses mutate() and case_when():
+
+```r
+library(tidyverse)
+
+tb <- tribble(
+  ~chr, ~pos, ~sample1_1, ~sample1_2, ~FORWARD_A, ~FORWARD_B,
+  #----|-----|-----------|-----------|-----------|-----------
+  "1",  2,    "G",        "G",        "G",        "T",
+  "1",  12,   "A",        "A",        "C",        "A",
+  "1",  12,   ".",        "G",        "T",        "G",
+)
+
+#get names of sample columns
+names(tb) %>%
+  str_subset(pattern = "^sample") ->
+  columns_to_decode
+
+#function to convert genotypes to values from A and B columns
+convert <- function(df, col, format) {
+  
+  A <- paste(format, "A", sep = "_")
+  B <- paste(format, "B", sep = "_")
+  
+  object <- df %>%
+    mutate(
+      !!col := case_when(
+        eval(parse(text = col)) == eval(parse(text = A)) ~ "A",
+        eval(parse(text = col)) == eval(parse(text = B)) ~ "B",
+        TRUE ~ "."
+      )
+    )
+  return(object)
+}
+
+for (sample in columns_to_decode) {
+  tb <- convert(tb, sample, "FORWARD")
+}
+
+print(tb)
+
+## A tibble: 3 x 6
+# chr     pos sample1_1 sample1_2 FORWARD_A FORWARD_B
+# <chr> <dbl> <chr>     <chr>     <chr>     <chr>    
+#1 1         2 A         A         G         T        
+#2 1        12 B         B         C         A        
+#3 1        12 .         B         T         G  
 ```
 
 ### Add comment lines to output
