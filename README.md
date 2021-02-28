@@ -1645,6 +1645,49 @@ print(tb_converted)
 #3 1        12 ./.     1/1     ALT   REF 
 ```
 
+A different approach, using nested ifelse():
+
+```r
+ibrary(tidyverse)
+
+tb <- tribble(
+  ~chr, ~pos, ~sample1, ~sample2, ~A,   ~B,
+  #----|-----|---------|---------|-----|-----
+  "1",  2,    "AA",     "AB",     "REF","ALT",
+  "1",  12,   "BB",     "AA",     "ALT","REF",
+  "1",  12,   ".",      "AA",     "ALT","REF",
+)
+
+#get names of sample columns
+names(tb) %>%
+  str_subset(pattern = "^sample") ->
+  columns_to_decode
+
+#function to convert genotypes to values from A and B columns
+convert_genotypes <- function (df, col) {
+  df[[col]] <-
+    ifelse((df[[col]] == "AA") & (df[["A"]] == "REF"), "0/0",
+           ifelse((df[[col]] == "AA") & (df[["A"]] == "ALT"), "1/1",
+                  ifelse((df[[col]] == "BB") & (df[["B"]] == "REF"), "0/0",
+                         ifelse((df[[col]] == "BB") & (df[["B"]] == "ALT"), "1/1",
+                                ifelse(df[[col]] == "AB", "0/1", "./.")))))
+  return(df)
+}
+
+for (sample in columns_to_decode) {
+  tb<- convert_genotypes(tb, sample)
+}
+
+print(tb)
+
+## A tibble: 3 x 6
+#  chr     pos sample1 sample2 A     B
+#  <chr> <dbl> <chr>   <chr>   <chr> <chr>
+#1 1         2 0/0     0/1     REF   ALT
+#2 1        12 0/0     1/1     ALT   REF
+#3 1        12 ./.     1/1     ALT   REF
+```
+
 ### Add comment lines to output
 
 ```r
