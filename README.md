@@ -760,6 +760,8 @@ Rclone can be used to download data from many cloud storage providers.
 
 First, follow the [configuration instructions](https://rclone.org/drivei). The commands below assume that the remote system was named **my_google_drive** during the configuration.
 
+Note that you can use the **Add shortcut to Drive** option in Google Drive to make folders and files in **Shared with me** easier to access using rclone.
+
 To list directories:
 
 ```bash
