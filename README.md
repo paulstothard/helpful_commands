@@ -775,7 +775,7 @@ rclone ls my_google_drive:some_directory
 To copy the drive to local storage:
 
 ```bash
-rclone copy -P my_google_drive:some_directory .
+rclone copy -P my_google_drive:some_directory ./some_directory
 ```
 
 ### Combine the columns in two tab-delimited files
