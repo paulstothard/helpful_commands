@@ -65,6 +65,7 @@
   * [Obtain your public IP address and network information](#obtain-your-public-ip-address-and-network-information)
   * [Copy an ssh public key to another system](#copy-an-ssh-public-key-to-another-system)
   * [Download files from an FTP server](#download-files-from-an-ftp-server)
+  * [Download files from Google Drive](#download-files-from-google-drive)
   * [Combine the columns in two tab-delimited files](#combine-the-columns-in-two-tab-delimited-files)
   * [Add a header to all files with a certain extension, getting the header from another file](#add-a-header-to-all-files-with-a-certain-extension-getting-the-header-from-another-file)
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
@@ -751,6 +752,30 @@ Replace `host`, `account`, `password`, and `port` with their corresponding value
 
 ```bash
 wget -S -d -c -t 45 -v -r ftp://account:password@host:port/*
+```
+
+### Download files from Google Drive
+
+Rclone can be used to download data from many cloud storage providers.
+
+First, follow the [configuration instructions](https://rclone.org/drivei). The commands below assume that the remote system was named **my_google_drive** during the configuration.
+
+To list directories:
+
+```bash
+rclone lsd my_google_drve:
+```
+
+To list the contents of a directory
+
+```bash
+rclone ls my_google_drive:some_directory
+```
+
+To copy the drive to local storage:
+
+```bash
+rclone copy -P my_google_drive:some_directory .
 ```
 
 ### Combine the columns in two tab-delimited files
