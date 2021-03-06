@@ -1618,9 +1618,10 @@ genotypes <- data.frame(sample, alleles)
 #vector of snp names
 snps <- c('Hapmap43437-BTA-101873', 'ARS-BFGL-NGS-16466', 'Hapmap34944-BES1_Contig627_1906', 'ARS-BFGL-NGS-98142', 'Hapmap53946-rs29015852', 'ARS-BFGL-NGS-114208', 'ARS-BFGL-NGS-66449', 'ARS-BFGL-BAC-32770', 'ARS-BFGL-NGS-65067', 'ARS-BFGL-BAC-32722')
 
+#create a new column for each digit in alleles
 genotypes_one_column_per_snp <- separate(genotypes, col = alleles, sep = "(?<=\\d)", into = snps)
 
-#change both instances of 'sample' to match name of first column
+#convert each digit to textual representation
 genotypes_one_column_per_snp_decoded = reshape2::dcast(
   dplyr::mutate(
     reshape2::melt(genotypes_one_column_per_snp, id.var = "sample"),
