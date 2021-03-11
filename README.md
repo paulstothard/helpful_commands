@@ -377,22 +377,22 @@ Download the legacy BLAST Docker image:
 docker pull quay.io/biocontainers/blast-legacy:2.2.26--2
 ```
 
-Create a container from the image and run **formatdb** to create a formatted database. In this example the database is created from a DNA sequence file called `sequence.fasta`, located in the current directory:
+Create a container from the image and run **formatdb** to create a formatted database. In this example the database is created from a DNA sequence file called `database.fasta`, located in the current directory:
 
 ```bash
-docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 formatdb -i sequence.fasta -p F
+docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 formatdb -i database.fasta -p F
 ```
 
 To perform a blastn search using the formatted database and a query called `query.fasta` when the file is also located in the current directory:
 
 ```bash
-docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d sequence.fasta -i query.fasta
+docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database.fasta -i query.fasta
 ```
 
 To perform a blastn search using the formatted database and a query called `query.fasta` when the query is located in a different directory (in this example your home directory):
 
 ```bash
-docker run -it --rm -v $(pwd):/directory/database -v ${HOME}:/directory/query -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database/sequence.fasta -i query/query.fasta
+docker run -it --rm -v $(pwd):/directory/database -v ${HOME}:/directory/query -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database/database.fasta -i query/query.fasta
 ```
 
 ### Annotate sequence variants using VEP
@@ -446,7 +446,7 @@ docker pull staphb/prokka:latest
 Create a container from the image and run **prokka** to annotate the sequence. In this example the genome sequence to be annotated is in a file called `sequence.fasta`, located in the current directory, and four CPUs are used:
 
 ```bash
-docker run --rm -v $(pwd):/dir -w /dir staphb/prokka:latest prokka sequence.fasta --genus --cpus 4
+docker run --rm -v $(pwd):/dir -w /dir staphb/prokka:latest prokka sequence.fasta --cpus 4
 ```
 
 ## find
