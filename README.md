@@ -118,6 +118,8 @@
   * [Add comment lines to output](#add-comment-lines-to-output)
   * [Filter and sort rows](#filter-and-sort-rows)
   * [Add columns from one tibble to another](#add-columns-from-one-tibble-to-another)
+- [Singularity](#singularity)
+  * [Creating an image from a container stored in Docker Hub](#creating-an-image-from-a-container-stored-in-docker-hub)
 - [sbatch](#sbatch)
   * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
 - [sed](#sed)
@@ -1815,6 +1817,24 @@ for (column in names(genotypes)) {
     vcf
 }
 ```
+
+## Singularity
+
+### Creating an image from a container stored in Docker Hub
+
+In this example a container that can be downloaded from Docker Hub using `docker pull pstothard/cgview` is used to generate a Singularity container: 
+
+```bash
+singularity build cgview.sif docker://pstothard/cgview
+```
+
+To run a command in this container, use something like the following:
+
+```bash
+singularity exec -B /scratch cgview.sif java -jar /usr/bin/cgview.jar --help
+```
+
+The `-B` is used to provide the container with access to directories.
 
 ## sbatch
 
