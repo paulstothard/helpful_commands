@@ -304,7 +304,7 @@ brew install brewsci/bio/clustal-w
 ### List installed graphical applications
 
 ```bash
-brew cask list
+brew list --cask
 ```
 
 ### View available graphical applications
@@ -318,7 +318,7 @@ To view graphical applications available from the cask tap via the Homebrew pack
 In this example the Firefox browser:
 
 ```bash
-brew cask install firefox
+brew install firefox --cask
 ```
 
 ## Conda
