@@ -87,6 +87,7 @@
   * [Change Bash prompt temporarily](#change-bash-prompt-temporarily)
   * [Check bash/sh shell scripts for potential issues](#check-bashsh-shell-scripts-for-potential-issues)
   * [Take a screenshot of a window on macOS](#take-a-screenshot-of-a-window-on-macos)
+  * [Take a webpage screenshot using Firefox](#take-a-webpage-screenshot-using-firefox)
   * [Create PowerPoint slides from a Markdown file](#create-powerpoint-slides-from-a-markdown-file)
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
   * [Record your terminal to an animated GIF](#record-your-terminal-to-an-animated-gif)
@@ -986,6 +987,15 @@ shellcheck some_script.sh
 3. Hold **Option** and click on the window.
 
 To keep the drop shadow perform the last step without holding **Option**. 
+
+### Take a webpage screenshot using Firefox
+
+1. Press **F12** to open the Firefox Developer Tools.
+2. Enter `:screenshot` into the Web Console to download the current view as a PNG file.
+
+To save a high-DPI webpage screenshot use `:screenshot --dpr 4`. 
+
+To save a high-DPI full-page webpage screenshot use `:screenshot --dpr 4 --fullpage`.
 
 ### Create PowerPoint slides from a Markdown file
 
