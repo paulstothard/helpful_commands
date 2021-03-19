@@ -997,6 +997,8 @@ To save a high-DPI webpage screenshot use `:screenshot --dpr 4`.
 
 To save a high-DPI full-page webpage screenshot use `:screenshot --dpr 4 --fullpage`.
 
+To delay the screenshot, to capture a menu for example, use `:screenshot --dpr 4 --fullpage --delay 5`.
+
 ### Create PowerPoint slides from a Markdown file
 
 Pandoc can be used to generate PowerPoint slides. The following Markdown text describes several slides with notes:
