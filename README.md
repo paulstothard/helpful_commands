@@ -1430,7 +1430,7 @@ perl -p -e 's/Red Angus/Angus/g' sequenced_samples.csv
 ### Print matches that may span multiple lines
 
 ```bash
-perl -0777 -ne while (m/^\s+\/translation="([^"]+)"/gm) {print "$1\n"}' NM_001271626.3.gbk
+perl -0777 -ne 'while (m/^\s+\/translation="([^"]+)"/gm) {print "$1\n"}' NM_001271626.3.gbk
 ```
 
 ### Print matches after additional editing
