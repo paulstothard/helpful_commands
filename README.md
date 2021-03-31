@@ -6,7 +6,8 @@
   * [Convert a CSV file to a FASTA file](#convert-a-csv-file-to-a-fasta-file)
   * [Print lines in file when a certain column contains a specific value](#print-lines-in-file-when-a-certain-column-contains-a-specific-value)
   * [Replace certain values in specific columns](#replace-certain-values-in-specific-columns)
-  * [Sum values in one column based on categories given in another column](#sum-values-in-one-column-based-on-categories-given-in-another-column)
+  * [Add up the values in a column](#add-up-the-values-in-a-column)
+  * [For each category in one column, add up the values in another column](#for-each-category-in-one-column-add-up-the-values-in-another-column)
   * [Print column names and numbers](#print-column-names-and-numbers)
   * [Print the values observed in a specific column, along with the number of times each value is observed](#print-the-values-observed-in-a-specific-column-along-with-the-number-of-times-each-value-is-observed)
   * [Print the number of lines exhibiting each distinct number of fields](#print-the-number-of-lines-exhibiting-each-distinct-number-of-fields)
@@ -33,6 +34,12 @@
   * [Activate an environment](#activate-an-environment)
   * [Add additional programs to an environment](#add-additional-programs-to-an-environment)
   * [List environments](#list-environments)
+- [cut](#cut)
+  * [Extract columns of interest](#extract-columns-of-interest)
+  * [Extract a range of columns](#extract-a-range-of-columns)
+  * [Extract everything except one column](#extract-everything-except-one-column)
+  * [Extract characters](#extract-characters)
+  * [Change field separators](#change-field-separators)
 - [Docker](#docker)
   * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
   * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
@@ -93,6 +100,7 @@
   * [Record your terminal to an animated GIF](#record-your-terminal-to-an-animated-gif)
   * [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
   * [Create a collection of MP3 files from a YouTube playlist](#create-a-collection-of-mp3-files-from-a-youtube-playlist)
+  * [Download a GenBank file with curl](#download-a-genbank-file-with-curl)
 - [Perl](#perl)
   * [Get a random sample of lines from a text file while excluding the header line](#get-a-random-sample-of-lines-from-a-text-file-while-excluding-the-header-line)
   * [Convert a FASTA file to a CSV file with column names](#convert-a-fasta-file-to-a-csv-file-with-column-names)
@@ -102,12 +110,16 @@
   * [Remove commas located within quoted fields in a CSV file and create a tab-delimited file](#remove-commas-located-within-quoted-fields-in-a-csv-file-and-create-a-tab-delimited-file)
   * [Replace tabs with commas and remove quotes in a CSV file](#replace-tabs-with-commas-and-remove-quotes-in-a-csv-file)
   * [Sort sections in a Markdown file based on headings](#sort-sections-in-a-markdown-file-based-on-headings)
+  * [Search and replace text on each line](#search-and-replace-text-on-each-line)
+  * [Print matches that may span multiple lines](#print-matches-that-may-span-multiple-lines)
+  * [Print matches after additional editing](#print-matches-after-additional-editing)
   * [Format Perl code](#format-perl-code)
 - [Process multiple files](#process-multiple-files)
   * [for loop](#for-loop)
   * [while loop](#while-loop)
   * [find with -exec](#find-with--exec)
   * [find with xargs](#find-with-xargs)
+- [Process multiple files in pairs](#process-multiple-files-in-pairs)
 - [R](#r)
   * [Compare two data sets to find differences](#compare-two-data-sets-to-find-differences)
   * [Visualize the degree of overlap among gene sets](#visualize-the-degree-of-overlap-among-gene-sets)
@@ -137,6 +149,8 @@
   * [Cancel a job](#cancel-a-job)
   * [Cancel all jobs](#cancel-all-jobs)
   * [Start an interactive session](#start-an-interactive-session)
+- [sort](#sort)
+  * [Sort a file with a header row](#sort-a-file-with-a-header-row)
 - [tmux](#tmux)
   * [Start a tmux session](#start-a-tmux-session)
   * [Detach a tmux session](#detach-a-tmux-session)
@@ -182,9 +196,17 @@ In this example **1** and **-1** in column **23** are replaced with **forward** 
 awk -F\\t 'BEGIN {OFS = "\t"} {sub(/^1/, "forward", $23); sub(/^-1/, "reverse", $23); print}' input.tab > output.tab
 ```
 
-### Sum values in one column based on categories given in another column
+### Add up the values in a column
 
-In this example values in column **2** are added up for each category in column **1**:
+In this example values in column **5** are summed in a file with columns separated by one or more blank spaces:
+
+```bash
+awk -F' {1,}' '{sum+=$5} END {print sum}' input.txt
+```
+
+### For each category in one column, add up the values in another column
+
+In this example values in column **2** are summed up for each category in column **1**:
 
 ```bash
 awk -F, '{a[$1]+=$2}END{for(i in a) print i,a[i]}' input.csv
@@ -368,6 +390,70 @@ conda install -y -c bioconda -c conda-forge picard
 
 ```bash
 conda info --envs
+```
+
+## cut
+
+### Extract columns of interest
+
+In this example columns 1 and 2 are extracted from a from a CSV file:
+
+```bash
+cut -d, -f 1,2 sequenced_samples.csv
+```
+
+### Extract a range of columns
+
+In this example columns 3, 10, 11, and 12 are extracted from a tab-delimited file:
+
+```bash
+cut -d $'\t' -f 3,10-12 bovine_genotypes.vcf
+```
+
+### Extract everything except one column
+
+In this example all columns except column 1 are returned (the `-f 2-` is used to mean "from field 2 to the end"):
+
+```bash
+cut -d $'\t' -f 2- bovine_genotypes.vcf
+```
+
+### Extract characters
+
+Here `cut` is used to extract the first three characters from each line:
+
+```bash
+cut -c 1-3 sequenced_samples.csv
+```
+
+### Change field separators
+
+`cut` can also be used to change the field separator. In this example tab-delimited values are changed to comma-separated values:
+
+```bash
+cut -d $'\t' -f 1- --output-delimiter=',' bovine_genotypes.vcf
+```
+
+To switch from comma-separated to tab-separated use:
+
+```bash
+cut -d, -f 1- --output-delimiter=$'\t' sequenced_samples.csv
+```
+
+On platforms lacking `--output-delimiter` `perl` can be used to switch tabs to commas:
+
+```bash
+perl -p -e 's/\t/,/g' sequenced_samples.csv
+```
+
+To switch commas to tabs when `--output-delimiter` isn't available the command below can be used. This  script handles cases when commas are inside of quoted fields:
+
+```bash
+perl -nle  'my @new  = (); push( @new, $+ ) 
+while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? 
+| ([^,]+),? | ,}gx; push( @new, undef ) 
+if substr( $text, -1, 1 ) eq '\'','\''; 
+for(@new){s/,/ /g} print join "\t", @new' sequenced_samples.csv
 ```
 
 ## Docker
@@ -956,6 +1042,8 @@ convert input.png -resize 4000 output.png
 
 ### Format a CSV file into columns and examine its content
 
+The `perl` portion is used to handle empty fields:
+
 ```bash
 cat data.csv | perl -pe 's/((?<=,)|(?<=^)),/ ,/g;' | column -t -s, | less -S
 ```
@@ -1265,6 +1353,18 @@ The following requires **youtube-dl** and **ffmpeg**:
 youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass https://www.youtube.com/playlist?list=PL92319EECC1754042
 ```
 
+### Download a GenBank file with curl
+
+The command below downloads a GenBank file from the Nucleotide database at NCBI:
+
+```bash
+i=NC_045512.2
+curl -s  "https://eutils.ncbi.nlm.nih.gov\
+/entrez/eutils/efetch.fcgi?db=nucleotide\
+&id=${i}&rettype=gbwithparts&retmode=txt" \
+> $i.gbk
+```
+
 ## Perl
 
 ### Get a random sample of lines from a text file while excluding the header line
@@ -1319,6 +1419,24 @@ perl -p -e 's/\t/,/g;' -e 's/"//g' input.csv > output.csv
 
 ```bash
 perl -0777 -ne '(undef,@paragraphs) = split /^#(?=[^#])/m; print map {"#$_"} sort { "\U$a" cmp "\U$b" } @paragraphs;' input.md
+```
+
+### Search and replace text on each line
+
+```bash
+perl -p -e 's/Red Angus/Angus/g' sequenced_samples.csv
+```
+
+### Print matches that may span multiple lines
+
+```bash
+perl -0777 -ne while (m/^\s+\/translation="([^"]+)"/gm) {print "$1\n"}' NM_001271626.3.gbk
+```
+
+### Print matches after additional editing
+
+```bash
+perl -0777 -ne 'while (m/^\s+\/translation="([^"]+)"/gm) {$out = $1; $out =~ s/\s//g; print "$out\n"}' NM_001271626.3.gbk
 ```
 
 ### Format Perl code
@@ -1415,6 +1533,36 @@ Print the number of lines in every **.csv** or **.tab** file in or below current
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
+```
+
+## Process multiple files in pairs
+
+High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
+
+```
+6613_S82_L001_R1_001.fastq.gz
+6613_S82_L001_R2_001.fastq.gz
+70532_S37_L001_R1_001.fastq.gz
+70532_S37_L001_R2_001.fastq.gz
+k2712_S5_L001_R1_001.fastq.gz
+k2712_S5_L001_R2_001.fastq.gz
+```
+
+To analyze data from multiple samples, the following `while` loop code can be used. It iterates through the `R1` files and from each filename constructs the matching `R2` filename. Two useful variables called `fnx` and `fn` are also created for each file, storing the filename without the path to the file, and the filename without the path and without the file extension, respectively:
+
+```bash
+find . -name "*_R1_*" -type f | while IFS= read -r file; do
+  fnx=$(basename -- "$file")
+  fn="${fnx%.*}"
+  
+  #Construct name of other file
+  file2="${file/R1_001.fastq.gz/R2_001.fastq.gz}"
+  fnx2=$(basename -- "$file2")
+  fn2="${fnx2%.*}"
+  
+  echo "Processing file '$fnx' and '$fnx2'"
+
+done
 ```
 
 ## R
@@ -2010,6 +2158,24 @@ scancel -u <username>
 
 ```bash
 salloc --time=2:0:0 --ntasks=1 --mem-per-cpu=2000M --account=def-someuser
+```
+
+## sort
+
+### Sort a file with a header row
+
+In the following examples a file with a single header line is sorted:
+
+```bash
+(head -n 1 sequenced_samples.csv && sort -t, <(tail -n +2 sequenced_samples.csv))
+```
+
+```bash
+(head -n 1 sequenced_samples.csv && tail -n +2 sequenced_samples.csv | sort)
+```
+
+```bash
+cat sequenced_samples.csv | awk 'NR<2{print $0; next}{print $0| "sort"}'
 ```
 
 ## tmux
