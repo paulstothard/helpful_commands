@@ -7,6 +7,7 @@
   * [Print lines in file when a certain column contains a specific value](#print-lines-in-file-when-a-certain-column-contains-a-specific-value)
   * [Replace certain values in specific columns](#replace-certain-values-in-specific-columns)
   * [Add up the values in a column](#add-up-the-values-in-a-column)
+  * [Create a new column from two existing columns](#create-a-new-column-from-two-existing-columns)
   * [For each category in one column, add up the values in another column](#for-each-category-in-one-column-add-up-the-values-in-another-column)
   * [Print column names and numbers](#print-column-names-and-numbers)
   * [Print the values observed in a specific column, along with the number of times each value is observed](#print-the-values-observed-in-a-specific-column-along-with-the-number-of-times-each-value-is-observed)
@@ -17,6 +18,7 @@
   * [Print only specific columns, identified by name in the first row](#print-only-specific-columns-identified-by-name-in-the-first-row)
   * [Print only the lines coming after a certain starting line and before a certain ending line](#print-only-the-lines-coming-after-a-certain-starting-line-and-before-a-certain-ending-line)
   * [Print only the first non-commented line](#print-only-the-first-non-commented-line)
+  * [Print the average read length for a FASTQ file](#print-the-average-read-length-for-a-fastq-file)
 - [brew](#brew)
   * [List installed packages](#list-installed-packages)
   * [View available packages](#view-available-packages)
@@ -204,6 +206,14 @@ In this example values in column **5** are summed in a file with columns separat
 awk -F' {1,}' '{sum+=$5} END {print sum}' input.txt
 ```
 
+### Create a new column from two existing columns
+
+In this example the values in columns **3** and **4** are added to create a new column:
+
+```bash
+awk -F, '{print $0,$3+$4}' input.txt
+```
+
 ### For each category in one column, add up the values in another column
 
 In this example values in column **2** are summed up for each category in column **1**:
@@ -279,7 +289,13 @@ awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv > ou
 ### Print only the first non-commented line
 
 ```bash
-awk '/^[^#]/ { print $0;exit; }' input
+awk '/^[^#]/ { print $0;exit; }' input.txt
+```
+
+### Print the average read length for a FASTQ file
+
+```bash
+awk 'NR%4==2{sum+=length($0)}END{print sum/(NR/4)}' input.fastq
 ```
 
 ## brew
