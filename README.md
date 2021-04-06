@@ -80,6 +80,7 @@
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
   * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
   * [Change the extension of multiple files](#change-the-extension-of-multiple-files)
+  * [Add text to the beginning of a file](#add-text-to-the-beginning-of-a-file)
   * [Add text or a header to the beginning of all files with a particular file extension](#add-text-or-a-header-to-the-beginning-of-all-files-with-a-particular-file-extension)
   * [Find common lines between files](#find-common-lines-between-files)
   * [Convert a CSV file to a Markdown table](#convert-a-csv-file-to-a-markdown-table)
@@ -89,6 +90,8 @@
   * [Convert an HTML file to a PDF file](#convert-an-html-file-to-a-pdf-file)
   * [Convert a website to a PDF file](#convert-a-website-to-a-pdf-file)
   * [Convert an HTML file to a PNG file](#convert-an-html-file-to-a-png-file)
+  * [Convert a Markdown file to a PDF file](#convert-a-markdown-file-to-a-pdf-file)
+  * [Convert a Markdown file to an HTML file](#convert-a-markdown-file-to-an-html-file)
   * [Crop an image and add a white border](#crop-an-image-and-add-a-white-border)
   * [Resize an image](#resize-an-image)
   * [Format a CSV file into columns and examine its content](#format-a-csv-file-into-columns-and-examine-its-content)
@@ -140,6 +143,8 @@
 - [sed](#sed)
   * [Print a specific line of a file](#print-a-specific-line-of-a-file)
   * [Change filenames using a regular expression](#change-filenames-using-a-regular-expression)
+  * [Search and replace on lines](#search-and-replace-on-lines)
+  * [Delete lines](#delete-lines)
 - [Share data with project group members](#share-data-with-project-group-members)
 - [Slurm](#slurm)
   * [View statistics related to the efficiency of resource usage of a completed job](#view-statistics-related-to-the-efficiency-of-resource-usage-of-a-completed-job)
@@ -161,6 +166,10 @@
   * [Create a multi-pane tmux session](#create-a-multi-pane-tmux-session)
   * [Navigate between tmux panes](#navigate-between-tmux-panes)
   * [Kill a tmux session](#kill-a-tmux-session)
+- [tr](#tr)
+  * [Translate characters](#translate-characters)
+  * [Delete characters](#delete-characters)
+  * [Squeeze characters](#squeeze-characters)
 - [vcftools and bcftools](#vcftools-and-bcftools)
   * [Extract variants from a region of interest and write to a new vcf file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
   * [Extract variants from multiple regions of interest and write to a new vcf file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
@@ -939,6 +948,12 @@ Or this, depending on which **rename** is installed:
 rename .gbff .gbk *.gbff 
 ```
 
+### Add text to the beginning of a file
+
+```bash
+echo 'new header line' | cat - file.txt > temp && mv temp file.txt
+```
+
 ### Add text or a header to the beginning of all files with a particular file extension
 
 Add **my header text** to the start of all **.csv** files in the current directory (works on macOS):
@@ -1038,6 +1053,33 @@ Another approach, which may work better for complex web sites, is to use **pager
 
 ```bash
 pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
+```
+
+### Convert a Markdown file to a PDF file
+
+The command below uses the [eisvogel.tex template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex).
+
+The `head.tex` file consists of the following:
+
+```tex
+\definecolor{bgcolor}{HTML}{E0E0E0}
+\let\oldtexttt\texttt
+
+\renewcommand{\texttt}[1]{
+  \colorbox{bgcolor}{\oldtexttt{#1}}
+}
+```
+
+```bash
+pandoc input.md -o output.pdf --pdf-engine=xelatex --from markdown --template=eisvogel.tex --highlight-style zenburn -H head.tex
+```
+
+### Convert a Markdown file to an HTML file
+
+The commmand below uses the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
+
+```bash
+pandoc -f markdown -t html -o output.html input.md --css=pandoc.css --self-contained
 ```
 
 ### Crop an image and add a white border
@@ -2109,6 +2151,57 @@ In this example **chr30** is replaced with **chrX**:
 for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
 ```
 
+### Search and replace on lines
+
+The `sed` command can be used to find and replace text and supports its own [regular expression syntax](https://www.gnu.org/software/sed/manual/html_node/Regular-Expressions.html).
+
+The following replaces all occurrences of `Red Angus` with `Angus`:
+
+```bash
+sed 's/Red Angus/Angus/g' sequenced_samples.csv
+```
+
+In the above the `g` indicates that all matches on a line should be replaced.
+
+The following restricts the processing to lines 302 to 305:
+
+```bash
+sed '302,305 s/Red Angus/Angus/g' sequenced_samples.csv
+```
+
+The following replaces the first occurrence of `LIM` on each line with `---`:
+
+```bash
+sed 's/LIM/---/1' sequenced_samples.csv
+```
+
+The following adds underscores around the first three characters of each line:
+
+```bash
+sed 's/^\([a-zA-Z0-9]\{3\}\)/_\1_/g' sequenced_samples.csv
+```
+
+The above uses `\(` and `\)` to "remember" matching characters and then uses `\1` to use the stored matching text in the replacement portion. Thus the replacement text becomes `_` followed by the actual matched text, followed by `_`.
+
+The different parts of the search part of the command have the following meanings:
+
+* `^` match the start of a line
+* `[a-zA-Z0-9]\{3\}` match three letters or numbers
+
+### Delete lines
+
+The following deletes the first line:
+
+```bash
+sed '1d' sequenced_samples.csv
+```
+
+The following deletes from line 500 to the end of the file (represented by `$`):
+
+```bash
+sed '500,$d' sequenced_samples.csv
+```
+
 ## Share data with project group members
 
 ```bash
@@ -2268,6 +2361,64 @@ The commands that work will depend on how tmux is configured:
 
 ```bash
 tmux kill-session -t session_name
+```
+
+## tr
+
+### Translate characters
+
+The following changes all `S` and `H` characters to `s` and `h`, respectively:
+
+```bash
+cat sequenced_samples.csv | tr "SH" "sh"
+```
+
+The sets of characters provided to `tr` can be the actual characters (as in the above example) or they can be one of several special characters or character groups (use `tr --help` to learn more).
+
+For example, the following `tr` command changes uppercase text to lowercase text:
+
+```bash
+cat sequenced_samples.csv | tr "[:upper:]" "[:lower:]"
+```
+
+To change all digits to `X` use `tr` as in the following example:
+
+```bash
+cat sequenced_samples.csv | tr "[:digit:]" "X"
+```
+
+The following `tr` command changes all characters that aren't `G`, `A`, `T`, or `C` (ignoring case) or whitespace to `N`:
+
+```bash
+echo "garsxnT" | tr -c "GATCgatc[:space:]" "N"
+```
+
+The above command uses the complement option (`-c`) to convert the first set to everything that isn't in the set.
+
+### Delete characters
+
+Use the `-d` option with `tr` to delete characters. 
+
+The following `tr` command deletes all digits:
+
+```bash
+cat sequenced_samples.csv | tr -d "[:digit:]"
+```
+
+To delete everything except for digits using the following `tr` command:
+
+```bash
+cat sequenced_samples.csv | tr -c -d "[:digit:]"
+```
+
+### Squeeze characters
+
+"Squeezing" is used here to mean "removing repeated instances". Typically this would be used to remove duplicated spaces or punctuation.
+
+The following illustrates the removal extra commas by using `tr` with the `-s` option:
+
+```bash
+echo "a,b,,c,,,d" | tr -s ","
 ```
 
 ## vcftools and bcftools
