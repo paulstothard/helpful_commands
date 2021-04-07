@@ -188,7 +188,7 @@
 In this example column **1** contains the sequence title and column **3** contains the sequence:
 
 ```bash
-awk -F, '{print ">"$1"\n"$3"\n"}' input.csv > output.fasta
+awk -F, '{print ">"$1"\n"$3"\n"}' input.csv
 ```
 
 ### Print lines in file when a certain column contains a specific value
@@ -196,7 +196,7 @@ awk -F, '{print ">"$1"\n"$3"\n"}' input.csv > output.fasta
 In this example lines are printed when the value in column **1** equals **9913**:
 
 ```bash
-awk -F, '{if ($1 == 9913) print $0}' input.csv > output.csv
+awk -F, '{if ($1 == 9913) print $0}' input.csv
 ```
 
 ### Replace certain values in specific columns
@@ -204,7 +204,7 @@ awk -F, '{if ($1 == 9913) print $0}' input.csv > output.csv
 In this example **1** and **-1** in column **23** are replaced with **forward** and **reverse**, respectively:
 
 ```bash
-awk -F\\t 'BEGIN {OFS = "\t"} {sub(/^1/, "forward", $23); sub(/^-1/, "reverse", $23); print}' input.tab > output.tab
+awk -F\\t 'BEGIN {OFS = "\t"} {sub(/^1/, "forward", $23); sub(/^-1/, "reverse", $23); print}' input.tab
 ```
 
 ### Add up the values in a column
