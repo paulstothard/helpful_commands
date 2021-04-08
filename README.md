@@ -19,6 +19,7 @@
   * [Print only the lines coming after a certain starting line and before a certain ending line](#print-only-the-lines-coming-after-a-certain-starting-line-and-before-a-certain-ending-line)
   * [Print only the first non-commented line](#print-only-the-first-non-commented-line)
   * [Print the average read length for a FASTQ file](#print-the-average-read-length-for-a-fastq-file)
+  * [Sort lines based on order of IDs in another file](#sort-lines-based-on-order-of-ids-in-another-file)
 - [brew](#brew)
   * [List installed packages](#list-installed-packages)
   * [View available packages](#view-available-packages)
@@ -113,7 +114,7 @@
   * [Extract FASTA sequences from a file based on a file of sequence names of interest](#extract-fasta-sequences-from-a-file-based-on-a-file-of-sequence-names-of-interest)
   * [Add a FASTA title to the start of a sequence in RAW format](#add-a-fasta-title-to-the-start-of-a-sequence-in-raw-format)
   * [Remove commas located within quoted fields in a CSV file and create a tab-delimited file](#remove-commas-located-within-quoted-fields-in-a-csv-file-and-create-a-tab-delimited-file)
-  * [Replace tabs with commas and remove quotes in a CSV file](#replace-tabs-with-commas-and-remove-quotes-in-a-csv-file)
+  * [Replace tabs with commas and remove quotes](#replace-tabs-with-commas-and-remove-quotes)
   * [Sort sections in a Markdown file based on headings](#sort-sections-in-a-markdown-file-based-on-headings)
   * [Search and replace text on each line](#search-and-replace-text-on-each-line)
   * [Print matches that may span multiple lines](#print-matches-that-may-span-multiple-lines)
@@ -284,7 +285,7 @@ awk '/^>/ {OUT=substr($0,2); split(OUT, a, " "); sub(/[^A-Za-z_0-9\.\-]/, "", a[
 In this example the columns named **Affy SNP ID** and **Flank** are printed:
 
 ```bash
-awk -F, 'NR==1 { for (i=1; i<=NF; i++) { ix[$i] = i } } NR>1 { print $ix["Affy SNP ID"]","$ix["Flank"] }' input.csv > output.csv
+awk -F, 'NR==1 { for (i=1; i<=NF; i++) { ix[$i] = i } } NR>1 { print $ix["Affy SNP ID"]","$ix["Flank"] }' input.csv
 ```
 
 ### Print only the lines coming after a certain starting line and before a certain ending line
@@ -292,7 +293,7 @@ awk -F, 'NR==1 { for (i=1; i<=NF; i++) { ix[$i] = i } } NR>1 { print $ix["Affy S
 In this example the lines coming after a line starting with **IlmnID** and before a line starting with **[Controls]** are printed:
 
 ```bash
-awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv > output.csv
+awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv
 ```
 
 ### Print only the first non-commented line
@@ -305,6 +306,20 @@ awk '/^[^#]/ { print $0;exit; }' input.txt
 
 ```bash
 awk 'NR%4==2{sum+=length($0)}END{print sum/(NR/4)}' input.fastq
+```
+
+### Sort lines based on order of IDs in another file
+
+In this example, the records in `file_to_sort.csv` have an identifier in column **1** that is present in `sorted_ids.txt`, which has a single column:
+
+```bash
+awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' file_to_sort.csv sorted_ids.txt
+```
+
+If both files have a single header line the following can be used to generate the sorted output with the restored header line:
+
+```bash
+(head -n 1 file_to_sort.csv && awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' <(tail -n +1 file_to_sort.csv) <(tail -n +1 sorted_ids.txt)) > sorted.csv
 ```
 
 ## brew
@@ -835,7 +850,7 @@ grep -L "complete genome" *.fasta | xargs -I{} rm -f {}
 Keep everything except lines starting with **#**:
 
 ```bash
-grep -v '^#' input.txt > output.txt
+grep -v '^#' input.txt
 ```
 
 ## Other
@@ -897,7 +912,7 @@ rclone copy -P my_google_drive:some_directory ./some_directory
 ### Combine the columns in two tab-delimited files
 
 ```bash
-paste -d"\t" input1.tab input2.tab > output.tab
+paste -d"\t" input1.tab input2.tab
 ```
 
 ### Add a header to all files with a certain extension, getting the header from another file
@@ -1467,10 +1482,10 @@ perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
 perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
 ```
 
-### Replace tabs with commas and remove quotes in a CSV file
+### Replace tabs with commas and remove quotes
 
 ```bash
-perl -p -e 's/\t/,/g;' -e 's/"//g' input.csv > output.csv
+perl -p -e 's/\t/,/g;' -e 's/"//g' input.tab > output.csv
 ```
 
 ### Sort sections in a Markdown file based on headings
