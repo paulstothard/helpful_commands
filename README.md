@@ -891,6 +891,12 @@ First, follow the [configuration instructions](https://rclone.org/drivei). The c
 
 Note that you can use the **Add shortcut to Drive** option in Google Drive to make folders and files in **Shared with me** easier to access using rclone.
 
+To list remote drives:
+
+```bash
+rclone listremotes
+```
+
 To list directories:
 
 ```bash
