@@ -319,7 +319,7 @@ awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' file_to_sort.csv sort
 If both files have a single header line the following can be used to generate the sorted output with the restored header line:
 
 ```bash
-(head -n 1 file_to_sort.csv && awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' <(tail -n +1 file_to_sort.csv) <(tail -n +1 sorted_ids.txt)) > sorted.csv
+(head -n 1 file_to_sort.csv && awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' <(tail -n +2 file_to_sort.csv) <(tail -n +2 sorted_ids.txt)) > sorted.csv
 ```
 
 ## brew
