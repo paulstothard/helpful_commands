@@ -954,7 +954,7 @@ mlr --icsv --opprint head -n 10 example.csv
 Print each value with the column name in the form **column=value**:
 
 ```bash
-mlr --icsv head -n 10 example.csv
+mlr --icsv --odkvp head -n 10 example.csv
 ```
 
 ### Extract the last 10 records of a CSV file
@@ -974,7 +974,7 @@ mlr --icsv --opprint tail -n 10 example.csv
 Print each field with the column name in the form **column=field**:
 
 ```bash
-mlr --icsv tail -n 10 example.csv
+mlr --icsv --odkvp tail -n 10 example.csv
 ```
 
 ### Convert formats
