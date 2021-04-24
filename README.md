@@ -37,6 +37,16 @@
   * [Activate an environment](#activate-an-environment)
   * [Add additional programs to an environment](#add-additional-programs-to-an-environment)
   * [List environments](#list-environments)
+- [csvkit](#csvkit)
+  * [Convert Excel to CSV](#convert-excel-to-csv)
+  * [Convert JSON to CSV](#convert-json-to-csv)
+  * [Print column names](#print-column-names)
+  * [Select a subset of columns](#select-a-subset-of-columns)
+  * [Reorder columns](#reorder-columns)
+  * [Find rows with matching cells](#find-rows-with-matching-cells)
+  * [Convert to JSON](#convert-to-json)
+  * [Generate summary statistics](#generate-summary-statistics)
+  * [Query with SQL](#query-with-sql)
 - [cut](#cut)
   * [Extract columns of interest](#extract-columns-of-interest)
   * [Extract a range of columns](#extract-a-range-of-columns)
@@ -71,6 +81,17 @@
   * [Remove files that contain a match](#remove-files-that-contain-a-match)
   * [Remove files that do not contain a match](#remove-files-that-do-not-contain-a-match)
   * [Remove lines that match](#remove-lines-that-match)
+- [Miller](#miller)
+  * [Extract the first 10 records of a CSV file](#extract-the-first-10-records-of-a-csv-file)
+  * [Extract the last 10 records of a CSV file](#extract-the-last-10-records-of-a-csv-file)
+  * [Convert formats](#convert-formats)
+  * [View stats](#view-stats)
+  * [Filter records](#filter-records)
+  * [Sort records](#sort-records)
+  * [Extract columns](#extract-columns)
+  * [Edit columns](#edit-columns)
+  * [Other actions](#other-actions)
+  * [Combine actions](#combine-actions)
 - [Other](#other)
   * [Obtain your public IP address and network information](#obtain-your-public-ip-address-and-network-information)
   * [Copy an ssh public key to another system](#copy-an-ssh-public-key-to-another-system)
@@ -88,6 +109,7 @@
   * [Convert PDF files to PNG files](#convert-pdf-files-to-png-files)
   * [Convert PNG files to a single PDF file](#convert-png-files-to-a-single-pdf-file)
   * [Convert a DOCX file to a PDF file](#convert-a-docx-file-to-a-pdf-file)
+  * [Convert an Excel file to a CSV file](#convert-an-excel-file-to-a-csv-file)
   * [Convert an HTML file to a PDF file](#convert-an-html-file-to-a-pdf-file)
   * [Convert a website to a PDF file](#convert-a-website-to-a-pdf-file)
   * [Convert an HTML file to a PNG file](#convert-an-html-file-to-a-png-file)
@@ -430,6 +452,64 @@ conda install -y -c bioconda -c conda-forge picard
 
 ```bash
 conda info --envs
+```
+
+## csvkit
+
+The [csvkit](https://github.com/wireservice/csvkit) examples below are taken from the [csvkit documentation](https://csvkit.readthedocs.io/en/latest/).
+
+### Convert Excel to CSV
+
+```bash
+in2csv data.xls > data.csv
+```
+
+### Convert JSON to CSV
+
+```bash
+in2csv data.json > data.csv
+```
+
+### Print column names
+
+```bash
+csvcut -n data.csv
+```
+
+### Select a subset of columns
+
+```bash
+csvcut -c column_a,column_c data.csv > new.csv
+```
+
+### Reorder columns
+
+```bash
+csvcut -c column_c,column_a data.csv > new.csv
+```
+
+### Find rows with matching cells
+
+```bash
+csvgrep -c phone_number -r "555-555-\d{4}" data.csv > new.csv
+```
+
+### Convert to JSON
+
+```bash
+csvjson data.csv > data.json
+```
+
+### Generate summary statistics
+
+```bash
+csvstat data.csv
+```
+
+### Query with SQL
+
+```bash
+csvsql --query "select name from data where age > 30" data.csv > new.csv
 ```
 
 ## cut
@@ -853,6 +933,159 @@ Keep everything except lines starting with **#**:
 grep -v '^#' input.txt
 ```
 
+## Miller
+
+[Miller](https://github.com/johnkerl/miller) can be used to work with CSV, TSV, and JSON files.
+
+### Extract the first 10 records of a CSV file
+
+Print the column names followed by the records:
+
+```bash
+mlr --csv head -n 10 example.csv
+```
+
+Print with added formatting for readability:
+
+```bash
+mlr --icsv --opprint head -n 10 example.csv 
+```
+
+Print each value with the column name in the form **column=value**:
+
+```bash
+mlr --icsv head -n 10 example.csv
+```
+
+### Extract the last 10 records of a CSV file
+
+Print the column names followed by the records:
+
+```bash
+mlr --csv tail -n 10 example.csv
+```
+
+Print with added formatting for readability:
+
+```bash
+mlr --icsv --opprint tail -n 10 example.csv 
+```
+
+Print each field with the column name in the form **column=field**:
+
+```bash
+mlr --icsv tail -n 10 example.csv
+```
+
+### Convert formats
+
+From CSV to JSON:
+
+```bash
+mlr --icsv --ojson cat example.csv
+```
+
+From CSV to TSV:
+
+```bash
+mlr --icsv --otsv cat example.csv
+```
+
+### View stats
+
+To view the `stats1` and `stats2` documentation:
+
+```bash
+mlr stats1 --help
+mlr stats2 --help
+```
+
+To view several stats for the `Coverage` column:
+
+```bash
+mlr --icsv --opprint stats1 -a sum,count,min,max,mean,mode -f Coverage example.csv
+```
+
+### Filter records
+
+To view the `filter` documentation:
+
+```bash
+mlr filter --help
+```
+
+The following filters records based on `Breed`, `Dataset`, and `Coverage`:
+
+```bash
+mlr --csv filter '$Breed == "Charolais" && $Dataset == "A" && $Coverage > 6' example.csv
+```
+
+### Sort records
+
+To view the `sort` documentation:
+
+```bash
+mlr sort --help
+```
+
+The following first sorts alphabetically by `Breed` and then numerically by `Coverage` (from largest to smallest):
+
+```bash
+mlr --icsv --opprint sort -f Breed -nr Coverage example.csv
+```
+
+### Extract columns
+
+To view the `cut` documentation:
+
+```bash
+mlr cut --help
+```
+
+The following extracts the `Breed` and `Coverage` columns:
+
+```bash
+mlr --csv cut -f Breed,Coverage example.csv
+```
+
+### Edit columns
+
+To view the `put` documentation:
+
+```bash
+mlr put --help
+```
+
+The following converts `Breed` to uppercase and divides `Coverage` by 100:
+
+```bash
+mlr --csv put '$Breed = toupper($Breed); $Coverage = ($Coverage / 100)' example.csv
+```
+
+New columns can be created:
+
+```bash
+mlr --csv put '$New_coverage = ($Coverage / 100)' example.csv
+```
+
+### Other actions
+
+To view a complete list of Miller verbs use the following:
+
+```bash
+mlr -l
+```
+
+To view documentation for a particular verb use **mlr _verb_ --help**.
+
+### Combine actions
+
+Perform multiple actions sequentially using **then**:
+
+```bash
+mlr --csv put '$New_coverage = ($Coverage / 100)' then sort -f Breed -nr Coverage then cut -f InterbullID,New_coverage example.csv
+```
+
 ## Other
 
 ### Obtain your public IP address and network information
@@ -885,7 +1118,7 @@ wget -S -d -c -t 45 -v -r ftp://account:password@host:port/*
 
 ### Download files from Google Drive
 
-Rclone can be used to download data from many cloud storage providers.
+[Rclone](https://rclone.org) can be used to download data from many cloud storage providers.
 
 First, follow the [configuration instructions](https://rclone.org/drivei). The commands below assume that the remote system was named **my_google_drive** during the configuration.
 
@@ -1006,7 +1239,7 @@ cat *.txt | sort | uniq -c | sed -n -e "s/^ *$number_of_files \(.*\)/\1/p"
 
 ### Convert a CSV file to a Markdown table
 
-The following uses **csv2md**. The **awk** command can be used if some rows of the input have missing fields on the end:
+The following uses [csv2md](https://github.com/pstaender/csv2md). The **awk** command can be used if some rows of the input have missing fields on the end:
 
 ```bash
 awk -F, -v OFS="," 'NR==1 {cols=NF} {$1=$1; for (i=NF+1; i <= cols; i++) $i = "."} 1' input.csv > temp.csv
@@ -1015,7 +1248,7 @@ csv2md -p < temp.csv > output.md
 
 ### Convert PDF files to PNG files
 
-The following uses **find** and the **pdftoppm** command from the **poppler** package to generate a PNG image of the first page of every PDF file in the working directory:
+The following uses **find** and the **pdftoppm** command from the [poppler](https://poppler.freedesktop.org) package to generate a PNG image of the first page of every PDF file in the working directory:
 
 ```bash
 find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
@@ -1023,7 +1256,7 @@ find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
 
 ### Convert PNG files to a single PDF file
 
-The following uses **imagemagick**:
+The following uses [ImageMagick](https://imagemagick.org):
 
 ```bash
 convert *.png output.pdf
@@ -1031,21 +1264,29 @@ convert *.png output.pdf
 
 ### Convert a DOCX file to a PDF file
 
-The following uses **LibreOffice**:
+The following uses [LibreOffice](https://www.libreoffice.org):
 
 ```bash
 soffice --headless --convert-to pdf --outdir . word_file.docx
 ```
 
-The following uses **pandoc** and on macOS also requires **basictex**:
+The following uses [pandoc](https://pandoc.org) and on macOS also requires [basictex](https://www.tug.org/mactex/morepackages.html):
 
 ```bash
 pandoc word_file.docx --output word_file.pdf
 ```
 
+### Convert an Excel file to a CSV file
+
+The following uses [csvkit](https://github.com/wireservice/csvkit):
+
+```bash
+in2csv data.xls > data.csv
+```
+
 ### Convert an HTML file to a PDF file
 
-The following uses **wkhtmltopdf**:
+The following uses [wkhtmltopdf](https://wkhtmltopdf.org):
 
 ```bash
 wkhtmltopdf http://google.com google.pdf
@@ -1053,7 +1294,7 @@ wkhtmltopdf http://google.com google.pdf
 
 ### Convert a website to a PDF file
 
-The following uses **wkhtmltopdf** and **gs**:
+The following uses [wkhtmltopdf](https://wkhtmltopdf.org) and [gs](https://www.ghostscript.com/index.html):
 
 ```bash
 url=http://www.3rs-reduction.co.uk/html/main_menu.html; depth=1
@@ -1064,13 +1305,13 @@ gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=m
 
 ### Convert an HTML file to a PNG file
 
-The following uses **wkhtmltoimage**:
+The following uses [wkhtmltoimage](https://wkhtmltopdf.org):
 
 ```bash
 wkhtmltoimage -f png http://google.com google.png
 ```
 
-Another approach, which may work better for complex web sites, is to use **pageres**. The following creates an image that is 4485 pixels wide (5 * 897):
+Another approach, which may work better for complex web sites, is to use [pageres-cli](https://github.com/sindresorhus/pageres-cli). The following creates an image that is 4485 pixels wide (5 * 897):
 
 ```bash
 pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
@@ -1078,7 +1319,7 @@ pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
 
 ### Convert a Markdown file to a PDF file
 
-The command below uses the [eisvogel.tex template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex).
+The command below uses [pandoc](https://pandoc.org) and the [eisvogel.tex template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex).
 
 The `head.tex` file consists of the following:
 
@@ -1097,7 +1338,7 @@ pandoc input.md -o output.pdf --pdf-engine=xelatex --from markdown --template=ei
 
 ### Convert a Markdown file to an HTML file
 
-The commmand below uses the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
+The commmand below uses [pandoc](https://pandoc.org) and the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
 
 ```bash
 pandoc -f markdown -t html -o output.html input.md --css=pandoc.css --self-contained
@@ -1105,7 +1346,7 @@ pandoc -f markdown -t html -o output.html input.md --css=pandoc.css --self-conta
 
 ### Crop an image and add a white border
 
-The following uses **imagemagick** to removes any edges that are exactly the same color as the corner pixels. A 30-pixel white border is then added to the sides and the top and bottom:
+The following uses [ImageMagick](https://imagemagick.org) to removes any edges that are exactly the same color as the corner pixels. A 30-pixel white border is then added to the sides and the top and bottom:
 
 ```bash
 convert input.png -trim -bordercolor White -border 30x30 output.png
@@ -1113,7 +1354,7 @@ convert input.png -trim -bordercolor White -border 30x30 output.png
 
 ### Resize an image 
 
-The following uses **imagemagick** to scale the image so that its width is 4000 pixels:
+The following uses [ImageMagick](https://imagemagick.org) to scale the image so that its width is 4000 pixels:
 
 ```bash
 convert input.png -resize 4000 output.png
@@ -1129,7 +1370,7 @@ cat data.csv | perl -pe 's/((?<=,)|(?<=^)),/ ,/g;' | column -t -s, | less -S
 
 ### Format code
 
-The Prettier program supports many languages. The following command uses the `--write` option to reformat files in-place:
+The [Prettier](https://prettier.io) program supports many languages. The following command uses the `--write` option to reformat files in-place:
 
 ```bash
 prettier --write "*html"
@@ -1142,6 +1383,8 @@ PS1="$ "
 ```
 
 ### Check bash/sh shell scripts for potential issues
+
+Use [shellcheck](https://github.com/koalaman/shellcheck):
 
 ```bash
 shellcheck some_script.sh
@@ -1168,7 +1411,7 @@ To delay the screenshot, to capture a menu for example, use `:screenshot --dpr 4
 
 ### Create PowerPoint slides from a Markdown file
 
-Pandoc can be used to generate PowerPoint slides. The following Markdown text describes several slides with notes:
+[Pandoc](https://pandoc.org) can be used to generate PowerPoint slides. The following Markdown text describes several slides with notes:
 
 ````
 % Presentation title
@@ -1392,7 +1635,7 @@ To display the crontab use `crontab -l`.
 
 ### Record your terminal to an animated GIF
 
-Use Terminalizer to record a session. The following creates a file called `session.yml`:
+Use [Terminalizer](https://github.com/faressoft/terminalizer) to record a session. The following creates a file called `session.yml`:
 
 ```bash
 terminalizer record session
@@ -1412,7 +1655,7 @@ terminalizer init
 
 ### Create an animated GIF from a YouTube video
 
-The following requires **youtube-dl**, **mplayer**, **imagemagick**, and **gifsicle**:
+The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl), [mplayer](https://mplayerhq.hu/), [ImageMagick](https://imagemagick.org), and [gifsicle](https://www.lcdf.org/gifsicle/):
 
 ```bash
 mkdir gif; cd gif
@@ -1426,7 +1669,7 @@ gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > a
 
 ### Create a collection of MP3 files from a YouTube playlist
 
-The following requires **youtube-dl** and **ffmpeg**:
+The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl) and [ffmpeg](https://ffmpeg.org/):
 
 ```bash
 youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass https://www.youtube.com/playlist?list=PL92319EECC1754042
