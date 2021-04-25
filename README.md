@@ -53,6 +53,10 @@
   * [Extract everything except one column](#extract-everything-except-one-column)
   * [Extract characters](#extract-characters)
   * [Change field separators](#change-field-separators)
+- [datamash](#datamash)
+  * [Group records by one column and print information about each group](#group-records-by-one-column-and-print-information-about-each-group)
+  * [Print statistics for a column](#print-statistics-for-a-column)
+  * [Transpose](#transpose)
 - [Docker](#docker)
   * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
   * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
@@ -97,6 +101,7 @@
   * [Copy an ssh public key to another system](#copy-an-ssh-public-key-to-another-system)
   * [Download files from an FTP server](#download-files-from-an-ftp-server)
   * [Download files from Google Drive](#download-files-from-google-drive)
+  * [Extract a file](#extract-a-file)
   * [Combine the columns in two tab-delimited files](#combine-the-columns-in-two-tab-delimited-files)
   * [Add a header to all files with a certain extension, getting the header from another file](#add-a-header-to-all-files-with-a-certain-extension-getting-the-header-from-another-file)
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
@@ -129,6 +134,13 @@
   * [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
   * [Create a collection of MP3 files from a YouTube playlist](#create-a-collection-of-mp3-files-from-a-youtube-playlist)
   * [Download a GenBank file with curl](#download-a-genbank-file-with-curl)
+  * [Perform a calculation on the command line](#perform-a-calculation-on-the-command-line)
+  * [Save the output of a command in a variable](#save-the-output-of-a-command-in-a-variable)
+- [parallel](#parallel)
+  * [Extract files in parallel](#extract-files-in-parallel)
+  * [Compress files in parallel](#compress-files-in-parallel)
+  * [Process files in pairs](#process-files-in-pairs)
+  * [Perform BLAST in parallel](#perform-blast-in-parallel)
 - [Perl](#perl)
   * [Get a random sample of lines from a text file while excluding the header line](#get-a-random-sample-of-lines-from-a-text-file-while-excluding-the-header-line)
   * [Convert a FASTA file to a CSV file with column names](#convert-a-fasta-file-to-a-csv-file-with-column-names)
@@ -147,6 +159,7 @@
   * [while loop](#while-loop)
   * [find with -exec](#find-with--exec)
   * [find with xargs](#find-with-xargs)
+  * [parallel](#parallel-1)
 - [Process multiple files in pairs](#process-multiple-files-in-pairs)
 - [R](#r)
   * [Compare two data sets to find differences](#compare-two-data-sets-to-find-differences)
@@ -574,6 +587,38 @@ while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",?
 | ([^,]+),? | ,}gx; push( @new, undef ) 
 if substr( $text, -1, 1 ) eq '\'','\''; 
 for(@new){s/,/ /g} print join "\t", @new' sequenced_samples.csv
+```
+
+## datamash
+
+### Group records by one column and print information about each group
+
+In the following example the input CSV file has a header line. Records are grouped based on the value in column 2, and for each group the mean value of column 5 is printed:
+
+```bash
+datamash -H -t, -g 2 mean 5 < example.csv 
+```
+
+In the following example the all the values in column 5 are printed for each group:
+
+```bash
+datamash -H -t, -g 2 collapse 5 < example.csv 
+```
+
+### Print statistics for a column
+
+In the following example a variety of statistics are generated for column 5:
+
+```bash
+datamash -H -t, min 5 q1 5 median 5 q3 5 max 5 count 5 mean 5 sstdev 5 < example.csv
+```
+
+### Transpose
+
+The following uses transpose to swap rows and columns in a CSV file with a header row:
+
+```bash
+datamash -H -t, transpose < example.csv
 ```
 
 ## Docker
@@ -1148,6 +1193,33 @@ To copy the drive to local storage:
 rclone copy -P my_google_drive:some_directory ./some_directory
 ```
 
+### Extract a file
+
+The following bash function can be used to extract a variety of file types.
+
+```bash
+extract() {
+  if [ -f "$1" ]; then
+    case "$1" in
+    *.tar.bz2) tar xjf "$1" ;;
+    *.tar.gz) tar xzf "$1" ;;
+    *.bz2) bunzip2 "$1" ;;
+    *.rar) unrar e "$1" ;;
+    *.gz) gunzip "$1" ;;
+    *.tar) tar xf "$1" ;;
+    *.tbz2) tar xjf "$1" ;;
+    *.tgz) tar xzf "$1" ;;
+    *.zip) unzip "$1" ;;
+    *.Z) uncompress "$1" ;;
+    *.7z) 7z x "$1" ;;
+    *) echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+```
+
 ### Combine the columns in two tab-delimited files
 
 ```bash
@@ -1687,6 +1759,70 @@ curl -s  "https://eutils.ncbi.nlm.nih.gov\
 > $i.gbk
 ```
 
+### Perform a calculation on the command line
+
+Use [bc](https://www.gnu.org/software/bc/):
+
+```bash
+echo "2*(42+42)" | bc
+```
+
+### Save the output of a command in a variable
+
+Use a subshell:
+
+```bash
+result=$(echo "sqrt(16)" | bc -l)
+```
+
+## parallel
+
+### Extract files in parallel
+
+In the following command `{.}` is used to get the basename and remove the last extension of each input file:
+
+```bash
+parallel 'zcat {} > {.}.unpacked' ::: *.gz
+```
+
+Or:
+
+```bash
+parallel 'gunzip {}' ::: *.gz
+```
+
+### Compress files in parallel
+
+In the following example 5 jobs are run at the same time:
+
+```bash
+parallel -j5 "gzip {}" ::: *.csv
+```
+
+### Process files in pairs
+
+In the following example paired-end reads with names like `sampleA_1.fastq.gz` and `sampleA_2.fastq.gz` in a directory called `data` are mapped to a reference called `ref` using **bowtie2**:
+
+```bash
+parallel -j2 "bowtie2 --threads 4 -x ref -k1 -q -1 {1} -2 {2} -S {1/.}.sam >& {1/.}.log" ::: data/*_1.fastq.gz :::+ data/*_2.fastq.gz
+```
+
+The `{1/.}` and `{2/.}` remove the path and the extension from the two files in each pair.
+
+### Perform BLAST in parallel
+
+Using the local system:
+
+```bash
+cat multiple_sequences.fasta | parallel --block 100k --recstart '>' --pipe blastp -evalue 0.01 -outfmt 6 -db database.fa -query - > results
+```
+
+Using the local system (denoted as `:` below) and a remote system called `server1` (connection details provided in `.ssh/config`):
+
+```bash
+cat multiple_sequences.fasta | parallel -S :,server1 --block 100k --recstart '>' --pipe blastp -evalue 0.01 -outfmt 6 -db database.fa -query - > results
+```
+
 ## Perl
 
 ### Get a random sample of lines from a text file while excluding the header line
@@ -1857,6 +1993,10 @@ Print the number of lines in every **.csv** or **.tab** file in or below current
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
 ```
 
+### parallel
+
+See the [parallel examples](#parallel).
+
 ## Process multiple files in pairs
 
 High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
@@ -1886,6 +2026,8 @@ find . -name "*_R1_*" -type f | while IFS= read -r file; do
 
 done
 ```
+
+Another option is to use [parallel](#parallel).
 
 ## R
 
