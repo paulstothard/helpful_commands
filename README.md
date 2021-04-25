@@ -599,7 +599,7 @@ In the following example the input CSV file has a header line. Records are group
 datamash -H -t, -g 2 mean 5 < example.csv 
 ```
 
-In the following example the all the values in column 5 are printed for each group:
+In the following example all the values in column 5 are printed for each group:
 
 ```bash
 datamash -H -t, -g 2 collapse 5 < example.csv 
