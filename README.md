@@ -2168,6 +2168,8 @@ genotypes_transposed %>%
 write.table(genotypes_transposed_with_column_names, file = "genotypes_transposed_with_column_names.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
 ```
 
+Or use [datamash](#datamash).
+
 ### Split two-allele genotypes into two columns
 
 To convert this:
