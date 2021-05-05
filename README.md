@@ -39,7 +39,7 @@
   * [Search for a specific package](#search-for-a-specific-package)
   * [Add additional packages to an environment](#add-additional-packages-to-an-environment)
   * [List environments](#list-environments)
-  * [List packages installed in active environment](#list-packages-installed-in-active-environment)
+  * [List packages installed in the active environment](#list-packages-installed-in-the-active-environment)
 - [csvkit](#csvkit)
   * [Convert Excel to CSV](#convert-excel-to-csv)
   * [Convert JSON to CSV](#convert-json-to-csv)
@@ -482,7 +482,7 @@ conda install -y -c bioconda -c conda-forge picard
 conda info --envs
 ```
 
-### List packages installed in active environment
+### List packages installed in the active environment
 
 ```bash
 conda list
