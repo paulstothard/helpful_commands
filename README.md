@@ -32,11 +32,14 @@
   * [Install a graphical application](#install-a-graphical-application)
 - [Conda](#conda)
   * [Install Miniconda](#install-miniconda)
-  * [Create an environment and install some programs](#create-an-environment-and-install-some-programs)
+  * [Create an environment and install some packages](#create-an-environment-and-install-some-packages)
   * [Deactivate an environment](#deactivate-an-environment)
   * [Activate an environment](#activate-an-environment)
-  * [Add additional programs to an environment](#add-additional-programs-to-an-environment)
+  * [List available packages](#list-available-packages)
+  * [Search for a specific package](#search-for-a-specific-package)
+  * [Add additional packages to an environment](#add-additional-packages-to-an-environment)
   * [List environments](#list-environments)
+  * [List packages installed in active environment](#list-packages-installed-in-active-environment)
 - [csvkit](#csvkit)
   * [Convert Excel to CSV](#convert-excel-to-csv)
   * [Convert JSON to CSV](#convert-json-to-csv)
@@ -432,7 +435,7 @@ source ~/.bashrc
 conda update -y -n base -c defaults conda
 ```
 
-### Create an environment and install some programs
+### Create an environment and install some packages
 
 In this example an environment called **ngs** is created:
 
@@ -454,7 +457,19 @@ conda deactivate
 conda activate ngs
 ```
 
-### Add additional programs to an environment
+### List available packages
+
+```bash
+conda search -c bioconda -c conda-forge
+```
+
+### Search for a specific package
+
+```bash
+conda search -c bioconda -c conda-forge blast
+```
+
+### Add additional packages to an environment
 
 ```bash
 conda activate ngs
@@ -465,6 +480,12 @@ conda install -y -c bioconda -c conda-forge picard
 
 ```bash
 conda info --envs
+```
+
+### List packages installed in active environment
+
+```bash
+conda list
 ```
 
 ## csvkit
