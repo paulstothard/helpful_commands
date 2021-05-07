@@ -175,6 +175,10 @@
   * [Add comment lines to output](#add-comment-lines-to-output)
   * [Filter and sort rows](#filter-and-sort-rows)
   * [Add columns from one tibble to another](#add-columns-from-one-tibble-to-another)
+- [rsync](#rsync)
+  * [Sync a directory on local system](#sync-a-directory-on-local-system)
+  * [Sync a directory to a remote system](#sync-a-directory-to-a-remote-system)
+  * [Sync a directory from a remote system](#sync-a-directory-from-a-remote-system)
 - [Singularity](#singularity)
   * [Creating an image from a container stored in Docker Hub](#creating-an-image-from-a-container-stored-in-docker-hub)
 - [sbatch](#sbatch)
@@ -2463,6 +2467,32 @@ for (column in names(genotypes)) {
     add_column(!!(column) := genotypes[[column]]) ->
     vcf
 }
+```
+
+## rsync
+
+### Sync a directory on local system
+
+```bash
+rsync -avzh source_directory destination_directory
+```
+
+To sync only the contents of `source_directory` and not the directory itself use:
+
+```bash
+rsync -avzh source_directory/ destination_directory
+```
+
+### Sync a directory to a remote system
+
+```bash
+rsync -avzh source_directory user@192.168.0.101:~/destination
+```
+
+### Sync a directory from a remote system
+
+```bash
+rsync -avzh user@192.168.0.101:~/source_directory destination
 ```
 
 ## Singularity
