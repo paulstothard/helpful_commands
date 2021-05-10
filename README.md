@@ -118,6 +118,8 @@
   * [Convert PNG files to a single PDF file](#convert-png-files-to-a-single-pdf-file)
   * [Convert a DOCX file to a PDF file](#convert-a-docx-file-to-a-pdf-file)
   * [Convert an Excel file to a CSV file](#convert-an-excel-file-to-a-csv-file)
+  * [Convert a CSV file to an Excel file](#convert-a-csv-file-to-an-excel-file)
+  * [Convert a TSV file to an Excel file](#convert-a-tsv-file-to-an-excel-file)
   * [Convert an HTML file to a PDF file](#convert-an-html-file-to-a-pdf-file)
   * [Convert a website to a PDF file](#convert-a-website-to-a-pdf-file)
   * [Convert an HTML file to a PNG file](#convert-an-html-file-to-a-png-file)
@@ -1379,6 +1381,22 @@ The following uses [csvkit](https://github.com/wireservice/csvkit):
 
 ```bash
 in2csv data.xls > data.csv
+```
+
+### Convert a CSV file to an Excel file
+
+The following uses **ssconvert**, which is distributed with **Gnumeric**:
+
+```bash
+ssconvert input.csv output.xlsx
+```
+
+### Convert a TSV file to an Excel file
+
+The following uses **ssconvert**, which is distributed with **Gnumeric**:
+
+```bash
+ssconvert input.tsv output.xls
 ```
 
 ### Convert an HTML file to a PDF file
