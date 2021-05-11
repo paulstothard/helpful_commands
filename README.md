@@ -3,6 +3,7 @@
 <!-- toc -->
 
 - [awk](#awk)
+  * [Add a header line to a file](#add-a-header-line-to-a-file)
   * [Convert a CSV file to a FASTA file](#convert-a-csv-file-to-a-fasta-file)
   * [Print lines in file when a certain column contains a specific value](#print-lines-in-file-when-a-certain-column-contains-a-specific-value)
   * [Replace certain values in specific columns](#replace-certain-values-in-specific-columns)
@@ -191,6 +192,7 @@
 - [sbatch](#sbatch)
   * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
 - [sed](#sed)
+  * [Add a header line to a file](#add-a-header-line-to-a-file-1)
   * [Print a specific line of a file](#print-a-specific-line-of-a-file)
   * [Change filenames using a regular expression](#change-filenames-using-a-regular-expression)
   * [Search and replace on lines](#search-and-replace-on-lines)
@@ -207,6 +209,9 @@
   * [Cancel all jobs](#cancel-all-jobs)
   * [Start an interactive session](#start-an-interactive-session)
 - [sort](#sort)
+  * [Alphabetical sort](#alphabetical-sort)
+  * [Specify the sort field](#specify-the-sort-field)
+  * [Use multiple sort fields](#use-multiple-sort-fields)
   * [Sort a file with a header row](#sort-a-file-with-a-header-row)
 - [tmux](#tmux)
   * [Start a tmux session](#start-a-tmux-session)
@@ -241,7 +246,7 @@ awk 'BEGIN{print "my header text"}1' input
 
 ### Convert a CSV file to a FASTA file
 
-In this example column **1** contains the sequence title and column **3** contains the sequence:
+In this example column `1` contains the sequence title and column `3` contains the sequence:
 
 ```bash
 awk -F, '{print ">"$1"\n"$3"\n"}' input.csv
@@ -249,7 +254,7 @@ awk -F, '{print ">"$1"\n"$3"\n"}' input.csv
 
 ### Print lines in file when a certain column contains a specific value
 
-In this example lines are printed when the value in column **1** equals **9913**:
+In this example lines are printed when the value in column `1` equals `9913`:
 
 ```bash
 awk -F, '{if ($1 == 9913) print $0}' input.csv
@@ -257,7 +262,7 @@ awk -F, '{if ($1 == 9913) print $0}' input.csv
 
 ### Replace certain values in specific columns
 
-In this example **1** and **-1** in column **23** are replaced with **forward** and **reverse**, respectively:
+In this example `1` and `-1` in column `23` are replaced with `forward` and `reverse`, respectively:
 
 ```bash
 awk -F\\t 'BEGIN {OFS = "\t"} {sub(/^1/, "forward", $23); sub(/^-1/, "reverse", $23); print}' input.tab
@@ -265,7 +270,7 @@ awk -F\\t 'BEGIN {OFS = "\t"} {sub(/^1/, "forward", $23); sub(/^-1/, "reverse", 
 
 ### Add up the values in a column
 
-In this example values in column **5** are summed in a file with columns separated by one or more blank spaces:
+In this example values in column `5` are summed in a file with columns separated by one or more blank spaces:
 
 ```bash
 awk -F' {1,}' '{sum+=$5} END {print sum}' input.txt
@@ -273,7 +278,7 @@ awk -F' {1,}' '{sum+=$5} END {print sum}' input.txt
 
 ### Create a new column from two existing columns
 
-In this example the values in columns **3** and **4** are added to create a new column:
+In this example the values in columns `3` and `4` are added to create a new column:
 
 ```bash
 awk -F, '{print $0,$3+$4}' input.txt
@@ -281,7 +286,7 @@ awk -F, '{print $0,$3+$4}' input.txt
 
 ### For each category in one column, add up the values in another column
 
-In this example values in column **2** are summed up for each category in column **1**:
+In this example values in column `2` are summed up for each category in column `1`:
 
 ```bash
 awk -F, '{a[$1]+=$2}END{for(i in a) print i,a[i]}' input.csv
@@ -297,7 +302,7 @@ awk -F $'\t' 'NR>1{exit};{for (i = 1; i <= NF; i++) print "column " i,"is " $i}'
 
 ### Print the values observed in a specific column, along with the number of times each value is observed 
 
-In this example the counts for each distinct value in column **9** are printed:
+In this example the counts for each distinct value in column `9` are printed:
 
 ```bash
 awk -F $'\t' '{count[$9]++}END{for(j in count) print j,"("count[j]" counts)"}' input.tab
@@ -311,7 +316,7 @@ awk -F $'\t' '{count[NF]++}END{for(j in count) print "line length " j,"("count[j
 
 ### Print lines where certain fields contain values of interest
 
-In this example lines where column **2** equals **7** and column **3** is between **60240145** and **60255062** are printed:
+In this example lines where column `2` equals `7` and column `3` is between `60240145` and `60255062` are printed:
 
 ```bash
 awk -F, '{ if ($2 == 7 && $3 >= 60240145 && $3 <= 60255062) print $0 }' input.csv
@@ -319,7 +324,7 @@ awk -F, '{ if ($2 == 7 && $3 >= 60240145 && $3 <= 60255062) print $0 }' input.cs
 
 ### Write each row to a separate file named after the value in a specific column
 
-In this example each file is named after the value in column **1**:
+In this example each file is named after the value in column `1`:
 
 ```bash
 awk -F '\t' '{ fname = $1 ".txt"; print >>fname; close(fname) }' input.tab
@@ -327,7 +332,7 @@ awk -F '\t' '{ fname = $1 ".txt"; print >>fname; close(fname) }' input.tab
 
 ### Split a multi-FASTA file into separate files named according to the sequence title
 
-In this example the sequences are written to a directory called **out**:
+In this example the sequences are written to a directory called `out`:
 
 ```bash
 outputdir=out/
@@ -337,7 +342,7 @@ awk '/^>/ {OUT=substr($0,2); split(OUT, a, " "); sub(/[^A-Za-z_0-9\.\-]/, "", a[
 
 ### Print only specific columns, identified by name in the first row
 
-In this example the columns named **Affy SNP ID** and **Flank** are printed:
+In this example the columns named `Affy SNP ID` and `Flank` are printed:
 
 ```bash
 awk -F, 'NR==1 { for (i=1; i<=NF; i++) { ix[$i] = i } } NR>1 { print $ix["Affy SNP ID"]","$ix["Flank"] }' input.csv
@@ -345,7 +350,7 @@ awk -F, 'NR==1 { for (i=1; i<=NF; i++) { ix[$i] = i } } NR>1 { print $ix["Affy S
 
 ### Print only the lines coming after a certain starting line and before a certain ending line
 
-In this example the lines coming after a line starting with **IlmnID** and before a line starting with **[Controls]** are printed:
+In this example the lines coming after a line starting with `IlmnID` and before a line starting with `[Controls]` are printed:
 
 ```bash
 awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv
@@ -365,7 +370,7 @@ awk 'NR%4==2{sum+=length($0)}END{print sum/(NR/4)}' input.fastq
 
 ### Sort lines based on order of IDs in another file
 
-In this example, the records in `file_to_sort.csv` have an identifier in column **1** that is present in `sorted_ids.txt`, which has a single column:
+In this example, the records in `file_to_sort.csv` have an identifier in column `1` that is present in `sorted_ids.txt`, which has a single column:
 
 ```bash
 awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' file_to_sort.csv sorted_ids.txt
@@ -393,7 +398,7 @@ To view packages available from the core tap via the Homebrew package manager fo
 
 ### Install a package
 
-In this example **parallel**:
+In this example `parallel`:
 
 ```bash
 brew install parallel
@@ -401,7 +406,7 @@ brew install parallel
 
 ### Add a third-party repository
 
-In this example **brewsci/bio** for bioinformatics software:
+In this example `brewsci/bio` for bioinformatics software:
 
 ```bash
 brew tap brewsci/bio
@@ -409,7 +414,7 @@ brew tap brewsci/bio
 
 ### Install directly from a third-party repository
 
-In this example **clustal-w** from **brewsci/bio**:
+In this example `clustal-w` from `brewsci/bio`:
 
 ```bash
 brew install brewsci/bio/clustal-w
@@ -454,7 +459,7 @@ conda update -y -n base -c defaults conda
 
 ### Create an environment and install some packages
 
-In this example an environment called **ngs** is created:
+In this example an environment called `ngs` is created:
 
 ```bash
 conda create -y --name ngs
@@ -567,7 +572,7 @@ csvsql --query "select name from data where age > 30" data.csv > new.csv
 
 ### Extract columns of interest
 
-In this example columns 1 and 2 are extracted from a from a CSV file:
+In this example columns `1` and `2` are extracted from a from a CSV file:
 
 ```bash
 cut -d, -f 1,2 sequenced_samples.csv
@@ -575,7 +580,7 @@ cut -d, -f 1,2 sequenced_samples.csv
 
 ### Extract a range of columns
 
-In this example columns 3, 10, 11, and 12 are extracted from a tab-delimited file:
+In this example columns `3`, `10`, `11`, and `12` are extracted from a tab-delimited file:
 
 ```bash
 cut -d $'\t' -f 3,10-12 bovine_genotypes.vcf
@@ -583,7 +588,7 @@ cut -d $'\t' -f 3,10-12 bovine_genotypes.vcf
 
 ### Extract everything except one column
 
-In this example all columns except column 1 are returned (the `-f 2-` is used to mean "from field 2 to the end"):
+In this example all columns except column `1` are returned (the `-f 2-` is used to mean "from field 2 to the end"):
 
 ```bash
 cut -d $'\t' -f 2- bovine_genotypes.vcf
@@ -631,13 +636,13 @@ for(@new){s/,/ /g} print join "\t", @new' sequenced_samples.csv
 
 ### Group records by one column and print information about each group
 
-In the following example the input CSV file has a header line. Records are grouped based on the value in column 2, and for each group the mean value of column 5 is printed:
+In the following example the input CSV file has a header line. Records are grouped based on the value in column `2`, and for each group the mean value of column `5` is printed:
 
 ```bash
 datamash -H -t, -g 2 mean 5 < example.csv 
 ```
 
-In the following example all the values in column 5 are printed for each group:
+In the following example all the values in column `5` are printed for each group:
 
 ```bash
 datamash -H -t, -g 2 collapse 5 < example.csv 
@@ -645,7 +650,7 @@ datamash -H -t, -g 2 collapse 5 < example.csv
 
 ### Print statistics for a column
 
-In the following example a variety of statistics are generated for column 5:
+In the following example a variety of statistics are generated for column `5`:
 
 ```bash
 datamash -H -t, min 5 q1 5 median 5 q3 5 max 5 count 5 mean 5 sstdev 5 < example.csv
@@ -669,7 +674,7 @@ Download the legacy BLAST Docker image:
 docker pull quay.io/biocontainers/blast-legacy:2.2.26--2
 ```
 
-Create a container from the image and run **formatdb** to create a formatted database. In this example the database is created from a DNA sequence file called `database.fasta`, located in the current directory:
+Create a container from the image and run `formatdb` to create a formatted database. In this example the database is created from a DNA sequence file called `database.fasta`, located in the current directory:
 
 ```bash
 docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 formatdb -i database.fasta -p F
@@ -735,7 +740,7 @@ Download the Prokka Docker image:
 docker pull staphb/prokka:latest
 ```
 
-Create a container from the image and run **prokka** to annotate the sequence. In this example the genome sequence to be annotated is in a file called `sequence.fasta`, located in the current directory, and four CPUs are used:
+Create a container from the image and run `prokka` to annotate the sequence. In this example the genome sequence to be annotated is in a file called `sequence.fasta`, located in the current directory, and four CPUs are used:
 
 ```bash
 docker run --rm -v $(pwd):/dir -w /dir staphb/prokka:latest prokka sequence.fasta --cpus 4
@@ -769,7 +774,7 @@ docker container rm $(docker ps -a -q)
 
 ### Perform a series of commands on files returned by find
 
-In this example `$'...'` is used for quoting, as it can contain escaped single quotes, and **tail** is used to skip a header line, **awk** is used to count the number of occurrences of each category in column 3 and print the category and counts, and **sort** is used to sort the categories by count from largest to smallest with ties broken by sorting on category name:
+In this example `$'...'` is used for quoting, as it can contain escaped single quotes, and `tail` is used to skip a header line, `awk` is used to count the number of occurrences of each category in column 3 and print the category and counts, and `sort` is used to sort the categories by count from largest to smallest with ties broken by sorting on category name:
 
 ```bash
 find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
@@ -777,7 +782,7 @@ find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | a
 
 ### Switch to the directory containing each file and execute a command
 
-The -execdir option instructs **find** to switch to the directory containing each matching file before executing the specified command. In this example the command creates a **.zip** file for each **.vcf** file that is found:
+The -execdir option instructs `find` to switch to the directory containing each matching file before executing the specified command. In this example the command creates a `.zip` file for each `.vcf` file that is found:
 
 ```bash
 find . -name "*.vcf" -type f -execdir zip '{}.zip' '{}' \;
@@ -803,7 +808,7 @@ git init
 
 ### Sync a repository to your local machine
 
-First, copy the clone URL on the GitHub repository page by clicking **Clone or Download**. Then, enter the following command in a terminal window. The helpful\_commands repository is used as an example:
+First, copy the clone URL on the GitHub repository page by clicking `Clone or Download`. Then, enter the following command in a terminal window. The helpful\_commands repository is used as an example:
 
 ```bash
 git clone https://github.com/stothard-group/helpful_commands.git
@@ -877,8 +882,7 @@ The commit should include a message using the -m option:
 git commit -m "A concise description of the changes"
 ```
 
-The following changes can be made to commits that have **not** been pushed to a remote repository:
-To rewrite the very last commit, with any currently staged changes:
+The following changes can be made to commits that have **not** been pushed to a remote repository. To rewrite the very last commit, with any currently staged changes:
 
 ```bash
 git commit --amend -m "An updated message"
@@ -969,11 +973,11 @@ git merge <new-branch>
 git push -u origin main
 ```
 
-Git merge conflicts can arise easily. For information on resolving a merge conflict, see [Resolving a merged conflict using the command line](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line)
+Git merge conflicts can arise easily. For information on resolving a merge conflict, see [Resolving a merged conflict using the command line](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line).
 
 ### Specify files to ignore
 
-Create a .gitignore file:
+Create a `.gitignore` file:
 
 ```bash
 touch .gitignore
@@ -989,9 +993,9 @@ git commit -m "add .gitignore file"
 git push -u origin main
 ```
 
-In this example, the following files will no longer be tracked: `sensitive_data.txt`, and all files with a **.vcf** extension in the directory `test`.
+In this example, the following files will no longer be tracked: `sensitive_data.txt`, and all files with a `.vcf` extension in the directory `test`.
 
-Note that adding a .gitignore file will not remove tracked files; this must be done with `git rm`. See [Removing files from the repository](#removing-files-from-the-repository)
+Note that adding a `.gitignore` file will not remove tracked files; this must be done with `git rm`. See [Removing files from the repository](#removing-files-from-the-repository).
 
 ### Check the status of a working directory
 
@@ -1014,7 +1018,7 @@ Information on how to choose version numbers if available [here](https://semver.
 
 ### Count matches
 
-In this example the number of lines with a match to **>** is returned:
+In this example the number of lines with a match to `>` is returned:
 
 ```bash
 grep -c ">" input.fasta
@@ -1022,7 +1026,7 @@ grep -c ">" input.fasta
 
 ### Get the line number of a match
 
-In this example the line numbers of lines with a match to **234829** are reported:
+In this example the line numbers of lines with a match to `234829` are reported:
 
 ```bash
 grep -n "234829" input.txt
@@ -1030,7 +1034,7 @@ grep -n "234829" input.txt
 
 ### Remove files that contain a match
 
-In this example **.fasta** files are removed that contain the text **complete genome** on a single line:
+In this example `.fasta` files are removed that contain the text `complete genome` on a single line:
 
 ```bash
 grep -l "complete genome" *.fasta | xargs -I{} rm -f {}
@@ -1038,7 +1042,7 @@ grep -l "complete genome" *.fasta | xargs -I{} rm -f {}
 
 ### Remove files that do not contain a match
 
-In this example **.fasta** files are removed that do not contain the text **complete genome** on a single line:
+In this example `.fasta` files are removed that do not contain the text `complete genome` on a single line:
 
 ```bash
 grep -L "complete genome" *.fasta | xargs -I{} rm -f {}
@@ -1046,7 +1050,7 @@ grep -L "complete genome" *.fasta | xargs -I{} rm -f {}
 
 ### Remove lines that match
 
-Keep everything except lines starting with **#**:
+Keep everything except lines starting with `#`:
 
 ```bash
 grep -v '^#' input.txt
@@ -1070,7 +1074,7 @@ Print with added formatting for readability:
 mlr --icsv --opprint head -n 10 example.csv 
 ```
 
-Print each value with the column name in the form **column=value**:
+Print each value with the column name in the form `column=value`:
 
 ```bash
 mlr --icsv --odkvp head -n 10 example.csv
@@ -1090,7 +1094,7 @@ Print with added formatting for readability:
 mlr --icsv --opprint tail -n 10 example.csv 
 ```
 
-Print each field with the column name in the form **column=field**:
+Print each field with the column name in the form `column=field`:
 
 ```bash
 mlr --icsv --odkvp tail -n 10 example.csv
@@ -1195,11 +1199,11 @@ To view a complete list of Miller verbs use the following:
 mlr -l
 ```
 
-To view documentation for a particular verb use **mlr _verb_ --help**.
+To view documentation for a particular verb use `mlr _verb_ --help`.
 
 ### Combine actions
 
-Perform multiple actions sequentially using **then**:
+Perform multiple actions sequentially using `then`:
 
 ```bash
 mlr --csv put '$New_coverage = ($Coverage / 100)' then sort -f Breed -nr Coverage then cut -f InterbullID,New_coverage example.csv
@@ -1221,7 +1225,7 @@ Generate the key pair:
 ssh-keygen
 ```
 
-Copy the public key to the `.ssh/authorized_keys` file on the other system using **ssh-copy-id**:
+Copy the public key to the `.ssh/authorized_keys` file on the other system using `ssh-copy-id`:
 
 ```bash
 ssh-copy-id -i ~/.ssh/id_rsa.pub user@remote-host.com
@@ -1239,9 +1243,9 @@ wget -S -d -c -t 45 -v -r ftp://account:password@host:port/*
 
 [Rclone](https://rclone.org) can be used to download data from many cloud storage providers.
 
-First, follow the [configuration instructions](https://rclone.org/drivei). The commands below assume that the remote system was named **my_google_drive** during the configuration.
+First, follow the [configuration instructions](https://rclone.org/drivei). The commands below assume that the remote system was named `my_google_drive` during the configuration.
 
-Note that you can use the **Add shortcut to Drive** option in Google Drive to make folders and files in **Shared with me** easier to access using rclone.
+Note that you can use the `Add shortcut to Drive` option in Google Drive to make folders and files in `Shared with me` easier to access using rclone.
 
 To list remote drives:
 
@@ -1302,13 +1306,13 @@ paste -d"\t" input1.tab input2.tab
 
 ### Add a header to all files with a certain extension, getting the header from another file
 
-In this example the header is added to **.tab** files and comes from a file called `header.txt`. The files with the header added are saved with a **.new** extension added:
+In this example the header is added to `.tab` files and comes from a file called `header.txt`. The files with the header added are saved with a `.new` extension added:
 
 ```bash
 for f in *.tab; do new=`echo $f | sed 's/\(.*\)\.tab/\1.tab.new/'`; paste -sd'\n' \header.txt "$f" > "$new"; done
 ```
 
-To replace the **.tab** files the **.new** files:
+To replace the `.tab` files the `.new` files:
 
 ```bash
 for f in *.new; do new=`echo $f | sed 's/\(.*\)\.new/\1/'`; mv "$f" "$new"; done
@@ -1328,7 +1332,7 @@ some_command 2>&1 | tee -a log
 
 ### Change the extension of multiple files
 
-The following changes the **.gbff** extension to **.gbk**:
+The following changes the `.gbff` extension to `.gbk`:
 
 ```bash
 for f in *.gbff; do 
@@ -1336,13 +1340,13 @@ for f in *.gbff; do
 done
 ```
 
-If **rename** is available, this may work:
+If `rename` is available, this may work:
 
 ```bash
 rename 's/\.gbff$/.gbk/' *.gbff 
 ```
 
-Or this, depending on which **rename** is installed:
+Or this, depending on which `rename` is installed:
 
 ```bash
 rename .gbff .gbk *.gbff 
@@ -1356,13 +1360,13 @@ echo 'new header line' | cat - file.txt > temp && mv temp file.txt
 
 ### Add text or a header to the beginning of all files with a particular file extension
 
-Add **my header text** to the start of all **.csv** files in the current directory (works on macOS):
+Add `my header text` to the start of all `.csv` files in the current directory (works on macOS):
 
 ```bash
 find . -name "*.csv" -exec sed -i '.bak' '1s/^/my header text\'$'\n/g' {} \;
 ```
 
-Add **my header text** to the start of all **.csv** files in the current directory (works on Linux):
+Add `my header text` to the start of all `.csv` files in the current directory (works on Linux):
 
 ```bash
 find . -name "*.csv" -exec sed -i '1s/^/my header text\n/' {} \;
@@ -1370,13 +1374,13 @@ find . -name "*.csv" -exec sed -i '1s/^/my header text\n/' {} \;
 
 ### Find common lines between files
 
-Between two files, named **file1.txt** and **file2.txt**:
+Between two files, named `file1.txt` and `file2.txt`:
 
 ```bash
 comm -12 <( sort file1.txt ) <( sort file2.txt )
 ```
 
-Among all **.txt** files in the current directory:
+Among all `.txt` files in the current directory:
 
 ```bash
 number_of_files=$(find . -name "*.txt" -print | wc -l | sed 's/[^0-9]*//g')
@@ -1385,7 +1389,7 @@ cat *.txt | sort | uniq -c | sed -n -e "s/^ *$number_of_files \(.*\)/\1/p"
 
 ### Convert a CSV file to a Markdown table
 
-The following uses [csv2md](https://github.com/pstaender/csv2md). The **awk** command can be used if some rows of the input have missing fields on the end:
+The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used if some rows of the input have missing fields on the end:
 
 ```bash
 awk -F, -v OFS="," 'NR==1 {cols=NF} {$1=$1; for (i=NF+1; i <= cols; i++) $i = "."} 1' input.csv > temp.csv
@@ -1394,7 +1398,7 @@ csv2md -p < temp.csv > output.md
 
 ### Convert PDF files to PNG files
 
-The following uses **find** and the **pdftoppm** command from the [poppler](https://poppler.freedesktop.org) package to generate a PNG image of the first page of every PDF file in the working directory:
+The following uses `find` and the `pdftoppm` command from the [poppler](https://poppler.freedesktop.org) package to generate a PNG image of the first page of every PDF file in the working directory:
 
 ```bash
 find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
@@ -1432,7 +1436,7 @@ in2csv data.xls > data.csv
 
 ### Convert a CSV file to an Excel file
 
-The following uses **ssconvert**, which is distributed with **Gnumeric**:
+The following uses `ssconvert`, which is distributed with Gnumeric:
 
 ```bash
 ssconvert input.csv output.xlsx
@@ -1440,7 +1444,7 @@ ssconvert input.csv output.xlsx
 
 ### Convert a TSV file to an Excel file
 
-The following uses **ssconvert**, which is distributed with **Gnumeric**:
+The following uses `ssconvert`, which is distributed with Gnumeric:
 
 ```bash
 ssconvert input.tsv output.xls
@@ -1554,15 +1558,15 @@ shellcheck some_script.sh
 
 ### Take a screenshot of a window on macOS
 
-1. Press **Command+Shift+4**.
-2. Press the **space bar**.
-3. Hold **Option** and click on the window.
+1. Press `Command+Shift+4`.
+2. Press the `space bar`.
+3. Hold `Option` and click on the window.
 
-To keep the drop shadow perform the last step without holding **Option**. 
+To keep the drop shadow perform the last step without holding `Option`. 
 
 ### Take a webpage screenshot using Firefox
 
-1. Press **F12** to open the Firefox Developer Tools.
+1. Press `F12` to open the Firefox Developer Tools.
 2. Enter `:screenshot` into the Web Console to download the current view as a PNG file.
 
 To save a high-DPI webpage screenshot use `:screenshot --dpr 4`. 
@@ -1743,13 +1747,13 @@ Alternatively, to create the slides using an existing PowerPoint template or pre
 pandoc input.md -o slides.pptx --reference-doc some_template.potx
 ```
 
-The formatting of individual slides can then be adjusted in PowerPoint, using the **Design** tab and the **Design Ideas** button. Slide numbers and headers and footers can be added using **View->Slide Master** followed by **Insert**, and then **Header & Footer**.
+The formatting of individual slides can then be adjusted in PowerPoint, using the `Design` tab and the `Design Ideas` button. Slide numbers and headers and footers can be added using `View->Slide Master` followed by `Insert`, and then `Header & Footer`.
 
-To reduce the size of the file, use **File->Compress Pictures...**.
+To reduce the size of the file, use `File->Compress Pictures...`.
 
 ### Run commands at scheduled times using cron
 
-The following uses **cron** to run a script to copy various files and directories to a directory backed up by Dropbox.
+The following uses `cron` to run a script to copy various files and directories to a directory backed up by Dropbox.
 
 Create the script the `copy_to_dropbox.sh` script, editing as needed:
 
@@ -1891,7 +1895,7 @@ parallel -j5 "gzip {}" ::: *.csv
 
 ### Process files in pairs
 
-In the following example paired-end reads with names like `sampleA_1.fastq.gz` and `sampleA_2.fastq.gz` in a directory called `data` are mapped to a reference called `ref` using **bowtie2**:
+In the following example paired-end reads with names like `sampleA_1.fastq.gz` and `sampleA_2.fastq.gz` in a directory called `data` are mapped to a reference called `ref` using `bowtie2`:
 
 ```bash
 parallel -j2 "bowtie2 --threads 4 -x ref -k1 -q -1 {1} -2 {2} -S {1/.}.sam >& {1/.}.log" ::: data/*_1.fastq.gz :::+ data/*_2.fastq.gz
@@ -1945,7 +1949,7 @@ cat names.txt | xargs -I{} perl -w -076 -e '$count = 0; open(SEQ, "<" . $ARGV[0]
 
 ### Add a FASTA title to the start of a sequence in RAW format
 
-In this example the title **>KL1** is added to the beginning of the sequence in `KL1sequence.txt`:
+In this example the title `>KL1` is added to the beginning of the sequence in `KL1sequence.txt`:
 
 ```bash
 perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
@@ -1989,7 +1993,7 @@ perl -0777 -ne 'while (m/^\s+\/translation="([^"]+)"/gm) {$out = $1; $out =~ s/\
 
 ### Format Perl code
 
-The following uses **perltidy** to reformat the code in `testfile.pl` and will create a file called `testfile.pl.tdy`.
+The following uses `perltidy` to reformat the code in `testfile.pl` and will create a file called `testfile.pl.tdy`.
 
 ```bash
 perltidy testfile.pl
@@ -1999,7 +2003,7 @@ perltidy testfile.pl
 
 ### for loop
 
-Change all **.fasta** files in the current directory to **.fna** files:
+Change all `.fasta` files in the current directory to `.fna` files:
 
 ```bash
 for f in *.fasta; do new=`echo $f | sed 's/\(.*\)\.fasta/\1.fna/'`; mv "$f" "$new"; done
@@ -2007,19 +2011,19 @@ for f in *.fasta; do new=`echo $f | sed 's/\(.*\)\.fasta/\1.fna/'`; mv "$f" "$ne
 
 ### while loop
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f"; done
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" >> output.txt; done
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
@@ -2027,25 +2031,25 @@ find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f
 
 ### find with -exec
 
-Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
+Change all `.fasta` files in current directory to `.fna` files by appending a `.fna` extension:
 
 ```bash
 find . -type f -name "*.fasta" -exec mv {} {}.fna \;
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \;
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \; > output.txt
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$1.output.txt"' -- {} \;
@@ -2053,31 +2057,31 @@ find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$
 
 ### find with xargs
 
-Change all **.fasta** files in current directory to **.fna** files by appending a **.fna** extension:
+Change all `.fasta` files in current directory to `.fna` files by appending a `.fna` extension:
 
 ```bash
 find . -type f -name "*.fasta" -print0 | xargs -0 -I{} mv {} {}.fna
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {}
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to a single file:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {} > output.txt
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
 ```
 
-Print the number of lines in every **.csv** or **.tab** file in or below current directory and redirect the results to separate files. Process up to **4** files in parallel:
+Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files. Process up to `4` files in parallel:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
@@ -2123,7 +2127,7 @@ Another option is to use [parallel](#parallel).
 
 ### Compare two data sets to find differences
 
-In this example SNP location information assigned by two different algorithms is compared using the **compareDF** package. The two data sets (position information) generated by the differing algorithms are read from files. SNP name is used to match rows across the data sets, and then the 'chromosome' and 'position' are compared. SNP records for which 'chromosome' or 'position' differ between the data sets are written to an Excel file:
+In this example SNP location information assigned by two different algorithms is compared using the `compareDF` package. The two data sets (position information) generated by the differing algorithms are read from files. SNP name is used to match rows across the data sets, and then the 'chromosome' and 'position' are compared. SNP records for which 'chromosome' or 'position' differ between the data sets are written to an Excel file:
 
 ```r
 library(compareDF)
@@ -2144,7 +2148,7 @@ create_output_table(ctable, output_type="xlsx", file_name=output_file, limit=100
 
 ### Visualize the degree of overlap among gene sets
 
-In this example, an UpSet plot is used to visualize the overlap among all combinations of gene lists in the **gene_lists** directory. In this directory each list is given as a separate **.txt** file, with a single header row and one gene name or ID per row, for example:
+In this example, an UpSet plot is used to visualize the overlap among all combinations of gene lists in the `gene_lists` directory. In this directory each list is given as a separate `.txt` file, with a single header row and one gene name or ID per row, for example:
 
 ```
 Gene name or identifier
@@ -2153,7 +2157,7 @@ ENSG00000224383.8
 CCDS54157.1.1
 ```
 
-The UpSet plot is generated using the **UpSetR** package:
+The UpSet plot is generated using the `UpSetR` package:
 
 ```r
 library(UpSetR)
@@ -2178,7 +2182,7 @@ The resulting plot displays the number of items shared among all possible combin
 
 ### Cluster gene lists based on overlap and identify shared genes
 
-In this example a heatmap is used to visualize gene presence and absence for all gene lists in the **gene_lists** directory. In this directory each list is given as a separate **.txt** file, with a single header row and one gene name or ID per row, for example:
+In this example a heatmap is used to visualize gene presence and absence for all gene lists in the `gene_lists` directory. In this directory each list is given as a separate `.txt` file, with a single header row and one gene name or ID per row, for example:
 
 ```
 Gene name or identifier
@@ -2187,7 +2191,7 @@ ENSG00000224383.8
 CCDS54157.1.1
 ```
 
-The following uses the **purrr** and **RVenn** packages:
+The following uses the `purrr` and `RVenn` packages:
 
 ```r
 library(purrr)
@@ -2582,9 +2586,9 @@ The `-B` is used to provide the container with access to directories.
 
 ### Count lines in compressed fastq files
 
-In this example the number of lines in several **.fastq.gz** files is quickly determined by submitting jobs to Slurm using sbatch.
+In this example the number of lines in several `.fastq.gz` files is quickly determined by submitting jobs to Slurm using sbatch.
 
-The naming scheme of the **.fastq.gz** files is as follows (the sample name is in the file name, for example **DG15B032198-1**):
+The naming scheme of the `.fastq.gz` files is as follows (the sample name is in the file name, for example `DG15B032198-1`):
 
 ```
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz
@@ -2610,7 +2614,7 @@ LINES="`zcat $1 | wc -l`"
 echo "$1 $LINES"
 ```
 
-Then use the following commands to submit a job for each **.fastq.gz** file:
+Then use the following commands to submit a job for each `.fastq.gz` file:
 
 ```bash
 files=$(find . -name "*fastq.gz" -printf '%P\n')
@@ -2631,13 +2635,13 @@ HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.out
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.err
 ```
 
-The **.out** files will contain the name of the input file and the number of lines, for example:
+The `.out` files will contain the name of the input file and the number of lines, for example:
 
 ```
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz 229623444
 ```
 
-To quickly check the **.err** files:
+To quickly check the `.err` files:
 
 ```bash
 cat *.err | more
@@ -2667,7 +2671,7 @@ sed $'1s/^/my header text\\\n&/' input
 
 ### Print a specific line of a file
 
-In this example line **26404**:
+In this example line `26404`:
 
 ```bash
 sed -n "26404p" input.txt
@@ -2675,7 +2679,7 @@ sed -n "26404p" input.txt
 
 ### Change filenames using a regular expression
 
-In this example **chr30** is replaced with **chrX**:
+In this example `chr30` is replaced with `chrX`:
 
 ```bash
 for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
@@ -2889,7 +2893,7 @@ split-window -h -p 50 \; \
 select-pane -t 0 \;
 ```
 
-The following also creates a three-pane tmux session, and launches **vim** in the largest pane:
+The following also creates a three-pane tmux session, and launches `vim` in the largest pane:
 
 ```bash
 tmux new-session -s multiple \; \
@@ -2988,7 +2992,7 @@ echo "a,b,,c,,,d" | tr -s ","
 
 ### Extract variants from a region of interest and write to a new vcf file
 
-Note that if the vcf file is gzip compressed (i.e. has a **.gz** extension), use `--gzvcf` instead of `--vcf`.
+Note that if the vcf file is gzip compressed (i.e. has a `.gz` extension), use `--gzvcf` instead of `--vcf`.
 
 ```bash
 vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 --recode --recode-INFO-all
@@ -3006,19 +3010,19 @@ bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
 
 ### Search and replace across multiple files
 
-In this example search and replace operations are performed on all the **.html** files in a directory. First, open the files in multiple buffers in vim:
+In this example search and replace operations are performed on all the `.html` files in a directory. First, open the files in multiple buffers in vim:
 
 ```bash
 vim *.html
 ```
 
-Then use **argdo** to perform a search and replace across all the files. In this example blank lines are removed:
+Then use `argdo` to perform a search and replace across all the files. In this example blank lines are removed:
 
 ```
 :argdo %s/^$//ge
 ```
 
-In this example the text between `<p class="lastupdated">` and `</p>` are replaced with the current date. Note the use of **\zs** and **\ze** so that the text between those tags is replaced and not the tags themselves:
+In this example the text between `<p class="lastupdated">` and `</p>` are replaced with the current date. Note the use of `\zs` and `\ze` so that the text between those tags is replaced and not the tags themselves:
 
 ```
 :argdo %s/<p class="lastupdated">\zs[^<]*\ze<\/p>/\=strftime("%c")/ge
@@ -3026,7 +3030,7 @@ In this example the text between `<p class="lastupdated">` and `</p>` are replac
 
 ### Search and replace newlines
 
-In replacement syntax use **\r** instead of **\n** to represent newlines. For example, to replace commas with newlines:
+In replacement syntax use `\r` instead of `\n` to represent newlines. For example, to replace commas with newlines:
 
 ```
 :%s/,/\r/g 
