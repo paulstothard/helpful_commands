@@ -233,6 +233,12 @@
 
 ## awk
 
+### Add a header line to a file
+
+```bash
+awk 'BEGIN{print "my header text"}1' input
+```
+
 ### Convert a CSV file to a FASTA file
 
 In this example column **1** contains the sequence title and column **3** contains the sequence:
@@ -2653,6 +2659,12 @@ diff line_counts_per_sample_R1.tab line_counts_per_sample_R2.tab
 
 ## sed
 
+### Add a header line to a file
+
+```bash
+sed $'1s/^/my header text\\\n&/' input
+```
+
 ### Print a specific line of a file
 
 In this example line **26404**:
@@ -2788,6 +2800,39 @@ salloc --time=3:00:00 --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --mem=6400
 ```
 
 ## sort
+
+### Alphabetical sort
+
+```bash
+sort -t, input.csv
+```
+
+### Specify the sort field
+
+The `-k` option of `sort` is used to indicate that certain fields are to be used for sorting (the sorting is still applied to the entire line).
+
+The following sorts only using column 5 (`5,5` means "starting at column 5 and ending at column 5"), numerically, from smallest to largest:
+
+```bash
+(head -n 1 sequenced_samples.csv && \
+tail -n +2 sequenced_samples.csv | sort -t, -k5,5n)
+```
+
+The following sorts using column 2 to the end of line, alphabetically:
+
+```bash
+(head -n 1 sequenced_samples.csv && sort -t, -k2 \
+<(tail -n +2 sequenced_samples.csv))
+```
+
+### Use multiple sort fields
+
+The command below sorts using column 2, breaking ties using the value in column 5 (sorting numerically from largest to smallest). The input file has a single header row, which is excluded from the sort.
+
+```bash
+cat sequenced_samples.csv | awk \
+'NR<2{print $0; next}{print $0| "sort -t, -k2,2 -k5,5nr"}'
+```
 
 ### Sort a file with a header row
 
