@@ -64,6 +64,10 @@
   * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
   * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
   * [Annotate a bacterial genome using Prokka](#annotate-a-bacterial-genome-using-prokka)
+  * [List running containers](#list-running-containers)
+  * [Stop a container](#stop-a-container)
+  * [Kill all running containers](#kill-all-running-containers)
+  * [Delete all containers that are not running](#delete-all-containers-that-are-not-running)
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
   * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
@@ -728,6 +732,30 @@ Create a container from the image and run **prokka** to annotate the sequence. I
 
 ```bash
 docker run --rm -v $(pwd):/dir -w /dir staphb/prokka:latest prokka sequence.fasta --cpus 4
+```
+
+### List running containers
+
+```bash
+docker container ls
+```
+
+### Stop a container
+
+```bash
+docker container stop some_container
+```
+
+### Kill all running containers
+
+```bash
+docker container kill $(docker ps -q)  
+```
+
+### Delete all containers that are not running
+
+```bash
+docker container rm $(docker ps -a -q)
 ```
 
 ## find
