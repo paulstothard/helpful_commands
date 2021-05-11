@@ -81,6 +81,7 @@
   * [Move or rename a file or directory](#move-or-rename-a-file-or-directory)
   * [Save the marked files to the local Git repository](#save-the-marked-files-to-the-local-git-repository)
   * [Push a commit on your local branch to a remote repository](#push-a-commit-on-your-local-branch-to-a-remote-repository)
+  * [Pull a change from a remote repository to your local branch](#pull-a-change-from-a-remote-repository-to-your-local-branch)
   * [Add or edit a remote repository](#add-or-edit-a-remote-repository)
   * [Create and merge Git branches](#create-and-merge-git-branches)
   * [Specify files to ignore](#specify-files-to-ignore)
@@ -749,7 +750,7 @@ docker container stop some_container
 ### Kill all running containers
 
 ```bash
-docker container kill $(docker ps -q)  
+docker container kill $(docker ps -q)
 ```
 
 ### Delete all containers that are not running
@@ -889,10 +890,22 @@ git commit --amend --no-edit
 git push <remote> <branch>
 ```
 
-For example, to push to the master branch:
+For example, to push to the main branch:
 
 ```bash
-git push -u origin master
+git push -u origin main
+```
+
+### Pull a change from a remote repository to your local branch
+
+```bash
+git pull <remote> <branch>
+```
+
+For example, to pull from the main branch:
+
+```bash
+git pull origin main
 ```
 
 ### Add or edit a remote repository
@@ -942,12 +955,12 @@ After adding and committing some changes, to push this branch to remote:
 git push -u origin <new-branch>
 ```
 
-To merge a branch into Master (local) and push the changes to remote:
+To merge a branch into main (local) and push the changes to remote:
 
 ```bash
-git checkout master
+git checkout main
 git merge <new-branch>
-git push -u origin master
+git push -u origin main
 ```
 
 Git merge conflicts can arise easily. For information on resolving a merge conflict, see [Resolving a merged conflict using the command line](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line)
@@ -967,7 +980,7 @@ echo sensitive_data.txt >> .gitignore
 echo test/*.vcf >> .gitignore
 git add .gitignore
 git commit -m "add .gitignore file"
-git push -u origin master
+git push -u origin main
 ```
 
 In this example, the following files will no longer be tracked: `sensitive_data.txt`, and all files with a **.vcf** extension in the directory `test`.
