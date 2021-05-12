@@ -111,7 +111,6 @@
   * [Download files from an FTP server](#download-files-from-an-ftp-server)
   * [Download files from Google Drive](#download-files-from-google-drive)
   * [Extract a file](#extract-a-file)
-  * [Combine the columns in two tab-delimited files](#combine-the-columns-in-two-tab-delimited-files)
   * [Add a header to all files with a certain extension, getting the header from another file](#add-a-header-to-all-files-with-a-certain-extension-getting-the-header-from-another-file)
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
   * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
@@ -152,6 +151,8 @@
   * [Compress files in parallel](#compress-files-in-parallel)
   * [Process files in pairs](#process-files-in-pairs)
   * [Perform BLAST in parallel](#perform-blast-in-parallel)
+- [paste](#paste)
+  * [Combine columns with paste](#combine-columns-with-paste)
 - [Perl](#perl)
   * [Get a random sample of lines from a text file while excluding the header line](#get-a-random-sample-of-lines-from-a-text-file-while-excluding-the-header-line)
   * [Convert a FASTA file to a CSV file with column names](#convert-a-fasta-file-to-a-csv-file-with-column-names)
@@ -1298,12 +1299,6 @@ extract() {
 }
 ```
 
-### Combine the columns in two tab-delimited files
-
-```bash
-paste -d"\t" input1.tab input2.tab
-```
-
 ### Add a header to all files with a certain extension, getting the header from another file
 
 In this example the header is added to `.tab` files and comes from a file called `header.txt`. The files with the header added are saved with a `.new` extension added:
@@ -1915,6 +1910,36 @@ Using the local system (denoted as `:` below) and a remote system called `server
 
 ```bash
 cat multiple_sequences.fasta | parallel -S :,server1 --block 100k --recstart '>' --pipe blastp -evalue 0.01 -outfmt 6 -db database.fa -query - > results
+```
+
+## paste
+
+### Combine columns with paste
+
+In this example the columns of two files are joined. The first file is a CSV file the second is tab-delimited.
+
+The `-d ","` specifies that the lines are to be joined with commas.
+
+```bash
+$ paste -d "," genotype_conversion.csv SNP_Map.tab
+```
+
+Note that the content from `SNP_Map.tab` still contains tab-delimited values.
+
+To remove tabs from `SNP_Map.tab` you could first create a CSV version of that input file:
+
+```bash
+$ cut -d $'\t' -f 1- --output-delimiter=',' SNP_Map.tab > SNP_Map.csv
+$ paste -d "," genotype_conversion.csv SNP_Map.csv
+```
+
+It is possible to do it without first creating `SNP_Map.csv` by using process substitution.
+
+In the following the command between `<(` and `)` is first run and its output becomes input for `paste`:
+
+```bash
+$ paste -d "," genotype_conversion.csv \
+<(cut -d $'\t' -f 1- --output-delimiter=',' SNP_Map.tab)
 ```
 
 ## Perl
