@@ -2287,6 +2287,20 @@ genotypes_transposed %>%
 write.table(genotypes_transposed_with_column_names, file = "genotypes_transposed_with_column_names.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
 ```
 
+Or use this:
+
+```r
+snp <- c('ABCA12', 'APAF1', 'ARS-BFGL-BAC-10172', 'ARS-BFGL-BAC-1020')
+sample1 <- c('AA', 'CC', 'GG', 'AA')
+sample2 <- c('AA', 'CC', 'AG', 'GG')
+genotypes <- data.frame(snp, sample1, sample2)
+
+genotypes_transposed <- data.frame(t(genotypes[-1]))
+colnames(genotypes_transposed) <- genotypes[, 1]
+
+write.table(genotypes_transposed, file = "genotypes_transposed_with_column_names.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+```
+
 Or use [datamash](#datamash).
 
 ### Split two-allele genotypes into two columns
