@@ -2648,31 +2648,34 @@ input_files %>%
   do(., read_tsv_and_add_source(.$file_name, .$full_path)) ->
   combined_data_with_source
 
-#Group data by certain variables, in this case 'fusion_name' and 'sample'
+#Group data by fusion_name and sample and for each group calculate the sum of
+#junction_read_count
 combined_data_with_source %>%
   group_by(fusion_name, sample) %>%
   summarise(fusion_count = sum(junction_read_count), .groups = NULL) ->
   counts_per_fusion
 
-#Filter by certain values, in this case keeping rows where 'fusion_name'
-#consists of two MT genes, e.g. Mt-co1--Mt-nd2
+#Filter by fusion_name, keeping rows where fusion_name consists of two MT
+#genes, for example Mt-co1--Mt-nd2
 counts_per_fusion %>%
   filter(str_detect(fusion_name, "^Mt-")) %>%
   filter(str_detect(fusion_name, "--Mt-")) ->
   counts_per_MT_fusion
 
-#Convert the data from long to wide, with samples as columns
+#Convert the data from long to wide, with values of sample becoming columns
 counts_per_MT_fusion %>%
   spread(sample, fusion_count) %>%
   replace(is.na(.), 0) ->
   samples_as_columns
 
-#Convert the data from long to wide, with fusions as columns
+#Convert the data from long to wide, with values of fusion_name becoming 
+#columns
 counts_per_MT_fusion %>%
   spread(fusion_name, fusion_count) %>%
   replace(is.na(.), 0) ->
   fusions_as_columns
 
+#Write the data to an Excel file
 write.xlsx(
   as.data.frame(samples_as_columns),
   "output.xlsx",
