@@ -185,6 +185,7 @@
   * [Add comment lines to output](#add-comment-lines-to-output)
   * [Filter and sort rows](#filter-and-sort-rows)
   * [Add columns from one tibble to another](#add-columns-from-one-tibble-to-another)
+  * [Combine multiple input files](#combine-multiple-input-files)
 - [rsync](#rsync)
   * [Sync a directory on local system](#sync-a-directory-on-local-system)
   * [Sync a directory to a remote system](#sync-a-directory-to-a-remote-system)
@@ -2596,6 +2597,99 @@ for (column in names(genotypes)) {
     add_column(!!(column) := genotypes[[column]]) ->
     vcf
 }
+```
+
+### Combine multiple input files
+
+In the following example the rows from multiple files are combined. Additional columns are used to track the source of each row. The resulting long data is converted into two different wide formats and written to a single Excel file as separate worksheets.
+
+The input files are structured as follows, with additional columns not shown:
+
+```
+fusion_name, junction_read_count
+Wfdc3--AABR07030443.2, 16
+Wfdc3--AABR07030443.2, 2
+Pdk4--Pdk2, 10
+AABR07059159.1--Actr3b, 8
+```
+
+Each file is named after the source sample. For example `180_S1_R1_001.fusion_candidates.preliminary` is the data for sample `180_S1_R1_001`.
+
+```r
+library(tidyverse)
+library(janitor)
+library(xlsx)
+
+#Directory containing the files
+input_dir <- "data/input/"
+#Pattern to use when identifying input files
+file_pattern <- "*.preliminary"
+
+#Create tibble of input files (full path and file name in separate columns)
+input_files <-
+  tibble(
+    full_path = list.files(input_dir, pattern = file_pattern, full.names = TRUE),
+    file_name = list.files(input_dir, pattern = file_pattern, full.names = FALSE)
+  )
+
+#Function to add source info to each row
+read_tsv_and_add_source <- function(file_name, full_path) {
+  read_tsv(full_path) %>%
+    clean_names %>%
+    mutate(file_name = file_name) %>%
+    mutate(full_path = full_path) %>%
+    #convert '180_S1_R1_001.fusion_candidates.preliminary' to '180_S1_R1_001'
+    mutate(sample = str_split(file_name, ".fusion", simplify = TRUE)[[1]])
+}
+
+#Read all files into a single tibble
+input_files %>%
+  rowwise() %>%
+  do(., read_tsv_and_add_source(.$file_name, .$full_path)) ->
+  combined_data_with_source
+
+#Group data by certain variables, in this case 'fusion_name' and 'sample'
+combined_data_with_source %>%
+  group_by(fusion_name, sample) %>%
+  summarise(fusion_count = sum(junction_read_count), .groups = NULL) ->
+  counts_per_fusion
+
+#Filter by certain values, in this case keeping rows where 'fusion_name'
+#consists of two MT genes, e.g. Mt-co1--Mt-nd2
+counts_per_fusion %>%
+  filter(str_detect(fusion_name, "^Mt-")) %>%
+  filter(str_detect(fusion_name, "--Mt-")) ->
+  counts_per_MT_fusion
+
+#Convert the data from long to wide, with samples as columns
+counts_per_MT_fusion %>%
+  spread(sample, fusion_count) %>%
+  replace(is.na(.), 0) ->
+  samples_as_columns
+
+#Convert the data from long to wide, with fusions as columns
+counts_per_MT_fusion %>%
+  spread(fusion_name, fusion_count) %>%
+  replace(is.na(.), 0) ->
+  fusions_as_columns
+
+write.xlsx(
+  as.data.frame(samples_as_columns),
+  "output.xlsx",
+  sheetName = "Samples as columns",
+  col.names = TRUE,
+  row.names = FALSE,
+  append = TRUE
+)
+
+write.xlsx(
+  as.data.frame(fusions_as_columns),
+  "output.xlsx",
+  sheetName = "Fusions as columns",
+  col.names = TRUE,
+  row.names = FALSE,
+  append = TRUE
+)
 ```
 
 ## rsync
