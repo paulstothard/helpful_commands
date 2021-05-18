@@ -71,6 +71,7 @@
   * [Delete all containers that are not running](#delete-all-containers-that-are-not-running)
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
+  * [Copy the files returned by find, naming the copies after a directory in the path](#copy-the-files-returned-by-find-naming-the-copies-after-a-directory-in-the-path)
   * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
   * [Find large files](#find-large-files)
 - [Git](#git)
@@ -779,6 +780,14 @@ In this example `$'...'` is used for quoting, as it can contain escaped single q
 
 ```bash
 find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
+```
+
+### Copy the files returned by find, naming the copies after a directory in the path
+
+The command below finds files named `star-fusion.fusion_candidates.preliminary` and parses the sample name from a directory name in the path to the file. The sample name is then used to construct a name for the copy. For example, `./231_S12_R1_001/star-fusion.fusion_candidates.preliminary` is copied to `./fusion-candidates/231_S12_R1_001.fusion_candidates.preliminary`.
+
+```bash
+find . -name star-fusion.fusion_candidates.preliminary -exec sh -c $'sample=$(perl -e \'if($ARGV[0] =~ m/^\.\/([^\/]+)/){print "$1\n"}\' $1); cp "$1" "./fusion-candidates/${sample}.fusion_candidates.preliminary"' -- {} \;
 ```
 
 ### Switch to the directory containing each file and execute a command
@@ -2002,6 +2011,18 @@ perl -0777 -ne '(undef,@paragraphs) = split /^#(?=[^#])/m; print map {"#$_"} sor
 
 ```bash
 perl -p -e 's/Red Angus/Angus/g' sequenced_samples.csv
+```
+
+Note that multiple substitutions can be performed in succession, e.g.:
+
+```bash
+echo " test pattern" | perl -pe 's/^\s+//g;' -pe 's/ /,/g;'
+```
+
+The above command produces the following:
+
+```bash
+test,pattern
 ```
 
 ### Print matches that may span multiple lines
