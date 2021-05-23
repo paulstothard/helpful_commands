@@ -1866,6 +1866,14 @@ Use [bc](https://www.gnu.org/software/bc/):
 echo "2*(42+42)" | bc
 ```
 
+Or use Bash arithmetic expansion:
+
+```bash
+n=6
+echo "$(( n - 1 * 2 ))"
+answer="$(( n - 1 * 2 ))"
+```
+
 ### Save the output of a command in a variable
 
 Use a subshell:
