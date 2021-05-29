@@ -147,6 +147,8 @@
   * [Download a GenBank file with curl](#download-a-genbank-file-with-curl)
   * [Perform a calculation on the command line](#perform-a-calculation-on-the-command-line)
   * [Save the output of a command in a variable](#save-the-output-of-a-command-in-a-variable)
+  * [Count the bases in a fastq file](#count-the-bases-in-a-fastq-file)
+  * [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
 - [parallel](#parallel)
   * [Extract files in parallel](#extract-files-in-parallel)
   * [Compress files in parallel](#compress-files-in-parallel)
@@ -1880,6 +1882,41 @@ Use a subshell:
 
 ```bash
 result=$(echo "sqrt(16)" | bc -l)
+```
+
+### Count the bases in a fastq file
+
+```bash
+zcat SRR13388732_1.fastq.gz | paste - - - - | cut -f 2 | tr -d '\n' | wc -c 
+```
+
+Or:
+
+```bash
+cat SRR13388732_1.fastq | paste - - - - | cut -f 2 | tr -d '\n' | wc -c 
+```
+
+### Download fastq files based on a list of SRA accessions
+
+The following uses the [SRA Toolkit](https://github.com/ncbi/sra-tools).
+
+Paired-end data:
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fastq-dump -I --split-files --gzip {}
+```
+
+Single-end data:
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fastq-dump --gzip {}
+```
+
+For better performance use `fasterq-dump` (the following works for single-end and paired-end data):
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
+gzip *.fastq
 ```
 
 ## parallel
