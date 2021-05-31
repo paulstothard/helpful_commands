@@ -224,6 +224,7 @@
   * [List tmux sessions](#list-tmux-sessions)
   * [Join a tmux session](#join-a-tmux-session)
   * [Create a multi-pane tmux session](#create-a-multi-pane-tmux-session)
+  * [Scroll in tmux](#scroll-in-tmux)
   * [Navigate between tmux panes](#navigate-between-tmux-panes)
   * [Kill a tmux session](#kill-a-tmux-session)
 - [tr](#tr)
@@ -3066,11 +3067,7 @@ tmux new -s session_name
 
 ### Detach a tmux session
 
-`C-b` refers to Control+B. The following means press Control+B, release, and then press "d":
-
-```bash
-C-b d
-```
+`Ctrl`-`b` then `d`.
 
 ### List tmux sessions
 
@@ -3117,14 +3114,20 @@ split-window -v -p 66 \; \
 split-window -v \;
 ```
 
+### Scroll in tmux
+
+`Ctrl`-`b` then `PgUp`. Press `q` to return to normal mode.
+
+Alternatively you can use `Ctrl`-`b` then `[` and then navigation keys like `Up Arrow` or `PgDn`. Press `q` to return to normal mode.
+
 ### Navigate between tmux panes
 
-The commands that work will depend on how tmux is configured:
+The following work with [my configuration](https://github.com/paulstothard/dotfiles/blob/master/.tmux.conf):
 
-`C-j` moves up.
-`C-k` moves down.
-`C-h` moves left.
-`C-l` moves right.
+`Ctrl`-`j` moves up.
+`Ctrl`-`k` moves down.
+`Ctrl`-`h` moves left.
+`Ctrl`-`l` moves right.
 
 ### Kill a tmux session
 
