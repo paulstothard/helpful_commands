@@ -65,6 +65,7 @@
   * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
   * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
   * [Annotate a bacterial genome using Prokka](#annotate-a-bacterial-genome-using-prokka)
+  * [List images](#list-images)
   * [List running containers](#list-running-containers)
   * [Stop a container](#stop-a-container)
   * [Kill all running containers](#kill-all-running-containers)
@@ -750,6 +751,12 @@ Create a container from the image and run `prokka` to annotate the sequence. In 
 
 ```bash
 docker run --rm -v $(pwd):/dir -w /dir staphb/prokka:latest prokka sequence.fasta --cpus 4
+```
+
+### List images
+
+```bash
+docker image ls
 ```
 
 ### List running containers
