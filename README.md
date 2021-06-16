@@ -1927,6 +1927,9 @@ cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
 gzip *.fastq
 ```
 
+[SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions 
+and returns a selectable list of ENA download URLs and sequencing run metadata.
+
 ## parallel
 
 ### Extract files in parallel
