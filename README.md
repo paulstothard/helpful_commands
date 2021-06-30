@@ -393,10 +393,10 @@ If both files have a single header line the following can be used to generate th
 
 ### Skip footer lines
 
-In this example the contents of the file are printed except for the last `25` lines:
+In this example the contents of the file are printed except for the last `15` lines:
 
 ```bash
-awk 'NR>c{print A[NR%c]} {A[NR%c]=$0}' c=24 input.txt
+awk 'NR>c{print A[NR%c]} {A[NR%c]=$0}' c=15 input.txt
 ```
 
 ### Skip header lines
