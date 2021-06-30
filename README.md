@@ -21,6 +21,8 @@
   * [Print only the first non-commented line](#print-only-the-first-non-commented-line)
   * [Print the average read length for a FASTQ file](#print-the-average-read-length-for-a-fastq-file)
   * [Sort lines based on order of IDs in another file](#sort-lines-based-on-order-of-ids-in-another-file)
+  * [Skip footer lines](#skip-footer-lines)
+  * [Skip header lines](#skip-header-lines)
 - [brew](#brew)
   * [List installed packages](#list-installed-packages)
   * [View available packages](#view-available-packages)
@@ -377,7 +379,7 @@ awk 'NR%4==2{sum+=length($0)}END{print sum/(NR/4)}' input.fastq
 
 ### Sort lines based on order of IDs in another file
 
-In this example, the records in `file_to_sort.csv` have an identifier in column `1` that is present in `sorted_ids.txt`, which has a single column:
+In this example the records in `file_to_sort.csv` have an identifier in column `1` that is present in `sorted_ids.txt`, which has a single column:
 
 ```bash
 awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' file_to_sort.csv sorted_ids.txt
@@ -387,6 +389,28 @@ If both files have a single header line the following can be used to generate th
 
 ```bash
 (head -n 1 file_to_sort.csv && awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' <(tail -n +2 file_to_sort.csv) <(tail -n +2 sorted_ids.txt)) > sorted.csv
+```
+
+### Skip footer lines
+
+In this example the contents of the file are printed except for the last `25` lines:
+
+```bash
+awk 'NR>c{print A[NR%c]} {A[NR%c]=$0}' c=24 input.txt
+```
+
+### Skip header lines
+
+The following skips lines starting with `#`:
+
+```bash
+awk '/^[^#]/ { print $0 }' input.txt
+```
+
+The following skips the first `5` lines:
+
+```bash
+awk 'FNR > 5 { print $0 }' input.txt
 ```
 
 ## brew
