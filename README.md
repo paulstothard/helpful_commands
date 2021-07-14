@@ -112,6 +112,7 @@
 - [Other](#other)
   * [Obtain your public IP address and network information](#obtain-your-public-ip-address-and-network-information)
   * [Copy an ssh public key to another system](#copy-an-ssh-public-key-to-another-system)
+  * [Download a website](#download-a-website)
   * [Download files from an FTP server](#download-files-from-an-ftp-server)
   * [Download files from Google Drive](#download-files-from-google-drive)
   * [Extract a file](#extract-a-file)
@@ -1274,6 +1275,12 @@ Copy the public key to the `.ssh/authorized_keys` file on the other system using
 
 ```bash
 ssh-copy-id -i ~/.ssh/id_rsa.pub user@remote-host.com
+```
+
+### Download a website
+
+```bash
+wget --mirror --convert-links --page-requisites --no-parent https://www.somesite.com/course/material/
 ```
 
 ### Download files from an FTP server
