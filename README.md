@@ -153,6 +153,8 @@
   * [Save the output of a command in a variable](#save-the-output-of-a-command-in-a-variable)
   * [Count the bases in a fastq file](#count-the-bases-in-a-fastq-file)
   * [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
+  * [Use SQL-like queries to work with a CSV or TSV file](#use-sql-like-queries-to-work-with-a-csv-or-tsv-file)
+  * [Browse, search, and edit a large CSV file](#browse-search-and-edit-a-large-csv-file)
 - [parallel](#parallel)
   * [Extract files in parallel](#extract-files-in-parallel)
   * [Compress files in parallel](#compress-files-in-parallel)
@@ -1960,6 +1962,18 @@ gzip *.fastq
 
 [SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions 
 and returns a selectable list of ENA download URLs and sequencing run metadata.
+
+### Use SQL-like queries to work with a CSV or TSV file
+
+The following uses [q](https://github.com/harelba/q) to count distinct values in the column named `SNP`:
+
+```bash
+q -H -d, "SELECT COUNT(DISTINCT(SNP)) FROM ./input.csv"
+```
+
+### Browse, search, and edit a large CSV file
+
+Use [DB Browser for SQLite (DB4S)](https://github.com/sqlitebrowser/sqlitebrowser).
 
 ## parallel
 
