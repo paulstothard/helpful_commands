@@ -814,10 +814,16 @@ docker container rm $(docker ps -a -q)
 
 ### Perform a series of commands on files returned by find
 
-In this example `$'...'` is used for quoting, as it can contain escaped single quotes, and `tail` is used to skip a header line, `awk` is used to count the number of occurrences of each category in column 3 and print the category and counts, and `sort` is used to sort the categories by count from largest to smallest with ties broken by sorting on category name:
+The command below finds `.gff` files and then each file is processed as follows: `tail` is used to skip a header line; `awk` is used to count the number of occurrences of each category in column 3 and print the category and counts; `sort` is used to sort the categories by count from largest to smallest with ties broken by sorting on category name; the results are redirected to a file named after the input file but with `.cog_counts.txt` appended.
 
 ```bash
 find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
+```
+
+The command below finds `.stats` files and then each file is processed as follows: `count` is used to store the value in a field called `number of records`, which is obtained using `perl`; `echo` is used to print the filename and `count`; and `perl` is used to remove `./` from the filename. The filenames and counts for all the files are then sorted numerically by the count value, using `sort`. `awk` is used to add a header row and `column` is used to format the output.
+
+```bash
+find . -name "*.stats" -exec sh -c $'count=$(perl -0777 -ne \'while (m/number of records:\s+?(\d+)/gm) {$out = $1; $out =~ s/\s//g; print "$out"}\' "$1"); echo "$1 $count" | perl -p -e \'s/\.\///g\'' -- {} \; | sort -k 2,2rn | awk 'BEGIN{print "file variants"}1' | column -t
 ```
 
 ### Copy the files returned by find, naming the copies after a directory in the path
