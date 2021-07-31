@@ -2046,7 +2046,7 @@ In the following example paired-end reads with names like `sampleA_1.fastq.gz` a
 parallel -j2 "bowtie2 --threads 4 -x ref -k1 -q -1 {1} -2 {2} -S {1/.}.sam >& {1/.}.log" ::: data/*_1.fastq.gz :::+ data/*_2.fastq.gz
 ```
 
-The `{1/.}` and `{2/.}` remove the path and the extension from the two files in each pair.
+The `{1/.}` removes the path and the extension from the first filename, leaving the sample name.
 
 ### Perform BLAST in parallel
 
