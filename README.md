@@ -74,6 +74,7 @@
   * [Delete all containers that are not running](#delete-all-containers-that-are-not-running)
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
+- [Process files in pairs](#process-files-in-pairs)
   * [Copy the files returned by find, naming the copies after a directory in the path](#copy-the-files-returned-by-find-naming-the-copies-after-a-directory-in-the-path)
   * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
   * [Find large files](#find-large-files)
@@ -158,7 +159,7 @@
 - [parallel](#parallel)
   * [Extract files in parallel](#extract-files-in-parallel)
   * [Compress files in parallel](#compress-files-in-parallel)
-  * [Process files in pairs](#process-files-in-pairs)
+  * [Process files in pairs](#process-files-in-pairs-1)
   * [Perform BLAST in parallel](#perform-blast-in-parallel)
 - [paste](#paste)
   * [Combine columns with paste](#combine-columns-with-paste)
@@ -181,7 +182,6 @@
   * [find with -exec](#find-with--exec)
   * [find with xargs](#find-with-xargs)
   * [parallel](#parallel-1)
-- [Process multiple files in pairs](#process-multiple-files-in-pairs)
 - [R](#r)
   * [Compare two data sets to find differences](#compare-two-data-sets-to-find-differences)
   * [Visualize the degree of overlap among gene sets](#visualize-the-degree-of-overlap-among-gene-sets)
@@ -825,6 +825,38 @@ The command below finds `.stats` files and then each file is processed as follow
 ```bash
 find . -name "*.stats" -exec sh -c $'count=$(perl -0777 -ne \'while (m/number of records:\s+?(\d+)/gm) {$out = $1; $out =~ s/\s//g; print "$out"}\' "$1"); echo "$1 $count" | perl -p -e \'s/\.\///g\'' -- {} \; | sort -k 2,2rn | awk 'BEGIN{print "file variants"}1' | column -t
 ```
+
+## Process files in pairs
+
+High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
+
+```
+6613_S82_L001_R1_001.fastq.gz
+6613_S82_L001_R2_001.fastq.gz
+70532_S37_L001_R1_001.fastq.gz
+70532_S37_L001_R2_001.fastq.gz
+k2712_S5_L001_R1_001.fastq.gz
+k2712_S5_L001_R2_001.fastq.gz
+```
+
+To analyze data from multiple samples, the following `while` loop code can be used. It iterates through the `R1` files and from each filename constructs the matching `R2` filename. Two useful variables called `fnx` and `fn` are also created for each file, storing the filename without the path to the file, and the filename without the path and without the file extension, respectively:
+
+```bash
+find . -name "*_R1_*" -type f | while IFS= read -r file; do
+  fnx=$(basename -- "$file")
+  fn="${fnx%.*}"
+  
+  #Construct name of other file
+  file2="${file/R1_001.fastq.gz/R2_001.fastq.gz}"
+  fnx2=$(basename -- "$file2")
+  fn2="${fnx2%.*}"
+  
+  echo "Processing file '$fnx' and '$fnx2'"
+
+done
+```
+
+Another option is to use [parallel](#parallel).
 
 ### Copy the files returned by find, naming the copies after a directory in the path
 
@@ -2244,38 +2276,6 @@ find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -
 ### parallel
 
 See the [parallel examples](#parallel).
-
-## Process multiple files in pairs
-
-High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
-
-```
-6613_S82_L001_R1_001.fastq.gz
-6613_S82_L001_R2_001.fastq.gz
-70532_S37_L001_R1_001.fastq.gz
-70532_S37_L001_R2_001.fastq.gz
-k2712_S5_L001_R1_001.fastq.gz
-k2712_S5_L001_R2_001.fastq.gz
-```
-
-To analyze data from multiple samples, the following `while` loop code can be used. It iterates through the `R1` files and from each filename constructs the matching `R2` filename. Two useful variables called `fnx` and `fn` are also created for each file, storing the filename without the path to the file, and the filename without the path and without the file extension, respectively:
-
-```bash
-find . -name "*_R1_*" -type f | while IFS= read -r file; do
-  fnx=$(basename -- "$file")
-  fn="${fnx%.*}"
-  
-  #Construct name of other file
-  file2="${file/R1_001.fastq.gz/R2_001.fastq.gz}"
-  fnx2=$(basename -- "$file2")
-  fn2="${fnx2%.*}"
-  
-  echo "Processing file '$fnx' and '$fnx2'"
-
-done
-```
-
-Another option is to use [parallel](#parallel).
 
 ## R
 
