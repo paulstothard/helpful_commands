@@ -74,7 +74,7 @@
   * [Delete all containers that are not running](#delete-all-containers-that-are-not-running)
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
-- [Process files in pairs](#process-files-in-pairs)
+  * [Process files in pairs](#process-files-in-pairs)
   * [Copy the files returned by find, naming the copies after a directory in the path](#copy-the-files-returned-by-find-naming-the-copies-after-a-directory-in-the-path)
   * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
   * [Find large files](#find-large-files)
@@ -826,7 +826,7 @@ The command below finds `.stats` files and then each file is processed as follow
 find . -name "*.stats" -exec sh -c $'count=$(perl -0777 -ne \'while (m/number of records:\s+?(\d+)/gm) {$out = $1; $out =~ s/\s//g; print "$out"}\' "$1"); echo "$1 $count" | perl -p -e \'s/\.\///g\'' -- {} \; | sort -k 2,2rn | awk 'BEGIN{print "file variants"}1' | column -t
 ```
 
-## Process files in pairs
+### Process files in pairs
 
 High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
 
