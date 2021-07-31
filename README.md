@@ -711,19 +711,19 @@ docker pull quay.io/biocontainers/blast-legacy:2.2.26--2
 Create a container from the image and run `formatdb` to create a formatted database. In this example the database is created from a DNA sequence file called `database.fasta`, located in the current directory:
 
 ```bash
-docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 formatdb -i database.fasta -p F
+docker run -it --rm -v "$(pwd)":/directory -u "$(id -u)":"$(id -g)" -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 formatdb -i database.fasta -p F
 ```
 
 To perform a blastn search using the formatted database and a query called `query.fasta` when the file is also located in the current directory:
 
 ```bash
-docker run -it --rm -v $(pwd):/directory -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database.fasta -i query.fasta
+docker run -it --rm -v "$(pwd)":/directory -u "$(id -u)":"$(id -g)" -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database.fasta -i query.fasta
 ```
 
 To perform a blastn search using the formatted database and a query called `query.fasta` when the query is located in a different directory (in this example your home directory):
 
 ```bash
-docker run -it --rm -v $(pwd):/directory/database -v ${HOME}:/directory/query -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database/database.fasta -i query/query.fasta
+docker run -it --rm -v "$(pwd)":/directory/database -v "${HOME}":/directory/query -u "$(id -u)":"$(id -g)" -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database/database.fasta -i query/query.fasta
 ```
 
 ### Annotate sequence variants using VEP
@@ -737,7 +737,7 @@ docker pull ensemblorg/ensembl-vep
 Download cache files for the bovine genome and VEP plugins:
 
 ```bash
-docker run -t -i -v $(pwd):/opt/vep/.vep ensemblorg/ensembl-vep perl INSTALL.pl -a cfp -s bos_taurus -y ARS-UCD1.2 -g all
+docker run -t -i -v "$(pwd)":/opt/vep/.vep -u "$(id -u)":"$(id -g)" ensemblorg/ensembl-vep perl INSTALL.pl -a cfp -s bos_taurus -y ARS-UCD1.2 -g all
 ```
 
 Create directories for input and output files:
@@ -753,7 +753,8 @@ Copy the VCF files to be annotated to the newly created `input` directory and pr
 find ./input -name "*.vcf" | while read f; do
     filename=$(basename -- "$f")
     filename_no_extension="${filename%.*}"
-    docker run -v $(pwd):/opt/vep/.vep ensemblorg/ensembl-vep \
+    docker run -v "$(pwd)":/opt/vep/.vep ensemblorg/ensembl-vep \
+        -u "$(id -u)":"$(id -g)" \
         ./vep --cache --format vcf --tab --force_overwrite \
         --dir_cache /opt/vep/.vep/ \
         --dir_plugins /opt/vep/.vep/Plugins/ \
@@ -777,7 +778,7 @@ docker pull staphb/prokka:latest
 Create a container from the image and run `prokka` to annotate the sequence. In this example the genome sequence to be annotated is in a file called `sequence.fasta`, located in the current directory, and four CPUs are used:
 
 ```bash
-docker run --rm -v $(pwd):/dir -w /dir staphb/prokka:latest prokka sequence.fasta --cpus 4
+docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir staphb/prokka:latest prokka sequence.fasta --cpus 4
 ```
 
 ### List images
