@@ -2095,6 +2095,8 @@ The following uses [q](https://github.com/harelba/q) to count distinct values in
 q -H -d, "SELECT COUNT(DISTINCT(SNP)) FROM ./input.csv"
 ```
 
+Another option is to use [csvsql](#query-with-sql) from [csvkit](#csvkit).
+
 ### Browse, search, and edit a large CSV file
 
 Use [DB Browser for SQLite (DB4S)](https://github.com/sqlitebrowser/sqlitebrowser).
