@@ -53,6 +53,7 @@
   * [Convert to JSON](#convert-to-json)
   * [Generate summary statistics](#generate-summary-statistics)
   * [Query with SQL](#query-with-sql)
+  * [Merge CSV files on a specified column or columns](#merge-csv-files-on-a-specified-column-or-columns)
 - [cut](#cut)
   * [Extract columns of interest](#extract-columns-of-interest)
   * [Extract a range of columns](#extract-a-range-of-columns)
@@ -99,6 +100,8 @@
   * [Remove files that contain a match](#remove-files-that-contain-a-match)
   * [Remove files that do not contain a match](#remove-files-that-do-not-contain-a-match)
   * [Remove lines that match](#remove-lines-that-match)
+- [join](#join)
+  * [Combining rows based on shared keys with join](#combining-rows-based-on-shared-keys-with-join)
 - [Miller](#miller)
   * [Extract the first 10 records of a CSV file](#extract-the-first-10-records-of-a-csv-file)
   * [Extract the last 10 records of a CSV file](#extract-the-last-10-records-of-a-csv-file)
@@ -170,6 +173,7 @@
   * [Extract FASTA sequences from a file based on a file of sequence names of interest](#extract-fasta-sequences-from-a-file-based-on-a-file-of-sequence-names-of-interest)
   * [Add a FASTA title to the start of a sequence in RAW format](#add-a-fasta-title-to-the-start-of-a-sequence-in-raw-format)
   * [Remove commas located within quoted fields in a CSV file and create a tab-delimited file](#remove-commas-located-within-quoted-fields-in-a-csv-file-and-create-a-tab-delimited-file)
+  * [Replace commas with tabs](#replace-commas-with-tabs)
   * [Replace tabs with commas and remove quotes](#replace-tabs-with-commas-and-remove-quotes)
   * [Sort sections in a Markdown file based on headings](#sort-sections-in-a-markdown-file-based-on-headings)
   * [Search and replace text on each line](#search-and-replace-text-on-each-line)
@@ -317,7 +321,13 @@ awk -F $'\t' 'NR>1{exit};{for (i = 1; i <= NF; i++) print "column " i,"is " $i}'
 In this example the counts for each distinct value in column `9` are printed:
 
 ```bash
-awk -F $'\t' '{count[$9]++}END{for(j in count) print j,"("count[j]" counts)"}' input.tab
+awk -F $'\t' '{count[$9]++}END{for(j in count) print j"\t"count[j]}' input.tab
+```
+
+In this example the counts for each distinct pair of values in column `1` and column `2` are printed:
+
+```bash
+awk -F $'\t' '{count[$1"\t"$2]++}END{for(j in count) print j"\t"count[j]}' input.tab
 ```
 
 ### Print the number of lines exhibiting each distinct number of fields
@@ -334,12 +344,18 @@ In this example lines where column `2` equals `7` and column `3` is between `602
 awk -F, '{ if ($2 == 7 && $3 >= 60240145 && $3 <= 60255062) print $0 }' input.csv
 ```
 
+In this example the header line is printed, followed by lines where column `2` starts with `MT-` and column `3` starts with `MT-`:
+
+```bash
+awk -F $'\t' 'NR==1{print; next} $1~/^MT-/ && $2~/^MT-/' input.tab
+```
+
 ### Write each row to a separate file named after the value in a specific column
 
 In this example each file is named after the value in column `1`:
 
 ```bash
-awk -F '\t' '{ fname = $1 ".txt"; print >>fname; close(fname) }' input.tab
+awk -F $'\t' '{ fname = $1 ".txt"; print >>fname; close(fname) }' input.tab
 ```
 
 ### Split a multi-FASTA file into separate files named according to the sequence title
@@ -601,6 +617,14 @@ csvstat data.csv
 ```bash
 csvsql --query "select name from data where age > 30" data.csv > new.csv
 ```
+
+### Merge CSV files on a specified column or columns
+
+```bash
+csvjoin -c ID file1.csv file2.csv > inner_join_on_ID.csv
+```
+
+By default `csvjoin` performs an inner join. Other joins can be performed using `--outer`, `--left`, and `--right`.
 
 ## cut
 
@@ -1142,6 +1166,67 @@ Keep everything except lines starting with `#`:
 ```bash
 grep -v '^#' input.txt
 ```
+
+## join
+
+### Combining rows based on shared keys with join
+
+`join` is used to join lines from different files when they have matching join fields. `join` expects the input files to be sorted.
+
+Suppose `file1.txt` contains the following text:
+
+```
+name,counts in sample 1
+gene a,100
+gene b,2223
+gene e,575
+```
+
+Suppose `file2.txt` contains this text:
+
+```
+counts in sample 2,name
+2223,gene e
+803,gene a
+0,gene f
+```
+
+To join their contents based on `name`, first sort the files based on the `name` column (note that the sort field differs between the two commands):
+
+```bash
+(head -n 1 file1.txt && sort -t, -k 1 <(tail -n +2 file1.txt)) > file1.txt.sorted
+(head -n 1 file2.txt && sort -t, -k 2 <(tail -n +2 file2.txt)) > file2.txt.sorted
+```
+
+Then use the `join` command to combine the rows based on field `1` in the first file and field `2` in the second file:
+
+```bash
+join -t, -1 1 -2 2 file1.txt.sorted file2.txt.sorted
+```
+
+The above command returns the following:
+
+```
+name,counts in sample 1,counts in sample 2
+gene a,100,803
+gene e,575,2223
+```
+
+To format more nicely use:
+
+```bash
+join -t, -1 1 -2 2 file1.txt.sorted file2.txt.sorted | column -t -s,
+```
+
+Which gives:
+
+```
+name    counts in sample 1  counts in sample 2
+gene a  100                 803
+gene e  575                 2223
+```
+
+Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-columns) from [csvkit](#csvkit).
 
 ## Miller
 
@@ -2136,6 +2221,12 @@ perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
 perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
 ```
 
+### Replace commas with tabs
+
+```bash
+perl -p -e 's/,/\t/g;' input.csv > output.tab
+```
+
 ### Replace tabs with commas and remove quotes
 
 ```bash
@@ -3112,11 +3203,17 @@ In the following examples a file with a single header line is sorted:
 ```
 
 ```bash
-(head -n 1 sequenced_samples.csv && tail -n +2 sequenced_samples.csv | sort)
+(head -n 1 sequenced_samples.csv && tail -n +2 sequenced_samples.csv | sort -t,)
 ```
 
 ```bash
-cat sequenced_samples.csv | awk 'NR<2{print $0; next}{print $0| "sort"}'
+cat sequenced_samples.csv | awk 'NR<2{print $0; next}{print $0| "sort -t','"}'
+```
+
+The above command can be modified to sort by the second column, numerically from smallest to largest:
+
+```bash
+cat sequenced_samples.csv | awk 'NR<2{print $0; next}{print $0| "sort -t',' -k2,2n"}'
 ```
 
 ## tmux
