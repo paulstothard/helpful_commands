@@ -156,6 +156,7 @@
   * [Perform a calculation on the command line](#perform-a-calculation-on-the-command-line)
   * [Save the output of a command in a variable](#save-the-output-of-a-command-in-a-variable)
   * [Count the bases in a fastq file](#count-the-bases-in-a-fastq-file)
+  * [Count the reads in a fastq file](#count-the-reads-in-a-fastq-file)
   * [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
   * [Use SQL-like queries to work with a CSV or TSV file](#use-sql-like-queries-to-work-with-a-csv-or-tsv-file)
   * [Browse, search, and edit a large CSV file](#browse-search-and-edit-a-large-csv-file)
@@ -827,6 +828,12 @@ docker container stop some_container
 
 ```bash
 docker container kill $(docker ps -q)
+```
+
+Or to continually kill containers:
+
+```bash
+while true; do docker container kill $(docker ps -q); sleep 2; done
 ```
 
 ### Delete all containers that are not running
@@ -2059,6 +2066,16 @@ Or:
 
 ```bash
 cat SRR13388732_1.fastq | paste - - - - | cut -f 2 | tr -d '\n' | wc -c 
+```
+
+### Count the reads in a fastq file
+
+```bash
+echo $(cat SRR13388732_1.fastq | wc -l) / 4 | bc
+```
+
+```bash
+echo $(zcat SRR13388732_1.fastq.gz | wc -l) / 4 | bc
 ```
 
 ### Download fastq files based on a list of SRA accessions
