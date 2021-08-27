@@ -150,6 +150,7 @@
   * [Create PowerPoint slides from a Markdown file](#create-powerpoint-slides-from-a-markdown-file)
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
   * [Record your terminal to an animated GIF](#record-your-terminal-to-an-animated-gif)
+  * [Record your screen to an animated GIF](#record-your-screen-to-an-animated-gif)
   * [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
   * [Create a collection of MP3 files from a YouTube playlist](#create-a-collection-of-mp3-files-from-a-youtube-playlist)
   * [Download a GenBank file with curl](#download-a-genbank-file-with-curl)
@@ -160,7 +161,6 @@
   * [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
   * [Use SQL-like queries to work with a CSV or TSV file](#use-sql-like-queries-to-work-with-a-csv-or-tsv-file)
   * [Browse, search, and edit a large CSV file](#browse-search-and-edit-a-large-csv-file)
-  * [Screen record to a GIF file](#screen-record-to-a-gif-file)
 - [parallel](#parallel)
   * [Extract files in parallel](#extract-files-in-parallel)
   * [Compress files in parallel](#compress-files-in-parallel)
@@ -1999,6 +1999,10 @@ For more control over rendering options create an editable configuration file at
 terminalizer init
 ```
 
+### Record your screen to an animated GIF
+
+Use [LICEcap](https://www.cockos.com/licecap/).
+
 ### Create an animated GIF from a YouTube video
 
 The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl), [mplayer](https://mplayerhq.hu/), [ImageMagick](https://imagemagick.org), and [gifsicle](https://www.lcdf.org/gifsicle/):
@@ -2118,10 +2122,6 @@ Another option is to use [csvsql](#query-with-sql) from [csvkit](#csvkit).
 ### Browse, search, and edit a large CSV file
 
 Use [DB Browser for SQLite (DB4S)](https://github.com/sqlitebrowser/sqlitebrowser).
-
-### Screen record to a GIF file
-
-Use [LICEcap](https://www.cockos.com/licecap/).
 
 ## parallel
 
