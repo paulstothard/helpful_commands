@@ -160,6 +160,7 @@
   * [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
   * [Use SQL-like queries to work with a CSV or TSV file](#use-sql-like-queries-to-work-with-a-csv-or-tsv-file)
   * [Browse, search, and edit a large CSV file](#browse-search-and-edit-a-large-csv-file)
+  * [Screen record to a GIF file](#screen-record-to-a-gif-file)
 - [parallel](#parallel)
   * [Extract files in parallel](#extract-files-in-parallel)
   * [Compress files in parallel](#compress-files-in-parallel)
@@ -2117,6 +2118,10 @@ Another option is to use [csvsql](#query-with-sql) from [csvkit](#csvkit).
 ### Browse, search, and edit a large CSV file
 
 Use [DB Browser for SQLite (DB4S)](https://github.com/sqlitebrowser/sqlitebrowser).
+
+### Screen record to a GIF file
+
+Use [LICEcap](https://www.cockos.com/licecap/).
 
 ## parallel
 
