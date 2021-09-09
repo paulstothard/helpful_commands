@@ -102,6 +102,9 @@
   * [Remove lines that match](#remove-lines-that-match)
 - [join](#join)
   * [Combining rows based on shared keys with join](#combining-rows-based-on-shared-keys-with-join)
+- [md5sum](#md5sum)
+  * [Generate a file of checksums](#generate-a-file-of-checksums)
+  * [Validate checksums](#validate-checksums)
 - [Miller](#miller)
   * [Extract the first 10 records of a CSV file](#extract-the-first-10-records-of-a-csv-file)
   * [Extract the last 10 records of a CSV file](#extract-the-last-10-records-of-a-csv-file)
@@ -1235,6 +1238,20 @@ gene e  575                 2223
 ```
 
 Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-columns) from [csvkit](#csvkit).
+
+## md5sum
+
+### Generate a file of checksums
+
+```bash
+md5sum *.vcf.gz > md5sum.txt
+```
+
+### Validate checksums
+
+```bash
+md5sum --check md5sum.txt
+```
 
 ## Miller
 
