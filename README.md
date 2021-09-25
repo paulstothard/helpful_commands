@@ -27,7 +27,7 @@
   * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
   * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
   * [Change Bash prompt temporarily](#change-bash-prompt-temporarily)
-  * [Check bash/sh shell scripts for potential issues](#check-bashsh-shell-scripts-for-potential-issues)
+  * [Check Bash scripts for potential issues](#check-bash-scripts-for-potential-issues)
   * [Extract a file](#extract-a-file)
   * [Save the output of a command in a variable](#save-the-output-of-a-command-in-a-variable)
   * [Set variables using values from a CSV file](#set-variables-using-values-from-a-csv-file)
@@ -463,7 +463,7 @@ some_command 2>&1 | tee -a log
 PS1="$ "
 ```
 
-### Check bash/sh shell scripts for potential issues
+### Check Bash scripts for potential issues
 
 Use [shellcheck](https://github.com/koalaman/shellcheck):
 
@@ -473,7 +473,7 @@ shellcheck some_script.sh
 
 ### Extract a file
 
-The following Bash function can be used to extract a variety of file types.
+The following Bash function can be used to extract a variety of file types:
 
 ```bash
 extract() {
