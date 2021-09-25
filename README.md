@@ -23,6 +23,15 @@
   * [Sort lines based on order of IDs in another file](#sort-lines-based-on-order-of-ids-in-another-file)
   * [Skip footer lines](#skip-footer-lines)
   * [Skip header lines](#skip-header-lines)
+- [Bash](#bash)
+  * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
+  * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
+  * [Change Bash prompt temporarily](#change-bash-prompt-temporarily)
+  * [Check bash/sh shell scripts for potential issues](#check-bashsh-shell-scripts-for-potential-issues)
+  * [Extract a file](#extract-a-file)
+  * [Save the output of a command in a variable](#save-the-output-of-a-command-in-a-variable)
+  * [Set variables using values from a CSV file](#set-variables-using-values-from-a-csv-file)
+  * [Perform a calculation on the command line](#perform-a-calculation-on-the-command-line)
 - [brew](#brew)
   * [List installed packages](#list-installed-packages)
   * [View available packages](#view-available-packages)
@@ -73,6 +82,25 @@
   * [Stop a container](#stop-a-container)
   * [Kill all running containers](#kill-all-running-containers)
   * [Delete all containers that are not running](#delete-all-containers-that-are-not-running)
+- [File conversion](#file-conversion)
+  * [Convert a CSV file to a Markdown table](#convert-a-csv-file-to-a-markdown-table)
+  * [Convert PDF files to PNG files](#convert-pdf-files-to-png-files)
+  * [Convert PNG files to a single PDF file](#convert-png-files-to-a-single-pdf-file)
+  * [Convert a DOCX file to a PDF file](#convert-a-docx-file-to-a-pdf-file)
+  * [Convert an Excel file to a CSV file](#convert-an-excel-file-to-a-csv-file)
+  * [Convert a CSV file to an Excel file](#convert-a-csv-file-to-an-excel-file)
+  * [Convert a TSV file to an Excel file](#convert-a-tsv-file-to-an-excel-file)
+  * [Convert an HTML file to a PDF file](#convert-an-html-file-to-a-pdf-file)
+  * [Convert a website to a PDF file](#convert-a-website-to-a-pdf-file)
+  * [Convert an HTML file to a PNG file](#convert-an-html-file-to-a-png-file)
+  * [Convert a Markdown file to a PDF file](#convert-a-markdown-file-to-a-pdf-file)
+  * [Convert a Markdown file to an HTML file](#convert-a-markdown-file-to-an-html-file)
+- [File downloads](#file-downloads)
+  * [Download a website](#download-a-website)
+  * [Download files from an FTP server](#download-files-from-an-ftp-server)
+  * [Download files from Google Drive](#download-files-from-google-drive)
+  * [Download a GenBank file with curl](#download-a-genbank-file-with-curl)
+  * [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
   * [Process files in pairs](#process-files-in-pairs)
@@ -100,8 +128,16 @@
   * [Remove files that contain a match](#remove-files-that-contain-a-match)
   * [Remove files that do not contain a match](#remove-files-that-do-not-contain-a-match)
   * [Remove lines that match](#remove-lines-that-match)
+- [Image files](#image-files)
+  * [Crop an image and add a white border](#crop-an-image-and-add-a-white-border)
+  * [Resize an image](#resize-an-image)
+  * [Take a screenshot of a window on macOS](#take-a-screenshot-of-a-window-on-macos)
+  * [Take a webpage screenshot using Firefox](#take-a-webpage-screenshot-using-firefox)
+  * [Record your terminal to an animated GIF](#record-your-terminal-to-an-animated-gif)
+  * [Record your screen to an animated GIF](#record-your-screen-to-an-animated-gif)
+  * [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
 - [join](#join)
-  * [Combining rows based on shared keys with join](#combining-rows-based-on-shared-keys-with-join)
+  * [Combine rows based on shared keys with join](#combine-rows-based-on-shared-keys-with-join)
 - [md5sum](#md5sum)
   * [Generate a file of checksums](#generate-a-file-of-checksums)
   * [Validate checksums](#validate-checksums)
@@ -119,49 +155,19 @@
 - [Other](#other)
   * [Obtain your public IP address and network information](#obtain-your-public-ip-address-and-network-information)
   * [Copy an ssh public key to another system](#copy-an-ssh-public-key-to-another-system)
-  * [Download a website](#download-a-website)
-  * [Download files from an FTP server](#download-files-from-an-ftp-server)
-  * [Download files from Google Drive](#download-files-from-google-drive)
-  * [Extract a file](#extract-a-file)
   * [Add a header to all files with a certain extension, getting the header from another file](#add-a-header-to-all-files-with-a-certain-extension-getting-the-header-from-another-file)
-  * [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
-  * [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
   * [Change the extension of multiple files](#change-the-extension-of-multiple-files)
   * [Add text to the beginning of a file](#add-text-to-the-beginning-of-a-file)
   * [Add text or a header to the beginning of all files with a particular file extension](#add-text-or-a-header-to-the-beginning-of-all-files-with-a-particular-file-extension)
   * [Find common lines between files](#find-common-lines-between-files)
-  * [Convert a CSV file to a Markdown table](#convert-a-csv-file-to-a-markdown-table)
-  * [Convert PDF files to PNG files](#convert-pdf-files-to-png-files)
-  * [Convert PNG files to a single PDF file](#convert-png-files-to-a-single-pdf-file)
-  * [Convert a DOCX file to a PDF file](#convert-a-docx-file-to-a-pdf-file)
-  * [Convert an Excel file to a CSV file](#convert-an-excel-file-to-a-csv-file)
-  * [Convert a CSV file to an Excel file](#convert-a-csv-file-to-an-excel-file)
-  * [Convert a TSV file to an Excel file](#convert-a-tsv-file-to-an-excel-file)
-  * [Convert an HTML file to a PDF file](#convert-an-html-file-to-a-pdf-file)
-  * [Convert a website to a PDF file](#convert-a-website-to-a-pdf-file)
-  * [Convert an HTML file to a PNG file](#convert-an-html-file-to-a-png-file)
-  * [Convert a Markdown file to a PDF file](#convert-a-markdown-file-to-a-pdf-file)
-  * [Convert a Markdown file to an HTML file](#convert-a-markdown-file-to-an-html-file)
-  * [Crop an image and add a white border](#crop-an-image-and-add-a-white-border)
-  * [Resize an image](#resize-an-image)
   * [Format a CSV file into columns and examine its content](#format-a-csv-file-into-columns-and-examine-its-content)
   * [Format code](#format-code)
-  * [Change Bash prompt temporarily](#change-bash-prompt-temporarily)
-  * [Check bash/sh shell scripts for potential issues](#check-bashsh-shell-scripts-for-potential-issues)
-  * [Take a screenshot of a window on macOS](#take-a-screenshot-of-a-window-on-macos)
-  * [Take a webpage screenshot using Firefox](#take-a-webpage-screenshot-using-firefox)
   * [Create PowerPoint slides from a Markdown file](#create-powerpoint-slides-from-a-markdown-file)
   * [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
-  * [Record your terminal to an animated GIF](#record-your-terminal-to-an-animated-gif)
-  * [Record your screen to an animated GIF](#record-your-screen-to-an-animated-gif)
-  * [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
   * [Create a collection of MP3 files from a YouTube playlist](#create-a-collection-of-mp3-files-from-a-youtube-playlist)
-  * [Download a GenBank file with curl](#download-a-genbank-file-with-curl)
-  * [Perform a calculation on the command line](#perform-a-calculation-on-the-command-line)
-  * [Save the output of a command in a variable](#save-the-output-of-a-command-in-a-variable)
+  * [Perform a calculation using bc](#perform-a-calculation-using-bc)
   * [Count the bases in a fastq file](#count-the-bases-in-a-fastq-file)
   * [Count the reads in a fastq file](#count-the-reads-in-a-fastq-file)
-  * [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
   * [Use SQL-like queries to work with a CSV or TSV file](#use-sql-like-queries-to-work-with-a-csv-or-tsv-file)
   * [Browse, search, and edit a large CSV file](#browse-search-and-edit-a-large-csv-file)
 - [parallel](#parallel)
@@ -208,7 +214,7 @@
   * [Sync a directory to a remote system](#sync-a-directory-to-a-remote-system)
   * [Sync a directory from a remote system](#sync-a-directory-from-a-remote-system)
 - [Singularity](#singularity)
-  * [Creating an image from a container stored in Docker Hub](#creating-an-image-from-a-container-stored-in-docker-hub)
+  * [Create an image from a container stored in Docker Hub](#create-an-image-from-a-container-stored-in-docker-hub)
 - [sbatch](#sbatch)
   * [Count lines in compressed fastq files](#count-lines-in-compressed-fastq-files)
 - [sed](#sed)
@@ -435,6 +441,93 @@ The following skips the first `5` lines:
 
 ```bash
 awk 'FNR > 5 { print $0 }' input.txt
+```
+
+## Bash
+
+### View STDOUT and append it to a file
+
+```bash
+some_command | tee -a output.txt
+```
+
+### Redirect STDERR to STDOUT and view both and append both to a file
+
+```bash
+some_command 2>&1 | tee -a log
+```
+
+### Change Bash prompt temporarily
+
+```bash
+PS1="$ "
+```
+
+### Check bash/sh shell scripts for potential issues
+
+Use [shellcheck](https://github.com/koalaman/shellcheck):
+
+```bash
+shellcheck some_script.sh
+```
+
+### Extract a file
+
+The following Bash function can be used to extract a variety of file types.
+
+```bash
+extract() {
+  if [ -f "$1" ]; then
+    case "$1" in
+    *.tar.bz2) tar xjf "$1" ;;
+    *.tar.gz) tar xzf "$1" ;;
+    *.bz2) bunzip2 "$1" ;;
+    *.rar) unrar e "$1" ;;
+    *.gz) gunzip "$1" ;;
+    *.tar) tar xf "$1" ;;
+    *.tbz2) tar xjf "$1" ;;
+    *.tgz) tar xzf "$1" ;;
+    *.zip) unzip "$1" ;;
+    *.Z) uncompress "$1" ;;
+    *.7z) 7z x "$1" ;;
+    *) echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+```
+
+### Save the output of a command in a variable
+
+Use a subshell:
+
+```bash
+result=$(echo "sqrt(16)" | bc -l)
+```
+
+### Set variables using values from a CSV file
+
+The first `read` in the example below is used to skip a header line.
+
+```bash
+{
+  read
+  while IFS="," read -r column1 column2 column3
+  do
+    echo "$column1, $column2, $column3"
+  done
+} < "input.csv"
+```
+
+### Perform a calculation on the command line
+
+Use Bash arithmetic expansion:
+
+```bash
+n=6
+echo "$(( n - 1 * 2 ))"
+answer="$(( n - 1 * 2 ))"
 ```
 
 ## brew
@@ -846,6 +939,217 @@ while true; do docker container kill $(docker ps -q); sleep 2; done
 docker container rm $(docker ps -a -q)
 ```
 
+## File conversion
+
+### Convert a CSV file to a Markdown table
+
+The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used if some rows of the input have missing fields on the end:
+
+```bash
+awk -F, -v OFS="," 'NR==1 {cols=NF} {$1=$1; for (i=NF+1; i <= cols; i++) $i = "."} 1' input.csv > temp.csv
+csv2md -p < temp.csv > output.md
+```
+
+### Convert PDF files to PNG files
+
+The following uses `find` and the `pdftoppm` command from the [poppler](https://poppler.freedesktop.org) package to generate a PNG image of the first page of every PDF file in the working directory:
+
+```bash
+find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
+```
+
+### Convert PNG files to a single PDF file
+
+The following uses [ImageMagick](https://imagemagick.org):
+
+```bash
+convert *.png output.pdf
+```
+
+### Convert a DOCX file to a PDF file
+
+The following uses [LibreOffice](https://www.libreoffice.org):
+
+```bash
+soffice --headless --convert-to pdf --outdir . word_file.docx
+```
+
+The following uses [pandoc](https://pandoc.org) and on macOS also requires [basictex](https://www.tug.org/mactex/morepackages.html):
+
+```bash
+pandoc word_file.docx --output word_file.pdf
+```
+
+### Convert an Excel file to a CSV file
+
+The following uses [csvkit](https://github.com/wireservice/csvkit):
+
+```bash
+in2csv data.xls > data.csv
+```
+
+### Convert a CSV file to an Excel file
+
+The following uses `ssconvert`, which is distributed with Gnumeric:
+
+```bash
+ssconvert input.csv output.xlsx
+```
+
+### Convert a TSV file to an Excel file
+
+The following uses `ssconvert`, which is distributed with Gnumeric:
+
+```bash
+ssconvert input.tsv output.xls
+```
+
+### Convert an HTML file to a PDF file
+
+The following uses [wkhtmltopdf](https://wkhtmltopdf.org):
+
+```bash
+wkhtmltopdf http://google.com google.pdf
+```
+
+### Convert a website to a PDF file
+
+The following uses [wkhtmltopdf](https://wkhtmltopdf.org) and [gs](https://www.ghostscript.com/index.html):
+
+```bash
+url=http://www.3rs-reduction.co.uk/html/main_menu.html; depth=1
+wget --spider --force-html -r -l${depth} ${url} 2>&1 | grep '^--' | awk '{ print $3 }' | grep -i '\.\(html\|htm\)$' | uniq > url-list.txt
+while read i; do wkhtmltopdf "$i" "$(echo "$i" | sed -e 's/https\?:\/\///' -e 's/\//-/g' ).pdf"; done < url-list.txt
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged-output.pdf $(ls -lrt -1 *.pdf)
+```
+
+### Convert an HTML file to a PNG file
+
+The following uses [wkhtmltoimage](https://wkhtmltopdf.org):
+
+```bash
+wkhtmltoimage -f png http://google.com google.png
+```
+
+Another approach, which may work better for complex web sites, is to use [pageres-cli](https://github.com/sindresorhus/pageres-cli). The following creates an image that is 4485 pixels wide (5 * 897):
+
+```bash
+pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
+```
+
+### Convert a Markdown file to a PDF file
+
+The command below uses [pandoc](https://pandoc.org) and the [eisvogel.tex template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex).
+
+The `head.tex` file consists of the following:
+
+```tex
+\definecolor{bgcolor}{HTML}{E0E0E0}
+\let\oldtexttt\texttt
+
+\renewcommand{\texttt}[1]{
+  \colorbox{bgcolor}{\oldtexttt{#1}}
+}
+```
+
+```bash
+pandoc input.md -o output.pdf --pdf-engine=xelatex --from markdown --template=eisvogel.tex --highlight-style zenburn -H head.tex
+```
+
+### Convert a Markdown file to an HTML file
+
+The commmand below uses [pandoc](https://pandoc.org) and the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
+
+```bash
+pandoc -f markdown -t html -o output.html input.md --css=pandoc.css --self-contained
+```
+
+## File downloads
+
+### Download a website
+
+```bash
+wget --mirror --convert-links --page-requisites --no-parent https://www.somesite.com/course/material/
+```
+
+### Download files from an FTP server
+
+Replace `host`, `account`, `password`, and `port` with their corresponding values in the following command:
+
+```bash
+wget -S -d -c -t 45 -v -r ftp://account:password@host:port/*
+```
+
+### Download files from Google Drive
+
+[Rclone](https://rclone.org) can be used to download data from many cloud storage providers.
+
+First, follow the [configuration instructions](https://rclone.org/drivei). The commands below assume that the remote system was named `my_google_drive` during the configuration.
+
+Note that you can use the `Add shortcut to Drive` option in Google Drive to make folders and files in `Shared with me` easier to access using rclone.
+
+To list remote drives:
+
+```bash
+rclone listremotes
+```
+
+To list directories:
+
+```bash
+rclone lsd my_google_drve:
+```
+
+To list the contents of a directory
+
+```bash
+rclone ls my_google_drive:some_directory
+```
+
+To copy the drive to local storage:
+
+```bash
+rclone copy -P my_google_drive:some_directory ./some_directory
+```
+
+### Download a GenBank file with curl
+
+The command below downloads a GenBank file from the Nucleotide database at NCBI:
+
+```bash
+i=NC_045512.2
+curl -s  "https://eutils.ncbi.nlm.nih.gov\
+/entrez/eutils/efetch.fcgi?db=nucleotide\
+&id=${i}&rettype=gbwithparts&retmode=txt" \
+> $i.gbk
+```
+
+### Download fastq files based on a list of SRA accessions
+
+The following uses the [SRA Toolkit](https://github.com/ncbi/sra-tools).
+
+Paired-end data:
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fastq-dump -I --split-files --gzip {}
+```
+
+Single-end data:
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fastq-dump --gzip {}
+```
+
+For better performance use `fasterq-dump` (the following works for single-end and paired-end data):
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
+gzip *.fastq
+```
+
+[SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions 
+and returns a selectable list of ENA download URLs and sequencing run metadata.
+
 ## find
 
 ### Perform a series of commands on files returned by find
@@ -1178,9 +1482,84 @@ Keep everything except lines starting with `#`:
 grep -v '^#' input.txt
 ```
 
+## Image files
+
+### Crop an image and add a white border
+
+The following uses [ImageMagick](https://imagemagick.org) to removes any edges that are exactly the same color as the corner pixels. A 30-pixel white border is then added to the sides and the top and bottom:
+
+```bash
+convert input.png -trim -bordercolor White -border 30x30 output.png
+```
+
+### Resize an image 
+
+The following uses [ImageMagick](https://imagemagick.org) to scale the image so that its width is 4000 pixels:
+
+```bash
+convert input.png -resize 4000 output.png
+```
+
+### Take a screenshot of a window on macOS
+
+1. Press `Command+Shift+4`.
+2. Press the `space bar`.
+3. Hold `Option` and click on the window.
+
+To keep the drop shadow perform the last step without holding `Option`. 
+
+### Take a webpage screenshot using Firefox
+
+1. Press `F12` to open the Firefox Developer Tools.
+2. Enter `:screenshot` into the Web Console to download the current view as a PNG file.
+
+To save a high-DPI webpage screenshot use `:screenshot --dpr 4`. 
+
+To save a high-DPI full-page webpage screenshot use `:screenshot --dpr 4 --fullpage`.
+
+To delay the screenshot, to capture a menu for example, use `:screenshot --dpr 4 --fullpage --delay 5`.
+
+### Record your terminal to an animated GIF
+
+Use [Terminalizer](https://github.com/faressoft/terminalizer) to record a session. The following creates a file called `session.yml`:
+
+```bash
+terminalizer record session
+```
+
+To convert the session to an animated GIF:
+
+```bash
+terminalizer render session
+```
+
+For more control over rendering options create an editable configuration file at `~/.terminalizer/config.yml`:
+
+```bash
+terminalizer init
+```
+
+### Record your screen to an animated GIF
+
+Use [LICEcap](https://www.cockos.com/licecap/).
+
+### Create an animated GIF from a YouTube video
+
+The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl), [mplayer](https://mplayerhq.hu/), [ImageMagick](https://imagemagick.org), and [gifsicle](https://www.lcdf.org/gifsicle/):
+
+```bash
+mkdir gif; cd gif
+url=https://youtu.be/_YUAu0aP4DA
+start=00:37; length=10
+youtube-dl -f mp4 -o video_for_gif.mp4 $url
+mplayer video_for_gif.mp4 -ao null -ss $start -endpos $length -vo png -vf scale=400:225
+mogrify -format gif *.png
+gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > animation.gif
+```
+
 ## join
 
-### Combining rows based on shared keys with join
+### Combine rows based on shared keys with join
 
 `join` is used to join lines from different files when they have matching join fields. `join` expects the input files to be sorted.
 
@@ -1428,79 +1807,6 @@ Copy the public key to the `.ssh/authorized_keys` file on the other system using
 ssh-copy-id -i ~/.ssh/id_rsa.pub user@remote-host.com
 ```
 
-### Download a website
-
-```bash
-wget --mirror --convert-links --page-requisites --no-parent https://www.somesite.com/course/material/
-```
-
-### Download files from an FTP server
-
-Replace `host`, `account`, `password`, and `port` with their corresponding values in the following command:
-
-```bash
-wget -S -d -c -t 45 -v -r ftp://account:password@host:port/*
-```
-
-### Download files from Google Drive
-
-[Rclone](https://rclone.org) can be used to download data from many cloud storage providers.
-
-First, follow the [configuration instructions](https://rclone.org/drivei). The commands below assume that the remote system was named `my_google_drive` during the configuration.
-
-Note that you can use the `Add shortcut to Drive` option in Google Drive to make folders and files in `Shared with me` easier to access using rclone.
-
-To list remote drives:
-
-```bash
-rclone listremotes
-```
-
-To list directories:
-
-```bash
-rclone lsd my_google_drve:
-```
-
-To list the contents of a directory
-
-```bash
-rclone ls my_google_drive:some_directory
-```
-
-To copy the drive to local storage:
-
-```bash
-rclone copy -P my_google_drive:some_directory ./some_directory
-```
-
-### Extract a file
-
-The following bash function can be used to extract a variety of file types.
-
-```bash
-extract() {
-  if [ -f "$1" ]; then
-    case "$1" in
-    *.tar.bz2) tar xjf "$1" ;;
-    *.tar.gz) tar xzf "$1" ;;
-    *.bz2) bunzip2 "$1" ;;
-    *.rar) unrar e "$1" ;;
-    *.gz) gunzip "$1" ;;
-    *.tar) tar xf "$1" ;;
-    *.tbz2) tar xjf "$1" ;;
-    *.tgz) tar xzf "$1" ;;
-    *.zip) unzip "$1" ;;
-    *.Z) uncompress "$1" ;;
-    *.7z) 7z x "$1" ;;
-    *) echo "'$1' cannot be extracted via extract()" ;;
-    esac
-  else
-    echo "'$1' is not a valid file"
-  fi
-}
-```
-
 ### Add a header to all files with a certain extension, getting the header from another file
 
 In this example the header is added to `.tab` files and comes from a file called `header.txt`. The files with the header added are saved with a `.new` extension added:
@@ -1513,18 +1819,6 @@ To replace the `.tab` files the `.new` files:
 
 ```bash
 for f in *.new; do new=`echo $f | sed 's/\(.*\)\.new/\1/'`; mv "$f" "$new"; done
-```
-
-### View STDOUT and append it to a file
-
-```bash
-some_command | tee -a output.txt
-```
-
-### Redirect STDERR to STDOUT and view both and append both to a file
-
-```bash
-some_command 2>&1 | tee -a log
 ```
 
 ### Change the extension of multiple files
@@ -1584,145 +1878,6 @@ number_of_files=$(find . -name "*.txt" -print | wc -l | sed 's/[^0-9]*//g')
 cat *.txt | sort | uniq -c | sed -n -e "s/^ *$number_of_files \(.*\)/\1/p"
 ```
 
-### Convert a CSV file to a Markdown table
-
-The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used if some rows of the input have missing fields on the end:
-
-```bash
-awk -F, -v OFS="," 'NR==1 {cols=NF} {$1=$1; for (i=NF+1; i <= cols; i++) $i = "."} 1' input.csv > temp.csv
-csv2md -p < temp.csv > output.md
-```
-
-### Convert PDF files to PNG files
-
-The following uses `find` and the `pdftoppm` command from the [poppler](https://poppler.freedesktop.org) package to generate a PNG image of the first page of every PDF file in the working directory:
-
-```bash
-find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
-```
-
-### Convert PNG files to a single PDF file
-
-The following uses [ImageMagick](https://imagemagick.org):
-
-```bash
-convert *.png output.pdf
-```
-
-### Convert a DOCX file to a PDF file
-
-The following uses [LibreOffice](https://www.libreoffice.org):
-
-```bash
-soffice --headless --convert-to pdf --outdir . word_file.docx
-```
-
-The following uses [pandoc](https://pandoc.org) and on macOS also requires [basictex](https://www.tug.org/mactex/morepackages.html):
-
-```bash
-pandoc word_file.docx --output word_file.pdf
-```
-
-### Convert an Excel file to a CSV file
-
-The following uses [csvkit](https://github.com/wireservice/csvkit):
-
-```bash
-in2csv data.xls > data.csv
-```
-
-### Convert a CSV file to an Excel file
-
-The following uses `ssconvert`, which is distributed with Gnumeric:
-
-```bash
-ssconvert input.csv output.xlsx
-```
-
-### Convert a TSV file to an Excel file
-
-The following uses `ssconvert`, which is distributed with Gnumeric:
-
-```bash
-ssconvert input.tsv output.xls
-```
-
-### Convert an HTML file to a PDF file
-
-The following uses [wkhtmltopdf](https://wkhtmltopdf.org):
-
-```bash
-wkhtmltopdf http://google.com google.pdf
-```
-
-### Convert a website to a PDF file
-
-The following uses [wkhtmltopdf](https://wkhtmltopdf.org) and [gs](https://www.ghostscript.com/index.html):
-
-```bash
-url=http://www.3rs-reduction.co.uk/html/main_menu.html; depth=1
-wget --spider --force-html -r -l${depth} ${url} 2>&1 | grep '^--' | awk '{ print $3 }' | grep -i '\.\(html\|htm\)$' | uniq > url-list.txt
-while read i; do wkhtmltopdf "$i" "$(echo "$i" | sed -e 's/https\?:\/\///' -e 's/\//-/g' ).pdf"; done < url-list.txt
-gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged-output.pdf $(ls -lrt -1 *.pdf)
-```
-
-### Convert an HTML file to a PNG file
-
-The following uses [wkhtmltoimage](https://wkhtmltopdf.org):
-
-```bash
-wkhtmltoimage -f png http://google.com google.png
-```
-
-Another approach, which may work better for complex web sites, is to use [pageres-cli](https://github.com/sindresorhus/pageres-cli). The following creates an image that is 4485 pixels wide (5 * 897):
-
-```bash
-pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
-```
-
-### Convert a Markdown file to a PDF file
-
-The command below uses [pandoc](https://pandoc.org) and the [eisvogel.tex template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex).
-
-The `head.tex` file consists of the following:
-
-```tex
-\definecolor{bgcolor}{HTML}{E0E0E0}
-\let\oldtexttt\texttt
-
-\renewcommand{\texttt}[1]{
-  \colorbox{bgcolor}{\oldtexttt{#1}}
-}
-```
-
-```bash
-pandoc input.md -o output.pdf --pdf-engine=xelatex --from markdown --template=eisvogel.tex --highlight-style zenburn -H head.tex
-```
-
-### Convert a Markdown file to an HTML file
-
-The commmand below uses [pandoc](https://pandoc.org) and the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
-
-```bash
-pandoc -f markdown -t html -o output.html input.md --css=pandoc.css --self-contained
-```
-
-### Crop an image and add a white border
-
-The following uses [ImageMagick](https://imagemagick.org) to removes any edges that are exactly the same color as the corner pixels. A 30-pixel white border is then added to the sides and the top and bottom:
-
-```bash
-convert input.png -trim -bordercolor White -border 30x30 output.png
-```
-
-### Resize an image 
-
-The following uses [ImageMagick](https://imagemagick.org) to scale the image so that its width is 4000 pixels:
-
-```bash
-convert input.png -resize 4000 output.png
-```
-
 ### Format a CSV file into columns and examine its content
 
 The `perl` portion is used to handle empty fields:
@@ -1738,39 +1893,6 @@ The [Prettier](https://prettier.io) program supports many languages. The followi
 ```bash
 prettier --write "*html"
 ```
-
-### Change Bash prompt temporarily
-
-```bash
-PS1="$ "
-```
-
-### Check bash/sh shell scripts for potential issues
-
-Use [shellcheck](https://github.com/koalaman/shellcheck):
-
-```bash
-shellcheck some_script.sh
-```
-
-### Take a screenshot of a window on macOS
-
-1. Press `Command+Shift+4`.
-2. Press the `space bar`.
-3. Hold `Option` and click on the window.
-
-To keep the drop shadow perform the last step without holding `Option`. 
-
-### Take a webpage screenshot using Firefox
-
-1. Press `F12` to open the Firefox Developer Tools.
-2. Enter `:screenshot` into the Web Console to download the current view as a PNG file.
-
-To save a high-DPI webpage screenshot use `:screenshot --dpr 4`. 
-
-To save a high-DPI full-page webpage screenshot use `:screenshot --dpr 4 --fullpage`.
-
-To delay the screenshot, to capture a menu for example, use `:screenshot --dpr 4 --fullpage --delay 5`.
 
 ### Create PowerPoint slides from a Markdown file
 
@@ -1996,44 +2118,6 @@ Alternatively, use the following to run the script once per hour between 8 am an
 
 To display the crontab use `crontab -l`.
 
-### Record your terminal to an animated GIF
-
-Use [Terminalizer](https://github.com/faressoft/terminalizer) to record a session. The following creates a file called `session.yml`:
-
-```bash
-terminalizer record session
-```
-
-To convert the session to an animated GIF:
-
-```bash
-terminalizer render session
-```
-
-For more control over rendering options create an editable configuration file at `~/.terminalizer/config.yml`:
-
-```bash
-terminalizer init
-```
-
-### Record your screen to an animated GIF
-
-Use [LICEcap](https://www.cockos.com/licecap/).
-
-### Create an animated GIF from a YouTube video
-
-The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl), [mplayer](https://mplayerhq.hu/), [ImageMagick](https://imagemagick.org), and [gifsicle](https://www.lcdf.org/gifsicle/):
-
-```bash
-mkdir gif; cd gif
-url=https://youtu.be/_YUAu0aP4DA
-start=00:37; length=10
-youtube-dl -f mp4 -o video_for_gif.mp4 $url
-mplayer video_for_gif.mp4 -ao null -ss $start -endpos $length -vo png -vf scale=400:225
-mogrify -format gif *.png
-gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > animation.gif
-```
-
 ### Create a collection of MP3 files from a YouTube playlist
 
 The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl) and [ffmpeg](https://ffmpeg.org/):
@@ -2042,40 +2126,12 @@ The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl) and 
 youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass https://www.youtube.com/playlist?list=PL92319EECC1754042
 ```
 
-### Download a GenBank file with curl
-
-The command below downloads a GenBank file from the Nucleotide database at NCBI:
-
-```bash
-i=NC_045512.2
-curl -s  "https://eutils.ncbi.nlm.nih.gov\
-/entrez/eutils/efetch.fcgi?db=nucleotide\
-&id=${i}&rettype=gbwithparts&retmode=txt" \
-> $i.gbk
-```
-
-### Perform a calculation on the command line
+### Perform a calculation using bc
 
 Use [bc](https://www.gnu.org/software/bc/):
 
 ```bash
 echo "2*(42+42)" | bc
-```
-
-Or use Bash arithmetic expansion:
-
-```bash
-n=6
-echo "$(( n - 1 * 2 ))"
-answer="$(( n - 1 * 2 ))"
-```
-
-### Save the output of a command in a variable
-
-Use a subshell:
-
-```bash
-result=$(echo "sqrt(16)" | bc -l)
 ```
 
 ### Count the bases in a fastq file
@@ -2099,32 +2155,6 @@ echo $(cat SRR13388732_1.fastq | wc -l) / 4 | bc
 ```bash
 echo $(zcat SRR13388732_1.fastq.gz | wc -l) / 4 | bc
 ```
-
-### Download fastq files based on a list of SRA accessions
-
-The following uses the [SRA Toolkit](https://github.com/ncbi/sra-tools).
-
-Paired-end data:
-
-```bash
-cat SRR_Acc_List.txt | xargs -I{} fastq-dump -I --split-files --gzip {}
-```
-
-Single-end data:
-
-```bash
-cat SRR_Acc_List.txt | xargs -I{} fastq-dump --gzip {}
-```
-
-For better performance use `fasterq-dump` (the following works for single-end and paired-end data):
-
-```bash
-cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
-gzip *.fastq
-```
-
-[SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions 
-and returns a selectable list of ENA download URLs and sequencing run metadata.
 
 ### Use SQL-like queries to work with a CSV or TSV file
 
@@ -2963,7 +2993,7 @@ rsync -avzh user@192.168.0.101:~/source_directory destination
 
 ## Singularity
 
-### Creating an image from a container stored in Docker Hub
+### Create an image from a container stored in Docker Hub
 
 In this example a container that can be downloaded from Docker Hub using `docker pull pstothard/cgview` is used to generate a Singularity container: 
 
