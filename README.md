@@ -188,6 +188,7 @@
   * [Replace tabs with commas and remove quotes](#replace-tabs-with-commas-and-remove-quotes)
   * [Sort sections in a Markdown file based on headings](#sort-sections-in-a-markdown-file-based-on-headings)
   * [Search and replace text on each line](#search-and-replace-text-on-each-line)
+  * [Replace ^M](#replace-m)
   * [Print matches that may span multiple lines](#print-matches-that-may-span-multiple-lines)
   * [Print matches after additional editing](#print-matches-after-additional-editing)
   * [Format Perl code](#format-perl-code)
@@ -260,6 +261,7 @@
   * [Search and replace newlines](#search-and-replace-newlines)
   * [Compare two files](#compare-two-files)
   * [Copy to the clipboard](#copy-to-the-clipboard)
+  * [View ^M](#view-m)
 
 <!-- tocstop -->
 
@@ -943,10 +945,10 @@ docker container rm $(docker ps -a -q)
 
 ### Convert a CSV file to a Markdown table
 
-The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used if some rows of the input have missing fields on the end:
+The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used to change missing values to `.`:
 
 ```bash
-awk -F, -v OFS="," 'NR==1 {cols=NF} {$1=$1; for (i=NF+1; i <= cols; i++) $i = "."} 1' input.csv > temp.csv
+awk 'BEGIN { FS = OFS = "," } { for(i=1; i<=NF; i++) if($i ~ /^ *$/) $i = "." }; 1' input.csv > temp.csv
 csv2md -p < temp.csv > output.md
 ```
 
@@ -2328,6 +2330,12 @@ The above command produces the following:
 test,pattern
 ```
 
+### Replace ^M
+
+```bash
+perl -p -i -e 's/\r\n$/\n/g' file.txt
+```
+
 ### Print matches that may span multiple lines
 
 ```bash
@@ -3481,4 +3489,10 @@ vimdiff file1 file2
 
 ```
 "+y
+```
+
+### View ^M
+
+```
+:e ++ff=unix
 ```
