@@ -3235,7 +3235,7 @@ scancel -u <username>
 ### Start an interactive session
 
 ```bash
-salloc --time=3:00:00 --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --mem=64000M --account=def-someuser
+salloc --time=2:0:0 --ntasks=2 --account=def-someuser --mem-per-cpu=8000M --mail-type=ALL --mail-user=your.email@example.com
 ```
 
 ## sort
