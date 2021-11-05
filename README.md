@@ -261,7 +261,8 @@
   * [Search and replace newlines](#search-and-replace-newlines)
   * [Compare two files](#compare-two-files)
   * [Copy to the clipboard](#copy-to-the-clipboard)
-  * [View ^M](#view-m)
+  * [View ^M characters](#view-m-characters)
+  * [Type tab characters](#type-tab-characters)
 
 <!-- tocstop -->
 
@@ -3491,8 +3492,12 @@ vimdiff file1 file2
 "+y
 ```
 
-### View ^M
+### View ^M characters
 
 ```
 :e ++ff=unix
 ```
+
+### Type tab characters
+
+In insert mode type `Ctrl`-`v` then `tab`.
