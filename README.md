@@ -235,6 +235,8 @@
   * [Cancel a job](#cancel-a-job)
   * [Cancel all jobs](#cancel-all-jobs)
   * [Start an interactive session](#start-an-interactive-session)
+- [SnpSift](#snpsift)
+  * [Filter multi-sample genotypes in a VCF file](#filter-multi-sample-genotypes-in-a-vcf-file)
 - [sort](#sort)
   * [Alphabetical sort](#alphabetical-sort)
   * [Specify the sort field](#specify-the-sort-field)
@@ -3237,6 +3239,40 @@ scancel -u <username>
 
 ```bash
 salloc --time=2:0:0 --ntasks=2 --account=def-someuser --mem-per-cpu=8000M --mail-type=ALL --mail-user=your.email@example.com
+```
+
+## SnpSift
+
+### Filter multi-sample genotypes in a VCF file
+
+The following approach can be used to exclude sites where any sample meets the following criteria: is homozygous and the genotype quality is greater than `30` and the genotype is not `0/0`. Worded another way, a variant is kept if no sample exhibits a good-quality homozygous alternative genotype.
+
+In this example there are 20 samples in the VCF file.
+
+First generate the filter string:
+
+```bash
+FILTER=$(perl -e '@array = (); foreach(0..19) {push @array, "( isHom( GEN[$_] ) & GEN[$_].GQ > 30 & isVariant( GEN[$_] ) )";} print " !( " . join(" | ", @array) . " )\n";')
+```
+
+Examine the filter string:
+
+```bash
+echo $FILTER
+```
+
+This produces:
+
+```
+!( ( isHom( GEN[0] ) & GEN[0].GQ > 30 & isVariant( GEN[0] ) ) | ( isHom( GEN[1] ) & GEN[1].GQ > 30 & isVariant( GEN[1] ) ) | ( isHom( GEN[2] ) & GEN[2].GQ > 30 & isVariant( GEN[2] ) ) | ( isHom( GEN[3] ) & GEN[3].GQ > 30 & isVariant( GEN[3] ) ) | ( isHom( GEN[4] ) & GEN[4].GQ > 30 & isVariant( GEN[4] ) ) | ( isHom( GEN[5] ) & GEN[5].GQ > 30 & isVariant( GEN[5] ) ) | ( isHom( GEN[6] ) & GEN[6].GQ > 30 & isVariant( GEN[6] ) ) | ( isHom( GEN[7] ) & GEN[7].GQ > 30 & isVariant( GEN[7] ) ) | ( isHom( GEN[8] ) & GEN[8].GQ > 30 & isVariant( GEN[8] ) ) | ( isHom( GEN[9] ) & GEN[9].GQ > 30 & isVariant( GEN[9] ) ) | ( isHom( GEN[10] ) & GEN[10].GQ > 30 & isVariant( GEN[10] ) ) | ( isHom( GEN[11] ) & GEN[11].GQ > 30 & isVariant( GEN[11] ) ) | ( isHom( GEN[12] ) & GEN[12].GQ > 30 & isVariant( GEN[12] ) ) | ( isHom( GEN[13] ) & GEN[13].GQ > 30 & isVariant( GEN[13] ) ) | ( isHom( GEN[14] ) & GEN[14].GQ > 30 & isVariant( GEN[14] ) ) | ( isHom( GEN[15] ) & GEN[15].GQ > 30 & isVariant( GEN[15] ) ) | ( isHom( GEN[16] ) & GEN[16].GQ > 30 & isVariant( GEN[16] ) ) | ( isHom( GEN[17] ) & GEN[17].GQ > 30 & isVariant( GEN[17] ) ) | ( isHom( GEN[18] ) & GEN[18].GQ > 30 & isVariant( GEN[18] ) ) | ( isHom( GEN[19] ) & GEN[19].GQ > 30 & isVariant( GEN[19] ) ) )
+```
+
+Use the filter string and `SnpSift.jar` to complete the filtering step (the `set +H` is used so that the `!` in the filter string doesn't activate Bash history expansion):
+
+```bash
+set +H
+cat snps.vcf | java -jar SnpSift.jar filter "$FILTER" > snps_with_no_homozygous_alt_genotypes.vcf
+set -H
 ```
 
 ## sort
