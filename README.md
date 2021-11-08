@@ -952,7 +952,7 @@ The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` comm
 
 ```bash
 awk 'BEGIN { FS = OFS = "," } { for(i=1; i<=NF; i++) if($i ~ /^ *$/) $i = "." }; 1' input.csv > temp.csv
-csv2md -p < temp.csv > output.md
+csv2md -p < temp.csv | sed 's/_/\\_/g' > output.md
 ```
 
 ### Convert PDF files to PNG files
