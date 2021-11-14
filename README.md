@@ -256,8 +256,9 @@
   * [Delete characters](#delete-characters)
   * [Squeeze characters](#squeeze-characters)
 - [vcftools and bcftools](#vcftools-and-bcftools)
-  * [Extract variants from a region of interest and write to a new vcf file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
-  * [Extract variants from multiple regions of interest and write to a new vcf file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
+  * [Extract variants from a region of interest and write to a new VCF file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
+  * [Extract variants from multiple regions of interest and write to a new VCF file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
+  * [Assess sex by calculating X-chromosome heterozygosity for each sample in a VCF file](#assess-sex-by-calculating-x-chromosome-heterozygosity-for-each-sample-in-a-vcf-file)
 - [vim](#vim)
   * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
   * [Search and replace newlines](#search-and-replace-newlines)
@@ -3470,21 +3471,30 @@ echo "a,b,,c,,,d" | tr -s ","
 
 ## vcftools and bcftools
 
-### Extract variants from a region of interest and write to a new vcf file
+### Extract variants from a region of interest and write to a new VCF file
 
-Note that if the vcf file is gzip compressed (i.e. has a `.gz` extension), use `--gzvcf` instead of `--vcf`.
+Note that if the VCF file is gzip compressed (i.e. has a `.gz` extension), use `--gzvcf` instead of `--vcf`.
 
 ```bash
 vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 --recode --recode-INFO-all
 ```
 
-### Extract variants from multiple regions of interest and write to a new vcf file
+### Extract variants from multiple regions of interest and write to a new VCF file
 
 ```bash
 bgzip Chr5.vcf
 tabix -fp vcf Chr5.vcf.gz 
 bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
-``` 
+```
+
+### Assess sex by calculating X-chromosome heterozygosity for each sample in a VCF file
+
+```bash
+#vcftools adds .het extension to output automatically, so output becomes output.vcf.het
+vcftools --vcf input.vcf --chr X --het --out output.vcf
+#add column to vcftools output reporting percent heterozygous genotypes
+awk -F$'\t' 'BEGIN{OFS="\t"}; {if(NR==1){print $0,"Percent HET"} else {print $0, ($4 - $2) / $4 * 100}}' output.vcf.het > output.vcf.percent_het
+```
 
 ## vim
 
