@@ -104,6 +104,7 @@
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
   * [Process files in pairs](#process-files-in-pairs)
+  * [Copy the files returned by find](#copy-the-files-returned-by-find)
   * [Copy the files returned by find, naming the copies after a directory in the path](#copy-the-files-returned-by-find-naming-the-copies-after-a-directory-in-the-path)
   * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
   * [Find large files](#find-large-files)
@@ -127,7 +128,8 @@
   * [Get the line number of a match](#get-the-line-number-of-a-match)
   * [Remove files that contain a match](#remove-files-that-contain-a-match)
   * [Remove files that do not contain a match](#remove-files-that-do-not-contain-a-match)
-  * [Remove lines that match](#remove-lines-that-match)
+  * [Print non-matching lines](#print-non-matching-lines)
+  * [Search using patterns from a file](#search-using-patterns-from-a-file)
 - [Image files](#image-files)
   * [Crop an image and add a white border](#crop-an-image-and-add-a-white-border)
   * [Resize an image](#resize-an-image)
@@ -242,6 +244,8 @@
   * [Specify the sort field](#specify-the-sort-field)
   * [Use multiple sort fields](#use-multiple-sort-fields)
   * [Sort a file with a header row](#sort-a-file-with-a-header-row)
+- [tabix](#tabix)
+  * [Obtain variants from a VCF file located in regions of interest](#obtain-variants-from-a-vcf-file-located-in-regions-of-interest)
 - [tmux](#tmux)
   * [Start a tmux session](#start-a-tmux-session)
   * [Detach a tmux session](#detach-a-tmux-session)
@@ -259,6 +263,7 @@
   * [Extract variants from a region of interest and write to a new VCF file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
   * [Extract variants from multiple regions of interest and write to a new VCF file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
   * [Assess sex by calculating X-chromosome heterozygosity for each sample in a VCF file](#assess-sex-by-calculating-x-chromosome-heterozygosity-for-each-sample-in-a-vcf-file)
+  * [Merge VCF files](#merge-vcf-files)
 - [vim](#vim)
   * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
   * [Search and replace newlines](#search-and-replace-newlines)
@@ -1204,6 +1209,15 @@ done
 
 Another option is to use [parallel](#parallel).
 
+### Copy the files returned by find
+
+The following finds files in the directory `output` ending in `.vcf.gz` or `.vcf.gz.tbi` and copies them to the `vcfs` directory:
+
+```bash
+mkdir vcfs
+find output -type f \( -name "*.vcf.gz" -o -name "*.vcf.gz.tbi" \) -exec cp {} vcfs \;
+```
+
 ### Copy the files returned by find, naming the copies after a directory in the path
 
 The command below finds files named `star-fusion.fusion_candidates.preliminary` and parses the sample name from a directory name in the path to the file. The sample name is then used to construct a name for the copy. For example, `./231_S12_R1_001/star-fusion.fusion_candidates.preliminary` is copied to `./fusion-candidates/231_S12_R1_001.fusion_candidates.preliminary`.
@@ -1480,12 +1494,31 @@ In this example `.fasta` files are removed that do not contain the text `complet
 grep -L "complete genome" *.fasta | xargs -I{} rm -f {}
 ```
 
-### Remove lines that match
+### Print non-matching lines
 
 Keep everything except lines starting with `#`:
 
 ```bash
 grep -v '^#' input.txt
+```
+
+### Search using patterns from a file
+
+This example uses patterns from the text file `ensembl_ids.txt`, which contains one gene ID per line:
+
+```
+ENSCAFG00000018897
+ENSCAFG00000006950
+ENSCAFG00000013069
+ENSCAFG00000013670
+ENSCAFG00000003247
+```
+
+The first `grep` command is used to add the VCF header to the output file:
+
+```bash
+grep '^#' annotated_variants.vcf > annotated_variants.candidates.vcf
+grep -f ensembl_ids.txt annotated_variants.vcf >> annotated_variants.candidates.vcf
 ```
 
 ## Image files
@@ -3333,6 +3366,26 @@ The above command can be modified to sort by the second column, numerically from
 cat sequenced_samples.csv | awk 'NR<2{print $0; next}{print $0| "sort -t',' -k2,2n"}'
 ```
 
+## tabix
+
+### Obtain variants from a VCF file located in regions of interest
+
+In this example the regions of interest are stored in a text file called `regions.txt`. Each line describes the chromosome, start, and end of a region:
+
+```
+3 62148416 62200719
+4 54643953 54720351
+4 63732381 63795159
+5 10163746 10218801
+5 10784272 10841310
+```
+
+```bash
+bgzip input.vcf 
+tabix -p vcf input.vcf.gz
+tabix --print-header -R regions.txt input.vcf.gz > regions_of_interest.vcf
+```
+
 ## tmux
 
 ### Start a tmux session
@@ -3494,6 +3547,12 @@ bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
 vcftools --vcf input.vcf --chr X --het --out output.vcf
 #add column to vcftools output reporting percent heterozygous genotypes
 awk -F$'\t' 'BEGIN{OFS="\t"}; {if(NR==1){print $0,"Percent HET"} else {print $0, ($4 - $2) / $4 * 100}}' output.vcf.het > output.vcf.percent_het
+```
+
+### Merge VCF files
+
+```bash
+bcftools merge *.vcf.gz -Oz -o merged.vcf.gz
 ```
 
 ## vim
