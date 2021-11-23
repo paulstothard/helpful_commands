@@ -3574,6 +3574,10 @@ awk -F$'\t' 'BEGIN{OFS="\t"}; {if(NR==1){print $0,"Percent HET"} else {print $0,
 
 ### Merge VCF files
 
+From the `bcftools` documentation:
+
+> Merge multiple VCF/BCF files from non-overlapping sample sets to create one multi-sample file. For example, when merging file A.vcf.gz containing samples S1, S2 and S3 and file B.vcf.gz containing samples S3 and S4, the output file will contain four samples named S1, S2, S3, 2:S3 and S4.
+
 ```bash
 bcftools merge *.vcf.gz -Oz -o merged.vcf.gz
 ```
