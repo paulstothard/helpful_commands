@@ -172,6 +172,7 @@
   * [Count the reads in a fastq file](#count-the-reads-in-a-fastq-file)
   * [Use SQL-like queries to work with a CSV or TSV file](#use-sql-like-queries-to-work-with-a-csv-or-tsv-file)
   * [Browse, search, and edit a large CSV file](#browse-search-and-edit-a-large-csv-file)
+  * [Prevent a command from stopping when you log out or exit the shell](#prevent-a-command-from-stopping-when-you-log-out-or-exit-the-shell)
 - [parallel](#parallel)
   * [Extract files in parallel](#extract-files-in-parallel)
   * [Compress files in parallel](#compress-files-in-parallel)
@@ -2208,6 +2209,28 @@ Another option is to use [csvsql](#query-with-sql) from [csvkit](#csvkit).
 ### Browse, search, and edit a large CSV file
 
 Use [DB Browser for SQLite (DB4S)](https://github.com/sqlitebrowser/sqlitebrowser).
+
+### Prevent a command from stopping when you log out or exit the shell
+
+Use `nohup`:
+
+```bash
+nohup mycommand &
+```
+
+When using `&` the bash job ID is shown in brackets and the PID (process ID), e.g.:
+
+```
+[1] 1963
+```
+
+The output of the command can be found in `nohup.out`.
+
+The command can be stopped using `kill` and the PID, e.g.:
+
+```bash
+kill -9 1963
+```
 
 ## parallel
 
