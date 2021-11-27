@@ -108,6 +108,8 @@
   * [Copy the files returned by find, naming the copies after a directory in the path](#copy-the-files-returned-by-find-naming-the-copies-after-a-directory-in-the-path)
   * [Switch to the directory containing each file and execute a command](#switch-to-the-directory-containing-each-file-and-execute-a-command)
   * [Find large files](#find-large-files)
+  * [Process multiple files and redirect output to one file](#process-multiple-files-and-redirect-output-to-one-file)
+  * [Process multiple files and redirect output to separate files](#process-multiple-files-and-redirect-output-to-separate-files)
 - [Git](#git)
   * [Create a new Git repository](#create-a-new-git-repository)
   * [Sync a repository to your local machine](#sync-a-repository-to-your-local-machine)
@@ -195,12 +197,6 @@
   * [Print matches that may span multiple lines](#print-matches-that-may-span-multiple-lines)
   * [Print matches after additional editing](#print-matches-after-additional-editing)
   * [Format Perl code](#format-perl-code)
-- [Process multiple files](#process-multiple-files)
-  * [for loop](#for-loop)
-  * [while loop](#while-loop)
-  * [find with -exec](#find-with--exec)
-  * [find with xargs](#find-with-xargs)
-  * [parallel](#parallel-1)
 - [R](#r)
   * [Compare two data sets to find differences](#compare-two-data-sets-to-find-differences)
   * [Visualize the degree of overlap among gene sets](#visualize-the-degree-of-overlap-among-gene-sets)
@@ -238,15 +234,11 @@
   * [Cancel a job](#cancel-a-job)
   * [Cancel all jobs](#cancel-all-jobs)
   * [Start an interactive session](#start-an-interactive-session)
-- [SnpSift](#snpsift)
-  * [Filter multi-sample genotypes in a VCF file](#filter-multi-sample-genotypes-in-a-vcf-file)
 - [sort](#sort)
   * [Alphabetical sort](#alphabetical-sort)
   * [Specify the sort field](#specify-the-sort-field)
   * [Use multiple sort fields](#use-multiple-sort-fields)
   * [Sort a file with a header row](#sort-a-file-with-a-header-row)
-- [tabix](#tabix)
-  * [Obtain variants from a VCF file located in regions of interest](#obtain-variants-from-a-vcf-file-located-in-regions-of-interest)
 - [tmux](#tmux)
   * [Start a tmux session](#start-a-tmux-session)
   * [Detach a tmux session](#detach-a-tmux-session)
@@ -260,11 +252,25 @@
   * [Translate characters](#translate-characters)
   * [Delete characters](#delete-characters)
   * [Squeeze characters](#squeeze-characters)
-- [vcftools and bcftools](#vcftools-and-bcftools)
-  * [Extract variants from a region of interest and write to a new VCF file](#extract-variants-from-a-region-of-interest-and-write-to-a-new-vcf-file)
-  * [Extract variants from multiple regions of interest and write to a new VCF file](#extract-variants-from-multiple-regions-of-interest-and-write-to-a-new-vcf-file)
-  * [Assess sex by calculating X-chromosome heterozygosity for each sample in a VCF file](#assess-sex-by-calculating-x-chromosome-heterozygosity-for-each-sample-in-a-vcf-file)
-  * [Merge VCF files](#merge-vcf-files)
+- [VCF files](#vcf-files)
+  * [Extract variants from a region of interest](#extract-variants-from-a-region-of-interest)
+  * [Extract variants from multiple regions of interest](#extract-variants-from-multiple-regions-of-interest)
+  * [Extract variants from multiple regions of interest described in a file](#extract-variants-from-multiple-regions-of-interest-described-in-a-file)
+  * [Assess sex by calculating X-chromosome heterozygosity](#assess-sex-by-calculating-x-chromosome-heterozygosity)
+  * [Assess sex using plink](#assess-sex-using-plink)
+  * [Count Mendelian errors using plink](#count-mendelian-errors-using-plink)
+  * [Find runs of homozygosity using plink](#find-runs-of-homozygosity-using-plink)
+  * [Add new samples](#add-new-samples)
+  * [Check relatedness between samples](#check-relatedness-between-samples)
+  * [Filter multi-sample genotypes](#filter-multi-sample-genotypes)
+  * [Add predicted consequences](#add-predicted-consequences)
+  * [Add variant IDs](#add-variant-ids)
+  * [Filter variants based on predicted consequences](#filter-variants-based-on-predicted-consequences)
+  * [Keep variants where FILTER is PASS](#keep-variants-where-filter-is-pass)
+  * [Count variants](#count-variants)
+  * [Identify variants found in all VCF files](#identify-variants-found-in-all-vcf-files)
+  * [Change sample order](#change-sample-order)
+  * [Combine rows](#combine-rows)
 - [vim](#vim)
   * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
   * [Search and replace newlines](#search-and-replace-newlines)
@@ -1241,6 +1247,46 @@ The following reports the 10 largest files in the current directory or its subdi
 
 ```bash
 find . -type f -print0 | xargs -0 du -h | sort -hr | head -10
+```
+
+### Process multiple files and redirect output to one file
+
+Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" >> output.txt; done
+```
+
+Or
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \; > output.txt
+```
+
+Or
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {} > output.txt
+```
+
+### Process multiple files and redirect output to separate files
+
+Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
+```
+
+Or
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$1.output.txt"' -- {} \;
+```
+
+Or
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
 ```
 
 ## Git
@@ -2416,98 +2462,6 @@ The following uses `perltidy` to reformat the code in `testfile.pl` and will cre
 perltidy testfile.pl
 ```
 
-## Process multiple files
-
-### for loop
-
-Change all `.fasta` files in the current directory to `.fna` files:
-
-```bash
-for f in *.fasta; do new=`echo $f | sed 's/\(.*\)\.fasta/\1.fna/'`; mv "$f" "$new"; done
-```
-
-### while loop
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f"; done
-```
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" >> output.txt; done
-```
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
-```
-
-### find with -exec
-
-Change all `.fasta` files in current directory to `.fna` files by appending a `.fna` extension:
-
-```bash
-find . -type f -name "*.fasta" -exec mv {} {}.fna \;
-```
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \;
-```
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \; > output.txt
-```
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$1.output.txt"' -- {} \;
-```
-
-### find with xargs
-
-Change all `.fasta` files in current directory to `.fna` files by appending a `.fna` extension:
-
-```bash
-find . -type f -name "*.fasta" -print0 | xargs -0 -I{} mv {} {}.fna
-```
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {}
-```
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {} > output.txt
-```
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
-```
-
-Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files. Process up to `4` files in parallel:
-
-```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -n1 -P4 -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
-```
-
-### parallel
-
-See the [parallel examples](#parallel).
-
 ## R
 
 ### Compare two data sets to find differences
@@ -3298,40 +3252,6 @@ scancel -u <username>
 salloc --time=2:0:0 --ntasks=2 --account=def-someuser --mem-per-cpu=8000M --mail-type=ALL --mail-user=your.email@example.com
 ```
 
-## SnpSift
-
-### Filter multi-sample genotypes in a VCF file
-
-The following approach can be used to exclude sites where any sample meets the following criteria: is homozygous and the genotype quality is greater than `30` and the genotype is not `0/0`. Worded another way, a variant is kept if no sample exhibits a good-quality homozygous alternative genotype.
-
-In this example there are 20 samples in the VCF file.
-
-First generate the filter string:
-
-```bash
-FILTER=$(perl -e '@array = (); foreach(0..19) {push @array, "( isHom( GEN[$_] ) & GEN[$_].GQ > 30 & isVariant( GEN[$_] ) )";} print " !( " . join(" | ", @array) . " )\n";')
-```
-
-Examine the filter string:
-
-```bash
-echo $FILTER
-```
-
-This produces:
-
-```
-!( ( isHom( GEN[0] ) & GEN[0].GQ > 30 & isVariant( GEN[0] ) ) | ( isHom( GEN[1] ) & GEN[1].GQ > 30 & isVariant( GEN[1] ) ) | ( isHom( GEN[2] ) & GEN[2].GQ > 30 & isVariant( GEN[2] ) ) | ( isHom( GEN[3] ) & GEN[3].GQ > 30 & isVariant( GEN[3] ) ) | ( isHom( GEN[4] ) & GEN[4].GQ > 30 & isVariant( GEN[4] ) ) | ( isHom( GEN[5] ) & GEN[5].GQ > 30 & isVariant( GEN[5] ) ) | ( isHom( GEN[6] ) & GEN[6].GQ > 30 & isVariant( GEN[6] ) ) | ( isHom( GEN[7] ) & GEN[7].GQ > 30 & isVariant( GEN[7] ) ) | ( isHom( GEN[8] ) & GEN[8].GQ > 30 & isVariant( GEN[8] ) ) | ( isHom( GEN[9] ) & GEN[9].GQ > 30 & isVariant( GEN[9] ) ) | ( isHom( GEN[10] ) & GEN[10].GQ > 30 & isVariant( GEN[10] ) ) | ( isHom( GEN[11] ) & GEN[11].GQ > 30 & isVariant( GEN[11] ) ) | ( isHom( GEN[12] ) & GEN[12].GQ > 30 & isVariant( GEN[12] ) ) | ( isHom( GEN[13] ) & GEN[13].GQ > 30 & isVariant( GEN[13] ) ) | ( isHom( GEN[14] ) & GEN[14].GQ > 30 & isVariant( GEN[14] ) ) | ( isHom( GEN[15] ) & GEN[15].GQ > 30 & isVariant( GEN[15] ) ) | ( isHom( GEN[16] ) & GEN[16].GQ > 30 & isVariant( GEN[16] ) ) | ( isHom( GEN[17] ) & GEN[17].GQ > 30 & isVariant( GEN[17] ) ) | ( isHom( GEN[18] ) & GEN[18].GQ > 30 & isVariant( GEN[18] ) ) | ( isHom( GEN[19] ) & GEN[19].GQ > 30 & isVariant( GEN[19] ) ) )
-```
-
-Use the filter string and `SnpSift.jar` to complete the filtering step (the `set +H` is used so that the `!` in the filter string doesn't activate Bash history expansion):
-
-```bash
-set +H
-cat snps.vcf | java -jar SnpSift.jar filter "$FILTER" > snps_with_no_homozygous_alt_genotypes.vcf
-set -H
-```
-
 ## sort
 
 ### Alphabetical sort
@@ -3387,26 +3307,6 @@ The above command can be modified to sort by the second column, numerically from
 
 ```bash
 cat sequenced_samples.csv | awk 'NR<2{print $0; next}{print $0| "sort -t',' -k2,2n"}'
-```
-
-## tabix
-
-### Obtain variants from a VCF file located in regions of interest
-
-In this example the regions of interest are stored in a text file called `regions.txt`. Each line describes the chromosome, start, and end of a region:
-
-```
-3 62148416 62200719
-4 54643953 54720351
-4 63732381 63795159
-5 10163746 10218801
-5 10784272 10841310
-```
-
-```bash
-bgzip input.vcf 
-tabix -p vcf input.vcf.gz
-tabix --print-header -R regions.txt input.vcf.gz > regions_of_interest.vcf
 ```
 
 ## tmux
@@ -3545,9 +3445,9 @@ The following illustrates the removal extra commas by using `tr` with the `-s` o
 echo "a,b,,c,,,d" | tr -s ","
 ```
 
-## vcftools and bcftools
+## VCF files
 
-### Extract variants from a region of interest and write to a new VCF file
+### Extract variants from a region of interest
 
 Note that if the VCF file is gzip compressed (i.e. has a `.gz` extension), use `--gzvcf` instead of `--vcf`.
 
@@ -3555,7 +3455,7 @@ Note that if the VCF file is gzip compressed (i.e. has a `.gz` extension), use `
 vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 --recode --recode-INFO-all
 ```
 
-### Extract variants from multiple regions of interest and write to a new VCF file
+### Extract variants from multiple regions of interest
 
 ```bash
 bgzip Chr5.vcf
@@ -3563,7 +3463,25 @@ tabix -fp vcf Chr5.vcf.gz
 bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
 ```
 
-### Assess sex by calculating X-chromosome heterozygosity for each sample in a VCF file
+### Extract variants from multiple regions of interest described in a file
+
+In this example the regions of interest are stored in a text file called `regions.txt`. Each line describes the chromosome, start, and end of a region:
+
+```
+3 62148416 62200719
+4 54643953 54720351
+4 63732381 63795159
+5 10163746 10218801
+5 10784272 10841310
+```
+
+```bash
+bgzip input.vcf 
+tabix -p vcf input.vcf.gz
+tabix --print-header -R regions.txt input.vcf.gz > regions_of_interest.vcf
+```
+
+### Assess sex by calculating X-chromosome heterozygosity
 
 ```bash
 #vcftools adds .het extension to output automatically, so output becomes output.vcf.het
@@ -3572,14 +3490,366 @@ vcftools --vcf input.vcf --chr X --het --out output.vcf
 awk -F$'\t' 'BEGIN{OFS="\t"}; {if(NR==1){print $0,"Percent HET"} else {print $0, ($4 - $2) / $4 * 100}}' output.vcf.het > output.vcf.percent_het
 ```
 
-### Merge VCF files
+### Assess sex using plink
 
-From the `bcftools` documentation:
+Use [--check-sex](https://www.cog-genomics.org/plink/1.9/basic_stats#check_sex) in `plink`.
+
+First convert the VCF file to a plink binary fileset:
+
+```bash
+species=dog
+pseudoX_start=340475
+pseudoX_end=6642728
+mkdir plink_bed
+plink --vcf input.vcf --make-bed --allow-extra-chr \
+--$species --split-x $pseudoX_start $pseudoX_end \
+--out plink_bed/input
+```
+
+Next edit the `.fam` file in `plink_bed` to describe family relationships, sex, and case / control status.
+
+The following is from the `plink` documentation:
+
+> A text file with no header line, and one line per sample with the following six fields:
+> 
+> Family ID ('FID')
+> Within-family ID ('IID'; cannot be '0')
+> Within-family ID of father ('0' if father isn't in dataset)
+> Within-family ID of mother ('0' if mother isn't in dataset)
+> Sex code ('1' = male, '2' = female, '0' = unknown)
+> Phenotype value ('1' = control, '2' = case, '-9'/'0'/non-numeric = missing data if case/control)
+
+Use `--check-sex`:
+
+```bash
+mkdir plink_check_sex
+plink --bfile plink_bed/input --check-sex --allow-extra-chr \
+--$species --out plink_check_sex/input
+cat plink_check_sex/input.sexcheck
+```
+
+In the output `1` = male, `2` = female, `other` = unknown.
+
+### Count Mendelian errors using plink
+
+Use [--mendel](https://www.cog-genomics.org/plink/1.9/basic_stats#mendel) in `plink`.
+
+First convert the VCF file to a plink binary fileset:
+
+```bash
+species=dog
+pseudoX_start=340475
+pseudoX_end=6642728
+mkdir plink_bed
+plink --vcf input.vcf --make-bed --allow-extra-chr \
+--$species --split-x $pseudoX_start $pseudoX_end \
+--out plink_bed/input
+```
+
+Next edit the `.fam` file in `plink_bed` to describe family relationships, sex, and case / control status.
+
+The following is from the `plink` documentation:
+
+> A text file with no header line, and one line per sample with the following six fields:
+> 
+> Family ID ('FID')
+> Within-family ID ('IID'; cannot be '0')
+> Within-family ID of father ('0' if father isn't in dataset)
+> Within-family ID of mother ('0' if mother isn't in dataset)
+> Sex code ('1' = male, '2' = female, '0' = unknown)
+> Phenotype value ('1' = control, '2' = case, '-9'/'0'/non-numeric = missing data if case/control)
+
+Use `--mendel`:
+
+```bash
+mkdir plink_mendelian_errors
+plink --bfile plink_bed/input --mendel --geno 0 --allow-extra-chr \
+--$species --out plink_mendelian_errors/input
+cat plink_mendelian_errors/input.imendel
+```
+
+### Find runs of homozygosity using plink
+
+Use [--homozyg](https://www.cog-genomics.org/plink/1.9/ibd#homozyg) in `plink`.
+
+First convert the VCF file to a plink binary fileset:
+
+```bash
+species=dog
+pseudoX_start=340475
+pseudoX_end=6642728
+mkdir plink_bed
+plink --vcf input.vcf --make-bed --allow-extra-chr \
+--$species --split-x $pseudoX_start $pseudoX_end \
+--out plink_bed/input
+```
+
+Next edit the `.fam` file in `plink_bed` to describe family relationships, sex, and case / control status.
+
+The following is from the `plink` documentation:
+
+> A text file with no header line, and one line per sample with the following six fields:
+> 
+> Family ID ('FID')
+> Within-family ID ('IID'; cannot be '0')
+> Within-family ID of father ('0' if father isn't in dataset)
+> Within-family ID of mother ('0' if mother isn't in dataset)
+> Sex code ('1' = male, '2' = female, '0' = unknown)
+> Phenotype value ('1' = control, '2' = case, '-9'/'0'/non-numeric = missing data if case/control)
+
+Next, create a text file containing the Family ID and Within-family ID of each sample to be included in the analysis.
+
+In this example the file `roh_samples.txt` consists of:
+
+```
+family1 M-2
+family4 M-9
+family3 M-10
+family2 M-15
+family2 M-16
+family1 M-3
+family1 M-4
+family1 M-5
+```
+
+Use `--homozyg`:
+
+```bash
+mkdir plink_roh
+cd plink_roh
+plink --bfile ../plink_bed/input \
+--homozyg group extend \
+--$species \
+--keep roh_samples.txt \
+--allow-extra-chr \
+--homozyg-snp 50 \
+--homozyg-kb 100 \
+--homozyg-density 2 \
+--homozyg-gap 100 \
+--homozyg-window-snp 50 \
+--homozyg-window-het 2 \
+--homozyg-window-missing 10 \
+--homozyg-window-threshold 0.05
+```
+
+The `plink.hom.overlap` file in `plink_roh` can be filtered to, for example, obtain regions of homozygosity that are found in `5` cases and `0` controls:
+
+```bash
+awk '{ if ($2 == "CON" && $4 == "5:0") print $5" "$8" "$9 }' plink.hom.overlap > plink.hom.overlap.filtered
+```
+
+Variants in the filtered regions of homozygosity can be extracted from the VCF file:
+
+```bash
+bgzip input.vcf
+tabix -p vcf input.vcf.gz
+tabix --print-header -R plink_roh/plink.hom.overlap.filtered \
+input.vcf.gz > input.hom.vcf
+```
+
+### Add new samples
+
+From the `bcftools` `merge` documentation:
 
 > Merge multiple VCF/BCF files from non-overlapping sample sets to create one multi-sample file. For example, when merging file A.vcf.gz containing samples S1, S2 and S3 and file B.vcf.gz containing samples S3 and S4, the output file will contain four samples named S1, S2, S3, 2:S3 and S4.
 
 ```bash
 bcftools merge *.vcf.gz -Oz -o merged.vcf.gz
+```
+
+### Check relatedness between samples
+
+Use the [KING algorithm](https://academic.oup.com/bioinformatics/article/26/22/2867/228512), which is implemented in `vcftools` and is accessed using the `--relatedness2`:
+
+```bash
+mkdir relatedness
+vcftools --vcf input.vcf --not-chr X --max-missing-count 0 --relatedness2 \
+--out relatedness/input.vcf
+cat relatedness/input.vcf.relatedness2 | column -t
+```
+
+### Filter multi-sample genotypes
+
+Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files based on sample genotypes. 
+
+The following approach can be used to exclude sites where any sample meets the following criteria: is homozygous and the genotype quality is greater than `30` and the genotype is not `0/0`. Worded another way, a variant is kept if no sample exhibits a good-quality homozygous alternative genotype.
+
+In this example there are 20 samples in the VCF file.
+
+First generate the filter string:
+
+```bash
+FILTER=$(perl -e '@array = (); foreach(0..19) {push @array, "( isHom( GEN[$_] ) & GEN[$_].GQ > 30 & isVariant( GEN[$_] ) )";} print " !( " . join(" | ", @array) . " )\n";')
+```
+
+Examine the filter string:
+
+```bash
+echo $FILTER
+```
+
+This produces:
+
+```
+!( ( isHom( GEN[0] ) & GEN[0].GQ > 30 & isVariant( GEN[0] ) ) | ( isHom( GEN[1] ) & GEN[1].GQ > 30 & isVariant( GEN[1] ) ) | ( isHom( GEN[2] ) & GEN[2].GQ > 30 & isVariant( GEN[2] ) ) | ( isHom( GEN[3] ) & GEN[3].GQ > 30 & isVariant( GEN[3] ) ) | ( isHom( GEN[4] ) & GEN[4].GQ > 30 & isVariant( GEN[4] ) ) | ( isHom( GEN[5] ) & GEN[5].GQ > 30 & isVariant( GEN[5] ) ) | ( isHom( GEN[6] ) & GEN[6].GQ > 30 & isVariant( GEN[6] ) ) | ( isHom( GEN[7] ) & GEN[7].GQ > 30 & isVariant( GEN[7] ) ) | ( isHom( GEN[8] ) & GEN[8].GQ > 30 & isVariant( GEN[8] ) ) | ( isHom( GEN[9] ) & GEN[9].GQ > 30 & isVariant( GEN[9] ) ) | ( isHom( GEN[10] ) & GEN[10].GQ > 30 & isVariant( GEN[10] ) ) | ( isHom( GEN[11] ) & GEN[11].GQ > 30 & isVariant( GEN[11] ) ) | ( isHom( GEN[12] ) & GEN[12].GQ > 30 & isVariant( GEN[12] ) ) | ( isHom( GEN[13] ) & GEN[13].GQ > 30 & isVariant( GEN[13] ) ) | ( isHom( GEN[14] ) & GEN[14].GQ > 30 & isVariant( GEN[14] ) ) | ( isHom( GEN[15] ) & GEN[15].GQ > 30 & isVariant( GEN[15] ) ) | ( isHom( GEN[16] ) & GEN[16].GQ > 30 & isVariant( GEN[16] ) ) | ( isHom( GEN[17] ) & GEN[17].GQ > 30 & isVariant( GEN[17] ) ) | ( isHom( GEN[18] ) & GEN[18].GQ > 30 & isVariant( GEN[18] ) ) | ( isHom( GEN[19] ) & GEN[19].GQ > 30 & isVariant( GEN[19] ) ) )
+```
+
+Use the filter string and `SnpSift.jar` to complete the filtering step (the `set +H` is used so that the `!` in the filter string doesn't activate Bash history expansion):
+
+```bash
+set +H
+cat snps.vcf | java -jar SnpSift.jar filter "$FILTER" > snps_with_no_homozygous_alt_genotypes.vcf
+set -H
+```
+
+### Add predicted consequences
+
+Use [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/) to predict variant effects.
+
+List available pre-built databases for annotation:
+
+```bash
+java -jar snpEff.jar databases
+```
+
+Download a database:
+
+```bash
+java -jar snpEff.jar snpEff download -v CanFam3.1.99
+```
+
+Annotate a VCF file:
+
+```bash
+java -jar snpEff.jar -Xmx8g CanFam3.1.99 input.vcf > input.ann.vcf
+```
+
+### Add variant IDs
+
+Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) `annotate` to add variant IDs. 
+
+In this example the file `canis_lupus_familiaris.sorted.vcf` has variant IDs to be transferred to `input.vcf`.
+
+```bash
+bgzip canis_lupus_familiaris.sorted.vcf
+tabix -p vcf canis_lupus_familiaris.sorted.vcf.gz
+java -jar SnpSift.jar annotate \
+canis_lupus_familiaris.sorted.vcf.gz \
+input.vcf > input.rsID.vcf
+```
+
+### Filter variants based on predicted consequences
+
+Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files that have been annotated using [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/).
+
+The following keeps variants that are predicted to have `HIGH` or `MODERATE` impacts:
+
+```bash
+cat input.ann.vcf | SnpSift filter "((ANN[*].IMPACT = 'HIGH') | (ANN[*].IMPACT = 'MODERATE'))" > input.ann.high_or_moderate.vcf
+```
+
+### Keep variants where FILTER is PASS
+
+Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files.
+
+The following keeps variants that have a `FILTER` value of `PASS`:
+
+```bash
+cat input.ann.vcf | SnpSift filter "( FILTER = 'PASS' )" > input.PASS.vcf
+```
+
+### Count variants
+
+```bash
+grep -c -v '#' input.ann.vcf
+```
+
+```bash
+zgrep -c -v '#' input.ann.vcf.gz
+```
+
+### Identify variants found in all VCF files
+
+In this example there are `5` VCF files in the directory `vcfs`.
+
+Prepare index files:
+
+```bash
+cd vcfs
+find . -name "*.vcf" -exec bgzip {} \;
+find . -name "*.vcf.gz" -exec tabix -p vcf {} \;
+```
+
+Determine the intersection (change `5` to match the number of input files):
+
+```bash
+mkdir intersection
+bcftools isec -p overlaps \
+-n=3 -c all -w1 \
+*.vcf.gz
+mv overlaps/0000.vcf overlaps/intersection.vcf
+```
+
+Count the number of variants in `overlaps/intersection.vcf`:
+
+```bash
+grep -c -v '^#' overlaps/intersection.vcf
+```
+
+### Change sample order
+
+First determine current order of samples:
+
+```bash
+bcftools query -l input.vcf > sample_order.txt
+```
+
+Next edit `sample_order.txt` to reflect the desired sample order.
+
+For example, change the contents from this:
+
+```
+M-9
+M-10
+M-15
+M-16
+M-2
+```
+
+To this:
+
+```
+M-2
+M-9
+M-10
+M-15
+M-16
+```
+
+Generate a VCF file with the new sample order:
+
+```bash
+bgzip input.vcf
+tabix -p vcf input.vcf.gz
+bcftools view -S sample_order.txt \
+input.vcf.gz > input.revised_sample_order.vcf
+```
+
+### Combine rows
+
+Note that when using this approach the source files must have the same sample columns appearing in the same order.
+
+In this example the contents of `snps.vcf` and `indels.vcf` are combined.
+
+```bash
+bgzip snps.vcf
+bgzip indels.vcf
+tabix -p snps.vcf.gz
+tabix -p indels.vcf.gz
+bcftools concat --allow-overlaps \
+snps.vcf.gz \
+indels.vcf.gz \
+-Oz -o snps_and_indels.vcf.gz
 ```
 
 ## vim
