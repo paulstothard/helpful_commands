@@ -83,6 +83,8 @@
   * [Kill all running containers](#kill-all-running-containers)
   * [Delete all containers that are not running](#delete-all-containers-that-are-not-running)
 - [File conversion](#file-conversion)
+  * [Convert a CSV file to a TSV file](#convert-a-csv-file-to-a-tsv-file)
+  * [Convert a TSV file to a CSV file](#convert-a-tsv-file-to-a-csv-file)
   * [Convert a CSV file to a Markdown table](#convert-a-csv-file-to-a-markdown-table)
   * [Convert PDF files to PNG files](#convert-pdf-files-to-png-files)
   * [Convert PNG files to a single PDF file](#convert-png-files-to-a-single-pdf-file)
@@ -271,6 +273,7 @@
   * [Identify variants found in all VCF files](#identify-variants-found-in-all-vcf-files)
   * [Change sample order](#change-sample-order)
   * [Combine rows](#combine-rows)
+  * [Convert a VCF file to an Excel file](#convert-a-vcf-file-to-an-excel-file)
 - [vim](#vim)
   * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
   * [Search and replace newlines](#search-and-replace-newlines)
@@ -959,6 +962,29 @@ docker container rm $(docker ps -a -q)
 
 ## File conversion
 
+### Convert a CSV file to a TSV file
+
+```bash
+perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
+```
+
+### Convert a TSV file to a CSV file
+
+```bash
+awk 'BEGIN { FS="\t"; OFS="," } {
+  rebuilt=0
+  for(i=1; i<=NF; ++i) {
+    if ($i ~ /,/ && $i !~ /^".*"$/) { 
+      gsub("\"", "\"\"", $i)
+      $i = "\"" $i "\""
+      rebuilt=1 
+    }
+  }
+  if (!rebuilt) { $1=$1 }
+  print
+}' input.tsv > output.csv
+```
+
 ### Convert a CSV file to a Markdown table
 
 The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used to change missing values to `.`:
@@ -1016,10 +1042,29 @@ ssconvert input.csv output.xlsx
 
 ### Convert a TSV file to an Excel file
 
-The following uses `ssconvert`, which is distributed with Gnumeric:
+Use `ssconvert`, which is distributed with Gnumeric.
+
+First convert the TSV file to CSV:
 
 ```bash
-ssconvert input.tsv output.xls
+awk 'BEGIN { FS="\t"; OFS="," } {
+  rebuilt=0
+  for(i=1; i<=NF; ++i) {
+    if ($i ~ /,/ && $i !~ /^".*"$/) { 
+      gsub("\"", "\"\"", $i)
+      $i = "\"" $i "\""
+      rebuilt=1 
+    }
+  }
+  if (!rebuilt) { $1=$1 }
+  print
+}' input.tsv > input.csv
+```
+
+Then convert the CSV file to an Excel file:
+
+```bash
+ssconvert input.csv output.xls
 ```
 
 ### Convert an HTML file to a PDF file
@@ -3724,6 +3769,44 @@ Annotate a VCF file:
 java -jar snpEff.jar -Xmx8g CanFam3.1.99 input.vcf > input.ann.vcf
 ```
 
+Alternatively, use [VEP](https://uswest.ensembl.org/info/docs/tools/vep/index.html) to predict variant effects. VEP can be used to annotate structural variants.
+
+```bash
+SPECIES=canis_lupus
+ASSEMBLY=CanFam3.1
+INPUT=input.vcf
+VEP_CACHE=vep
+OUTDIR=vep_annotated
+WD="$(pwd)"
+export PERL5LIB="$PERL5LIB:$WD/$VEP_CACHE"
+export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$WD/$VEP_CACHE/htslib"
+
+#create cache directory and output directory
+mkdir -p $OUTDIR
+mkdir -p $VEP_CACHE
+
+#build cache
+vep_install -a cfp -s $SPECIES -y $ASSEMBLY \
+-c $VEP_CACHE \
+-d $VEP_CACHE \
+--PLUGINS all --CONVERT
+
+#run vep
+SPECIES=canis_lupus_familiaris
+vep --cache --format vcf --vcf \
+--dir_cache $VEP_CACHE \
+--dir_plugins $VEP_CACHE/Plugins \
+--input_file $INPUT \
+--output_file $OUTDIR/$INPUT \
+--species $SPECIES --assembly $ASSEMBLY \
+--max_sv_size 1000000000 \
+--force_overwrite \
+--plugin Blosum62 --plugin Downstream --plugin Phenotypes --plugin TSSDistance --plugin miRNA \
+--variant_class --sift b --nearest gene --overlaps --gene_phenotype --regulatory --protein \
+--symbol --ccds --uniprot --biotype --domains --check_existing --no_check_alleles --pubmed \
+--verbose
+```
+
 ### Add variant IDs
 
 Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) `annotate` to add variant IDs. 
@@ -3850,6 +3933,37 @@ bcftools concat --allow-overlaps \
 snps.vcf.gz \
 indels.vcf.gz \
 -Oz -o snps_and_indels.vcf.gz
+```
+
+### Convert a VCF file to an Excel file
+
+First remove header content:
+
+```bash
+grep -v '^##' input.vcf > input.tsv
+```
+
+Then convert the TSV file to CSV:
+
+```bash
+awk 'BEGIN { FS="\t"; OFS="," } {
+  rebuilt=0
+  for(i=1; i<=NF; ++i) {
+    if ($i ~ /,/ && $i !~ /^".*"$/) { 
+      gsub("\"", "\"\"", $i)
+      $i = "\"" $i "\""
+      rebuilt=1 
+    }
+  }
+  if (!rebuilt) { $1=$1 }
+  print
+}' input.tsv > input.csv
+```
+
+Use `ssconvert` from Gnumeric to convert the CSV file to an Excel file:
+
+```bash
+ssconvert input.csv input.xls
 ```
 
 ## vim
