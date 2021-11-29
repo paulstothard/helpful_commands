@@ -274,6 +274,8 @@
   * [Change sample order](#change-sample-order)
   * [Combine rows](#combine-rows)
   * [Convert a VCF file to an Excel file](#convert-a-vcf-file-to-an-excel-file)
+  * [Perform case-control analysis](#perform-case-control-analysis)
+  * [Remove annotations](#remove-annotations)
 - [vim](#vim)
   * [Search and replace across multiple files](#search-and-replace-across-multiple-files)
   * [Search and replace newlines](#search-and-replace-newlines)
@@ -3964,6 +3966,32 @@ Use `ssconvert` from Gnumeric to convert the CSV file to an Excel file:
 
 ```bash
 ssconvert input.csv input.xls
+```
+
+### Perform case-control analysis
+
+[SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) can generate p-values for different models.
+
+In this example the `+++++` specifies that the first five samples are cases. The `-------` specifies that the next seven samples are controls. The `000` specifies that the last three samples should be ignored. 
+
+```bash
+cat input.vcf | java -jar SnpSift.jar caseControl "+++++-------000" > input.case-control.vcf
+```
+
+The results can be filtered based on p-value. The following keeps variants where the p-value under the recessive model is less than `0.001`:
+
+```bash
+cat input.case-control.vcf | java -jar SnpSift.jar filter "CC_REC[0] < 0.001" > input.case-control.sig.vcf
+```
+
+### Remove annotations
+
+Use `bcftools` `annotate`.
+
+The following removes all `INFO` fields and all `FORMAT` fields except for `GT` and `GQ`:
+
+```bash
+bcftools annotate -x INFO,^FORMAT/GT,FORMAT/GQ input.vcf > input_GT_GQ.vcf
 ```
 
 ## vim
