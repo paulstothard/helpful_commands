@@ -52,6 +52,7 @@
   * [Add additional packages to an environment](#add-additional-packages-to-an-environment)
   * [List environments](#list-environments)
   * [List packages installed in the active environment](#list-packages-installed-in-the-active-environment)
+  * [Remove an environment](#remove-an-environment)
 - [csvkit](#csvkit)
   * [Convert Excel to CSV](#convert-excel-to-csv)
   * [Convert JSON to CSV](#convert-json-to-csv)
@@ -77,6 +78,7 @@
   * [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
   * [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
   * [Annotate a bacterial genome using Prokka](#annotate-a-bacterial-genome-using-prokka)
+  * [Compare sequence reads to a bacterial genome to find SNPs using Snippy](#compare-sequence-reads-to-a-bacterial-genome-to-find-snps-using-snippy)
   * [List images](#list-images)
   * [List running containers](#list-running-containers)
   * [Stop a container](#stop-a-container)
@@ -681,6 +683,15 @@ conda info --envs
 conda list
 ```
 
+### Remove an environment
+
+In this example the environment to remove is called `my-env`:
+
+```bash
+conda deactivate
+conda env remove --name my-env
+```
+
 ## csvkit
 
 The [csvkit](https://github.com/wireservice/csvkit) examples below are taken from the [csvkit documentation](https://csvkit.readthedocs.io/en/latest/).
@@ -847,7 +858,7 @@ datamash -H -t, transpose < example.csv
 
 ### Perform a sequence comparison using legacy BLAST
 
-Download the legacy BLAST Docker image:
+Download a legacy BLAST Docker image:
 
 ```bash
 docker pull quay.io/biocontainers/blast-legacy:2.2.26--2
@@ -873,7 +884,7 @@ docker run -it --rm -v "$(pwd)":/directory/database -v "${HOME}":/directory/quer
 
 ### Annotate sequence variants using VEP
 
-Download the VEP Docker image:
+Download a VEP Docker image:
 
 ```bash
 docker pull ensemblorg/ensembl-vep
@@ -914,7 +925,7 @@ done
 
 ### Annotate a bacterial genome using Prokka
 
-Download the Prokka Docker image:
+Download a Prokka Docker image:
 
 ```bash
 docker pull staphb/prokka:latest
@@ -924,6 +935,25 @@ Create a container from the image and run `prokka` to annotate the sequence. In 
 
 ```bash
 docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir staphb/prokka:latest prokka sequence.fasta --cpus 4
+```
+
+### Compare sequence reads to a bacterial genome to find SNPs using Snippy
+
+Download a Snippy Docker image:
+
+```bash
+docker pull quay.io/biocontainers/snippy:4.6.0--hdfd78af_1
+```
+
+Create a container from the image and run `snippy` to find SNPs. In this example the reference sequence is in a file called `sequence.gbk`, and the reads are in `J10_S210_R1_001.fastq` and `J10_S210_R2_001.fastq`:
+
+```bash
+docker run -it --rm \
+-u "$(id -u)":"$(id -g)" \
+-v "$(pwd)":/directory \
+-w /directory \
+quay.io/biocontainers/snippy:4.6.0--hdfd78af_1 \
+snippy --cpus 4 --outdir output --reference sequence.gbk --R1 J10_S210_R1_001.fastq --R2 J10_S210_R2_001.fastq 
 ```
 
 ### List images
