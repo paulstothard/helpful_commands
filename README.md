@@ -146,6 +146,16 @@
   * [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
 - [join](#join)
   * [Combine rows based on shared keys with join](#combine-rows-based-on-shared-keys-with-join)
+- [Mamba](#mamba)
+  * [Create an environment and install some packages](#create-an-environment-and-install-some-packages-1)
+  * [Deactivate an environment](#deactivate-an-environment-1)
+  * [Activate an environment](#activate-an-environment-1)
+  * [List available packages](#list-available-packages-1)
+  * [Search for a specific package](#search-for-a-specific-package-1)
+  * [Add additional packages to an environment](#add-additional-packages-to-an-environment-1)
+  * [List environments](#list-environments-1)
+  * [List packages installed in the active environment](#list-packages-installed-in-the-active-environment-1)
+  * [Remove an environment](#remove-an-environment-1)
 - [md5sum](#md5sum)
   * [Generate a file of checksums](#generate-a-file-of-checksums)
   * [Validate checksums](#validate-checksums)
@@ -1780,6 +1790,76 @@ gene e  575                 2223
 ```
 
 Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-columns) from [csvkit](#csvkit).
+
+## Mamba
+
+Install Mamba:
+
+```bash
+conda install mamba -n base -c conda-forge
+```
+
+### Create an environment and install some packages
+
+In this example an environment called `ngs` is created:
+
+```bash
+mamba create -y --name ngs
+conda activate ngs
+mamba install -y -c bioconda -c conda-forge multiqc fastqc trimmomatic bowtie2 subread samtools
+```
+
+### Deactivate an environment
+
+```bash
+conda deactivate
+```
+
+### Activate an environment
+
+```bash
+conda activate ngs
+```
+
+### List available packages
+
+```bash
+mamba search -c bioconda -c conda-forge
+```
+
+### Search for a specific package
+
+```bash
+mamba search -c bioconda -c conda-forge blast
+```
+
+### Add additional packages to an environment
+
+```bash
+conda activate ngs
+mamba install -y -c bioconda -c conda-forge picard
+```
+
+### List environments
+
+```bash
+mamba info --envs
+```
+
+### List packages installed in the active environment
+
+```bash
+mamba list
+```
+
+### Remove an environment
+
+In this example the environment to remove is called `my-env`:
+
+```bash
+conda deactivate
+mamba env remove --name my-env
+```
 
 ## md5sum
 
