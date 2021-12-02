@@ -85,20 +85,20 @@
   * [Kill all running containers](#kill-all-running-containers)
   * [Delete all containers that are not running](#delete-all-containers-that-are-not-running)
 - [File conversion](#file-conversion)
-  * [CSV to TSV](#csv-to-tsv)
-  * [TSV to CSV](#tsv-to-csv)
-  * [CSV to Markdown](#csv-to-markdown)
-  * [PDF to PNG](#pdf-to-png)
-  * [PNG to PDF](#png-to-pdf)
-  * [DOCX to PDF](#docx-to-pdf)
-  * [Excel to CSV](#excel-to-csv)
-  * [CSV to Excel](#csv-to-excel)
-  * [TSV to Excel](#tsv-to-excel)
-  * [HTML to PDF](#html-to-pdf)
-  * [Website to PDF](#website-to-pdf)
-  * [HTML to PNG](#html-to-png)
-  * [Markdown to PDF](#markdown-to-pdf)
-  * [Markdown to HTML](#markdown-to-html)
+  * [Convert CSV to TSV](#convert-csv-to-tsv)
+  * [Convert TSV to CSV](#convert-tsv-to-csv)
+  * [Convert CSV to Markdown](#convert-csv-to-markdown)
+  * [Convert PDF to PNG](#convert-pdf-to-png)
+  * [Convert PNG to PDF](#convert-png-to-pdf)
+  * [Convert DOCX to PDF](#convert-docx-to-pdf)
+  * [Convert Excel to CSV](#convert-excel-to-csv-1)
+  * [Convert CSV to Excel](#convert-csv-to-excel)
+  * [Convert TSV to Excel](#convert-tsv-to-excel)
+  * [Convert HTML to PDF](#convert-html-to-pdf)
+  * [Convert a website to PDF](#convert-a-website-to-pdf)
+  * [Convert HTML to PNG](#convert-html-to-png)
+  * [Convert Markdown to PDF](#convert-markdown-to-pdf)
+  * [Convert Markdown to HTML](#convert-markdown-to-html)
 - [File downloads](#file-downloads)
   * [Download an entire website](#download-an-entire-website)
   * [Download from an FTP server](#download-from-an-ftp-server)
@@ -1005,13 +1005,13 @@ docker container rm $(docker ps -a -q)
 
 ## File conversion
 
-### CSV to TSV
+### Convert CSV to TSV
 
 ```bash
 perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
 ```
 
-### TSV to CSV
+### Convert TSV to CSV
 
 ```bash
 awk 'BEGIN { FS="\t"; OFS="," } {
@@ -1028,7 +1028,7 @@ awk 'BEGIN { FS="\t"; OFS="," } {
 }' input.tsv > output.csv
 ```
 
-### CSV to Markdown
+### Convert CSV to Markdown
 
 The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used to change missing values to `.`:
 
@@ -1037,7 +1037,7 @@ awk 'BEGIN { FS = OFS = "," } { for(i=1; i<=NF; i++) if($i ~ /^ *$/) $i = "." };
 csv2md -p < temp.csv | sed 's/_/\\_/g' > output.md
 ```
 
-### PDF to PNG
+### Convert PDF to PNG
 
 The following uses `find` and the `pdftoppm` command from the [poppler](https://poppler.freedesktop.org) package to generate a PNG image of the first page of every PDF file in the working directory:
 
@@ -1045,7 +1045,7 @@ The following uses `find` and the `pdftoppm` command from the [poppler](https://
 find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
 ```
 
-### PNG to PDF
+### Convert PNG to PDF
 
 The following uses [ImageMagick](https://imagemagick.org):
 
@@ -1053,7 +1053,7 @@ The following uses [ImageMagick](https://imagemagick.org):
 convert *.png output.pdf
 ```
 
-### DOCX to PDF
+### Convert DOCX to PDF
 
 The following uses [LibreOffice](https://www.libreoffice.org):
 
@@ -1067,7 +1067,7 @@ The following uses [pandoc](https://pandoc.org) and on macOS also requires [basi
 pandoc word_file.docx --output word_file.pdf
 ```
 
-### Excel to CSV
+### Convert Excel to CSV
 
 The following uses [csvkit](https://github.com/wireservice/csvkit):
 
@@ -1075,7 +1075,7 @@ The following uses [csvkit](https://github.com/wireservice/csvkit):
 in2csv data.xls > data.csv
 ```
 
-### CSV to Excel
+### Convert CSV to Excel
 
 The following uses `ssconvert`, which is distributed with Gnumeric:
 
@@ -1083,7 +1083,7 @@ The following uses `ssconvert`, which is distributed with Gnumeric:
 ssconvert input.csv output.xlsx
 ```
 
-### TSV to Excel
+### Convert TSV to Excel
 
 Use `ssconvert`, which is distributed with Gnumeric.
 
@@ -1110,7 +1110,7 @@ Then convert the CSV file to an Excel file:
 ssconvert input.csv output.xls
 ```
 
-### HTML to PDF
+### Convert HTML to PDF
 
 The following uses [wkhtmltopdf](https://wkhtmltopdf.org):
 
@@ -1118,7 +1118,7 @@ The following uses [wkhtmltopdf](https://wkhtmltopdf.org):
 wkhtmltopdf http://google.com google.pdf
 ```
 
-### Website to PDF
+### Convert a website to PDF
 
 The following uses [wkhtmltopdf](https://wkhtmltopdf.org) and [gs](https://www.ghostscript.com/index.html):
 
@@ -1129,7 +1129,7 @@ while read i; do wkhtmltopdf "$i" "$(echo "$i" | sed -e 's/https\?:\/\///' -e 's
 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged-output.pdf $(ls -lrt -1 *.pdf)
 ```
 
-### HTML to PNG
+### Convert HTML to PNG
 
 The following uses [wkhtmltoimage](https://wkhtmltopdf.org):
 
@@ -1143,7 +1143,7 @@ Another approach, which may work better for complex web sites, is to use [pagere
 pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
 ```
 
-### Markdown to PDF
+### Convert Markdown to PDF
 
 The command below uses [pandoc](https://pandoc.org) and the [eisvogel.tex template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex).
 
@@ -1162,7 +1162,7 @@ The `head.tex` file consists of the following:
 pandoc input.md -o output.pdf --pdf-engine=xelatex --from markdown --template=eisvogel.tex --highlight-style zenburn -H head.tex
 ```
 
-### Markdown to HTML
+### Convert Markdown to HTML
 
 The commmand below uses [pandoc](https://pandoc.org) and the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
 
