@@ -2567,7 +2567,7 @@ perl -p -e 's/,/\t/g;' input.csv > output.tab
 ### Replace tabs with commas and remove quotes
 
 ```bash
-perl -p -e 's/\t/,/g;' -e 's/"//g' input.tab > output.csv
+perl -p -e 's/\t/,/g;' -e 's/"//g;' input.tab > output.csv
 ```
 
 ### Sort sections in a Markdown file based on headings
