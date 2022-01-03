@@ -107,6 +107,7 @@
   * [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
 - [find](#find)
   * [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
+  * [Sort files before processing](#sort-files-before-processing)
   * [Process files in pairs](#process-files-in-pairs)
   * [Copy the files returned by find](#copy-the-files-returned-by-find)
   * [Copy the files returned by find, naming the copies after a directory in the path](#copy-the-files-returned-by-find-naming-the-copies-after-a-directory-in-the-path)
@@ -1270,6 +1271,21 @@ The command below finds `.stats` files and then each file is processed as follow
 
 ```bash
 find . -name "*.stats" -exec sh -c $'count=$(perl -0777 -ne \'while (m/number of records:\s+?(\d+)/gm) {$out = $1; $out =~ s/\s//g; print "$out"}\' "$1"); echo "$1 $count" | perl -p -e \'s/\.\///g\'' -- {} \; | sort -k 2,2rn | awk 'BEGIN{print "file variants"}1' | column -t
+```
+
+### Sort files before processing
+
+The following used `find` to generate a list of `.vcf.gz` files, which is then sorted based on sample number using `sort`.
+
+The files in this example are named `DNA-1.vcf.gz`, `DNA-2.vcf.gz`, etc and the `sort` is used to sort based on the number appearing after the first `-` in the filename.
+
+```bash
+find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | \
+while IFS="" read -r -d "" file; do
+  fnx=$(basename -- "$file")
+  echo "'$fnx' contains these samples:"
+  bcftools query -l $file
+done
 ```
 
 ### Process files in pairs
