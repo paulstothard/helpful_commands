@@ -1165,7 +1165,7 @@ pandoc input.md -o output.pdf --pdf-engine=xelatex --from markdown --template=ei
 
 ### Convert Markdown to HTML
 
-The commmand below uses [pandoc](https://pandoc.org) and the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
+The command below uses [pandoc](https://pandoc.org) and the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
 
 ```bash
 pandoc -f markdown -t html -o output.html input.md --css=pandoc.css --self-contained
@@ -1277,7 +1277,7 @@ find . -name "*.stats" -exec sh -c $'count=$(perl -0777 -ne \'while (m/number of
 
 The following used `find` to generate a list of `.vcf.gz` files, which is then sorted based on sample number using `sort`.
 
-The files in this example are named `DNA-1.vcf.gz`, `DNA-2.vcf.gz`, etc and the `sort` is used to sort based on the number appearing after the first `-` in the filename.
+The files in this example are named `DNA-1.vcf.gz`, `DNA-2.vcf.gz`, etc. and the `sort` is used to sort based on the number appearing after the first `-` in the filename.
 
 ```bash
 find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | \
