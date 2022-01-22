@@ -4137,10 +4137,10 @@ Then use `argdo` to perform a search and replace across all the files. In this e
 :argdo %s/^$//ge
 ```
 
-In this example the text between `<p class="lastupdated">` and `</p>` are replaced with the current date. Note the use of `\zs` and `\ze` so that the text between those tags is replaced and not the tags themselves:
+In this example the text between `<p class="last-updated">` and `</p>` are replaced with the current date. Note the use of `\zs` and `\ze` so that the text between those tags is replaced and not the tags themselves:
 
 ```
-:argdo %s/<p class="lastupdated">\zs[^<]*\ze<\/p>/\=strftime("%c")/ge
+:argdo %s/<p class="last-updated">\zs[^<]*\ze<\/p>/\=strftime("%c")/ge
 ```
 
 ### Search and replace newlines
