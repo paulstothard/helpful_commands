@@ -3997,7 +3997,7 @@ Determine the intersection (change `5` to match the number of input files):
 ```bash
 mkdir intersection
 bcftools isec -p overlaps \
--n=3 -c all -w1 \
+-n=5 -c all -w1 \
 *.vcf.gz
 mv overlaps/0000.vcf overlaps/intersection.vcf
 ```
