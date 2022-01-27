@@ -3995,7 +3995,7 @@ find . -name "*.vcf.gz" -exec tabix -p vcf {} \;
 Determine the intersection (change `5` to match the number of input files):
 
 ```bash
-mkdir intersection
+mkdir overlaps
 bcftools isec -p overlaps \
 -n=5 -c all -w1 \
 *.vcf.gz
