@@ -1012,6 +1012,12 @@ docker container rm $(docker ps -a -q)
 perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
 ```
 
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd -b input.csv -o output.tab
+```
+
 ### Convert TSV to CSV
 
 ```bash
@@ -1029,6 +1035,12 @@ awk 'BEGIN { FS="\t"; OFS="," } {
 }' input.tsv > output.csv
 ```
 
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd -b input.tsv -o output.tab
+```
+
 ### Convert CSV to Markdown
 
 The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used to change missing values to `.`:
@@ -1036,6 +1048,12 @@ The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` comm
 ```bash
 awk 'BEGIN { FS = OFS = "," } { for(i=1; i<=NF; i++) if($i ~ /^ *$/) $i = "." }; 1' input.csv > temp.csv
 csv2md -p < temp.csv | sed 's/_/\\_/g' > output.md
+```
+
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd -b input.csv -o output.md
 ```
 
 ### Convert PDF to PNG
@@ -1076,12 +1094,24 @@ The following uses [csvkit](https://github.com/wireservice/csvkit):
 in2csv data.xls > data.csv
 ```
 
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd -b input.xls -o output.csv
+```
+
 ### Convert CSV to Excel
 
 The following uses `ssconvert`, which is distributed with Gnumeric:
 
 ```bash
 ssconvert input.csv output.xlsx
+```
+
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd -b input.csv -o output.xlsx
 ```
 
 ### Convert TSV to Excel
@@ -1109,6 +1139,12 @@ Then convert the CSV file to an Excel file:
 
 ```bash
 ssconvert input.csv output.xls
+```
+
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd -b input.tsv -o output.xls
 ```
 
 ### Convert HTML to PDF
