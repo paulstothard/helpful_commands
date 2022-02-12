@@ -88,12 +88,12 @@
   * [Convert CSV to TSV](#convert-csv-to-tsv)
   * [Convert TSV to CSV](#convert-tsv-to-csv)
   * [Convert CSV to Markdown](#convert-csv-to-markdown)
+  * [Convert CSV to HTML](#convert-csv-to-html)
   * [Convert PDF to PNG](#convert-pdf-to-png)
   * [Convert PNG to PDF](#convert-png-to-pdf)
   * [Convert DOCX to PDF](#convert-docx-to-pdf)
   * [Convert Excel to CSV](#convert-excel-to-csv-1)
   * [Convert CSV to Excel](#convert-csv-to-excel)
-  * [Convert TSV to Excel](#convert-tsv-to-excel)
   * [Convert HTML to PDF](#convert-html-to-pdf)
   * [Convert a website to PDF](#convert-a-website-to-pdf)
   * [Convert HTML to PNG](#convert-html-to-png)
@@ -1015,7 +1015,7 @@ perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\
 Or use [VisiData](https://github.com/saulpw/visidata):
 
 ```bash
-vd -b input.csv -o output.tab
+vd input.csv -b -o output.tab
 ```
 
 ### Convert TSV to CSV
@@ -1038,7 +1038,7 @@ awk 'BEGIN { FS="\t"; OFS="," } {
 Or use [VisiData](https://github.com/saulpw/visidata):
 
 ```bash
-vd -b input.tsv -o output.tab
+vd input.tsv -b -o output.tab
 ```
 
 ### Convert CSV to Markdown
@@ -1053,7 +1053,15 @@ csv2md -p < temp.csv | sed 's/_/\\_/g' > output.md
 Or use [VisiData](https://github.com/saulpw/visidata):
 
 ```bash
-vd -b input.csv -o output.md
+vd input.csv -b -o output.md
+```
+
+### Convert CSV to HTML
+
+Use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd input.csv -b -o output.html
 ```
 
 ### Convert PDF to PNG
@@ -1094,10 +1102,10 @@ The following uses [csvkit](https://github.com/wireservice/csvkit):
 in2csv data.xls > data.csv
 ```
 
-Or use [VisiData](https://github.com/saulpw/visidata):
+Or use [VisiData](https://github.com/saulpw/visidata). Change `Sheet1` in the command below to match the name of the sheet to be converted:
 
 ```bash
-vd -b input.xls -o output.csv
+vd input.xls +:Sheet1:1:1 -b -o output.csv
 ```
 
 ### Convert CSV to Excel
@@ -1111,40 +1119,7 @@ ssconvert input.csv output.xlsx
 Or use [VisiData](https://github.com/saulpw/visidata):
 
 ```bash
-vd -b input.csv -o output.xlsx
-```
-
-### Convert TSV to Excel
-
-Use `ssconvert`, which is distributed with Gnumeric.
-
-First convert the TSV file to CSV:
-
-```bash
-awk 'BEGIN { FS="\t"; OFS="," } {
-  rebuilt=0
-  for(i=1; i<=NF; ++i) {
-    if ($i ~ /,/ && $i !~ /^".*"$/) { 
-      gsub("\"", "\"\"", $i)
-      $i = "\"" $i "\""
-      rebuilt=1 
-    }
-  }
-  if (!rebuilt) { $1=$1 }
-  print
-}' input.tsv > input.csv
-```
-
-Then convert the CSV file to an Excel file:
-
-```bash
-ssconvert input.csv output.xls
-```
-
-Or use [VisiData](https://github.com/saulpw/visidata):
-
-```bash
-vd -b input.tsv -o output.xls
+vd input.csv -b -o output.xlsx
 ```
 
 ### Convert HTML to PDF
