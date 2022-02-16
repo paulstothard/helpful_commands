@@ -324,6 +324,12 @@ In this example lines are printed when the value in column `1` equals `9913`:
 awk -F, '{if ($1 == 9913) print $0}' input.csv
 ```
 
+Print the first line and lines when the value in column `1` equals `9913`:
+
+```bash
+awk -F, 'NR==1; NR > 1 {if ($1 == 9913) print $0}' input.csv
+```
+
 ### Replace certain values in specific columns
 
 In this example `1` and `-1` in column `23` are replaced with `forward` and `reverse`, respectively:
