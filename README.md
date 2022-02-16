@@ -1290,6 +1290,34 @@ The command below finds `.stats` files and then each file is processed as follow
 find . -name "*.stats" -exec sh -c $'count=$(perl -0777 -ne \'while (m/number of records:\s+?(\d+)/gm) {$out = $1; $out =~ s/\s//g; print "$out"}\' "$1"); echo "$1 $count" | perl -p -e \'s/\.\///g\'' -- {} \; | sort -k 2,2rn | awk 'BEGIN{print "file variants"}1' | column -t
 ```
 
+Often it is simpler to use a loop to iterate through the files returned by `find`. The following uses `awk` to filter `.maf` files:
+
+```bash
+wd=$(pwd)
+find . -name "*.maf" -type f | while IFS= read -r file; do
+  dir=$(dirname -- "$file")
+  fnx=$(basename -- "$file")
+  fn="${fnx%.*}"
+  
+  echo "Processing file '$fnx' in directory '$dir'"
+  cd "$dir"
+  
+  #always print the first two lines
+  #print lines where value in column 101 is PASS
+  awk -F $'\t' 'NR < 3; NR > 2 {if ($101 == "PASS") print $0}' "$fnx" > "${fn}.new"
+  mv "$fnx" "${fnx}.bak"
+  mv "${fn}.new" "$fnx"
+
+  cd "$wd"
+done
+```
+
+To remove the `.bak` files:
+
+```bash
+find . -name "*.bak" -type f -exec rm -rf {} \;
+```
+
 ### Sort files before processing
 
 The following used `find` to generate a list of `.vcf.gz` files, which is then sorted based on sample number using `sort`.
