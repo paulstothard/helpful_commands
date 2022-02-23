@@ -1855,7 +1855,7 @@ Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-col
 
 ## Mamba
 
-[Mamba]https://github.com/mamba-org/mamba) is a reimplementation of the conda package manager in C++.
+[Mamba](https://github.com/mamba-org/mamba) is a reimplementation of the conda package manager in C++.
 
 ### Install Mamba
 
