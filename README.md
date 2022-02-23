@@ -148,7 +148,7 @@
 - [join](#join)
   * [Combine rows based on shared keys with join](#combine-rows-based-on-shared-keys-with-join)
 - [Mamba](#mamba)
-  * [Install Mamba:](#install-mamba)
+  * [Install Mamba](#install-mamba)
   * [Create an environment and install some packages](#create-an-environment-and-install-some-packages-1)
   * [Deactivate an environment](#deactivate-an-environment-1)
   * [Activate an environment](#activate-an-environment-1)
@@ -1855,7 +1855,9 @@ Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-col
 
 ## Mamba
 
-### Install Mamba:
+[Mamba]https://github.com/mamba-org/mamba) is a reimplementation of the conda package manager in C++.
+
+### Install Mamba
 
 ```bash
 conda install mamba -n base -c conda-forge
