@@ -376,7 +376,7 @@ In this example the first row of the input file contains the column names:
 awk -F $'\t' 'NR>1{exit};{for (i = 1; i <= NF; i++) print "column " i,"is " $i}' input.tab
 ```
 
-### Print the values observed in a specific column, along with the number of times each value is observed 
+### Print the values observed in a specific column, along with the number of times each value is observed
 
 In this example the counts for each distinct value in column `9` are printed:
 
@@ -633,7 +633,7 @@ To view graphical applications available from the cask tap via the Homebrew pack
 
 - [https://formulae.brew.sh/cask/](https://formulae.brew.sh/cask/)
 
-### Install a graphical application 
+### Install a graphical application
 
 In this example the Firefox browser:
 
@@ -839,10 +839,10 @@ perl -p -e 's/\t/,/g' sequenced_samples.csv
 To switch commas to tabs when `--output-delimiter` isn't available the command below can be used. This  script handles cases when commas are inside of quoted fields:
 
 ```bash
-perl -nle  'my @new  = (); push( @new, $+ ) 
-while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? 
-| ([^,]+),? | ,}gx; push( @new, undef ) 
-if substr( $text, -1, 1 ) eq '\'','\''; 
+perl -nle  'my @new  = (); push( @new, $+ )
+while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",?
+| ([^,]+),? | ,}gx; push( @new, undef )
+if substr( $text, -1, 1 ) eq '\'','\'';
 for(@new){s/,/ /g} print join "\t", @new' sequenced_samples.csv
 ```
 
@@ -853,13 +853,13 @@ for(@new){s/,/ /g} print join "\t", @new' sequenced_samples.csv
 In the following example the input CSV file has a header line. Records are grouped based on the value in column `2`, and for each group the mean value of column `5` is printed:
 
 ```bash
-datamash -H -t, -g 2 mean 5 < example.csv 
+datamash -H -t, -g 2 mean 5 < example.csv
 ```
 
 In the following example all the values in column `5` are printed for each group:
 
 ```bash
-datamash -H -t, -g 2 collapse 5 < example.csv 
+datamash -H -t, -g 2 collapse 5 < example.csv
 ```
 
 ### Print statistics for a column
@@ -977,7 +977,7 @@ docker run -it --rm \
 -v "$(pwd)":/directory \
 -w /directory \
 quay.io/biocontainers/snippy:4.6.0--hdfd78af_1 \
-snippy --cpus 4 --outdir output --reference sequence.gbk --R1 J10_S210_R1_001.fastq --R2 J10_S210_R2_001.fastq 
+snippy --cpus 4 --outdir output --reference sequence.gbk --R1 J10_S210_R1_001.fastq --R2 J10_S210_R2_001.fastq
 ```
 
 ### List images
@@ -1036,10 +1036,10 @@ vd input.csv -b -o output.tab
 awk 'BEGIN { FS="\t"; OFS="," } {
   rebuilt=0
   for(i=1; i<=NF; ++i) {
-    if ($i ~ /,/ && $i !~ /^".*"$/) { 
+    if ($i ~ /,/ && $i !~ /^".*"$/) {
       gsub("\"", "\"\"", $i)
       $i = "\"" $i "\""
-      rebuilt=1 
+      rebuilt=1
     }
   }
   if (!rebuilt) { $1=$1 }
@@ -1106,7 +1106,7 @@ The following uses [pandoc](https://pandoc.org) and on macOS also requires [basi
 pandoc word_file.docx --output word_file.pdf
 ```
 
-### Convert Excel to CSV
+### Convert Excel to CSV with csvkit
 
 The following uses [csvkit](https://github.com/wireservice/csvkit):
 
@@ -1277,8 +1277,7 @@ cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
 gzip *.fastq
 ```
 
-[SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions 
-and returns a selectable list of ENA download URLs and sequencing run metadata.
+[SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions and returns a selectable list of ENA download URLs and sequencing run metadata.
 
 ## find
 
@@ -1304,10 +1303,10 @@ find . -name "*.maf" -type f | while IFS= read -r file; do
   dir=$(dirname -- "$file")
   fnx=$(basename -- "$file")
   fn="${fnx%.*}"
-  
+
   echo "Processing file '$fnx' in directory '$dir'"
   cd "$dir"
-  
+
   #always print the first two lines
   #print lines where value in column 101 is PASS
   awk -F $'\t' 'NR < 3; NR > 2 {if ($101 == "PASS") print $0}' "$fnx" > "${fn}.new"
@@ -1343,7 +1342,7 @@ done
 
 High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
 
-```
+```text
 6613_S82_L001_R1_001.fastq.gz
 6613_S82_L001_R2_001.fastq.gz
 70532_S37_L001_R1_001.fastq.gz
@@ -1358,12 +1357,12 @@ To analyze data from multiple samples, the following `while` loop code can be us
 find . -name "*_R1_*" -type f | while IFS= read -r file; do
   fnx=$(basename -- "$file")
   fn="${fnx%.*}"
-  
+
   #Construct name of other file
   file2="${file/R1_001.fastq.gz/R2_001.fastq.gz}"
   fnx2=$(basename -- "$file2")
   fn2="${fnx2%.*}"
-  
+
   echo "Processing file '$fnx' and '$fnx2'"
 
 done
@@ -1516,7 +1515,7 @@ These changes must be committed with git commit.
 
 ### Move or rename a file or directory
 
-```
+```bash
 git mv <filename-old> <filename-new>
 ```
 
@@ -1708,7 +1707,7 @@ grep -v '^#' input.txt
 
 This example uses patterns from the text file `ensembl_ids.txt`, which contains one gene ID per line:
 
-```
+```text
 ENSCAFG00000018897
 ENSCAFG00000006950
 ENSCAFG00000013069
@@ -1733,7 +1732,7 @@ The following uses [ImageMagick](https://imagemagick.org) to removes any edges t
 convert input.png -trim -bordercolor White -border 30x30 output.png
 ```
 
-### Resize an image 
+### Resize an image
 
 The following uses [ImageMagick](https://imagemagick.org) to scale the image so that its width is 4000 pixels:
 
@@ -1747,14 +1746,14 @@ convert input.png -resize 4000 output.png
 2. Press the `space bar`.
 3. Hold `Option` and click on the window.
 
-To keep the drop shadow perform the last step without holding `Option`. 
+To keep the drop shadow perform the last step without holding `Option`.
 
 ### Take a webpage screenshot using Firefox
 
 1. Press `F12` to open the Firefox Developer Tools.
 2. Enter `:screenshot` into the Web Console to download the current view as a PNG file.
 
-To save a high-DPI webpage screenshot use `:screenshot --dpr 4`. 
+To save a high-DPI webpage screenshot use `:screenshot --dpr 4`.
 
 To save a high-DPI full-page webpage screenshot use `:screenshot --dpr 4 --fullpage`.
 
@@ -1806,7 +1805,7 @@ gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > a
 
 Suppose `file1.txt` contains the following text:
 
-```
+```text
 name,counts in sample 1
 gene a,100
 gene b,2223
@@ -1815,7 +1814,7 @@ gene e,575
 
 Suppose `file2.txt` contains this text:
 
-```
+```text
 counts in sample 2,name
 2223,gene e
 803,gene a
@@ -1851,7 +1850,7 @@ join -t, -1 1 -2 2 file1.txt.sorted file2.txt.sorted | column -t -s,
 
 Which gives:
 
-```
+```text
 name    counts in sample 1  counts in sample 2
 gene a  100                 803
 gene e  575                 2223
@@ -1869,7 +1868,7 @@ Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-col
 conda install mamba -n base -c conda-forge
 ```
 
-### Create an environment and install some packages
+### Create an environment and install some packages with mamba
 
 In this example an environment called `ngs` is created:
 
@@ -1879,50 +1878,50 @@ conda activate ngs
 mamba install -y -c bioconda -c conda-forge multiqc fastqc trimmomatic bowtie2 subread samtools
 ```
 
-### Deactivate an environment
+### Deactivate an environment with mamba
 
 ```bash
 conda deactivate
 ```
 
-### Activate an environment
+### Activate an environment with mamba
 
 ```bash
 conda activate ngs
 ```
 
-### List available packages
+### List available packages with mamba
 
 ```bash
 mamba search -c bioconda -c conda-forge
 ```
 
-### Search for a specific package
+### Search for a specific package with mamba
 
 ```bash
 mamba search -c bioconda -c conda-forge blast
 ```
 
-### Add additional packages to an environment
+### Add additional packages to an environment with mamba
 
 ```bash
 conda activate ngs
 mamba install -y -c bioconda -c conda-forge picard
 ```
 
-### List environments
+### List environments with mamba
 
 ```bash
 mamba info --envs
 ```
 
-### List packages installed in the active environment
+### List packages installed in the active environment with mamba
 
 ```bash
 mamba list
 ```
 
-### Remove an environment
+### Remove an environment with mamba
 
 In this example the environment to remove is called `my-env`:
 
@@ -1960,7 +1959,7 @@ mlr --csv head -n 10 example.csv
 Print with added formatting for readability:
 
 ```bash
-mlr --icsv --opprint head -n 10 example.csv 
+mlr --icsv --opprint head -n 10 example.csv
 ```
 
 Print each value with the column name in the form `column=value`:
@@ -1980,7 +1979,7 @@ mlr --csv tail -n 10 example.csv
 Print with added formatting for readability:
 
 ```bash
-mlr --icsv --opprint tail -n 10 example.csv 
+mlr --icsv --opprint tail -n 10 example.csv
 ```
 
 Print each field with the column name in the form `column=field`:
@@ -2139,7 +2138,7 @@ for f in *.new; do new=`echo $f | sed 's/\(.*\)\.new/\1/'`; mv "$f" "$new"; done
 The following changes the `.gbff` extension to `.gbk`:
 
 ```bash
-for f in *.gbff; do 
+for f in *.gbff; do
     mv -- "$f" "${f%.gbff}.gbk"
 done
 ```
@@ -2147,13 +2146,13 @@ done
 If `rename` is available, this may work:
 
 ```bash
-rename 's/\.gbff$/.gbk/' *.gbff 
+rename 's/\.gbff$/.gbk/' *.gbff
 ```
 
 Or this, depending on which `rename` is installed:
 
 ```bash
-rename .gbff .gbk *.gbff 
+rename .gbff .gbk *.gbff
 ```
 
 ### Add text to the beginning of a file
@@ -2211,7 +2210,7 @@ prettier --write "*html"
 
 [Pandoc](https://pandoc.org) can be used to generate PowerPoint slides. The following Markdown text describes several slides with notes:
 
-````
+````text
 % Presentation title
 % Name
 % Date
@@ -2450,13 +2449,13 @@ echo "2*(42+42)" | bc
 ### Count the bases in a fastq file
 
 ```bash
-zcat SRR13388732_1.fastq.gz | paste - - - - | cut -f 2 | tr -d '\n' | wc -c 
+zcat SRR13388732_1.fastq.gz | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
 ```
 
 Or:
 
 ```bash
-cat SRR13388732_1.fastq | paste - - - - | cut -f 2 | tr -d '\n' | wc -c 
+cat SRR13388732_1.fastq | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
 ```
 
 ### Count the reads in a fastq file
@@ -2493,7 +2492,7 @@ nohup mycommand &
 
 When using `&` the bash job ID is shown in brackets and the PID (process ID), e.g.:
 
-```
+```text
 [1] 1963
 ```
 
@@ -2562,7 +2561,7 @@ In this example the columns of two files are joined. The first file is a CSV fil
 The `-d ","` specifies that the lines are to be joined with commas.
 
 ```bash
-$ paste -d "," genotype_conversion.csv SNP_Map.tab
+paste -d "," genotype_conversion.csv SNP_Map.tab
 ```
 
 Note that the content from `SNP_Map.tab` still contains tab-delimited values.
@@ -2570,8 +2569,8 @@ Note that the content from `SNP_Map.tab` still contains tab-delimited values.
 To remove tabs from `SNP_Map.tab` you could first create a CSV version of that input file:
 
 ```bash
-$ cut -d $'\t' -f 1- --output-delimiter=',' SNP_Map.tab > SNP_Map.csv
-$ paste -d "," genotype_conversion.csv SNP_Map.csv
+cut -d $'\t' -f 1- --output-delimiter=',' SNP_Map.tab > SNP_Map.csv
+paste -d "," genotype_conversion.csv SNP_Map.csv
 ```
 
 It is possible to do it without first creating `SNP_Map.csv` by using process substitution.
@@ -2579,7 +2578,7 @@ It is possible to do it without first creating `SNP_Map.csv` by using process su
 In the following the command between `<(` and `)` is first run and its output becomes input for `paste`:
 
 ```bash
-$ paste -d "," genotype_conversion.csv \
+paste -d "," genotype_conversion.csv \
 <(cut -d $'\t' -f 1- --output-delimiter=',' SNP_Map.tab)
 ```
 
@@ -2716,7 +2715,7 @@ create_output_table(ctable, output_type="xlsx", file_name=output_file, limit=100
 
 In this example, an UpSet plot is used to visualize the overlap among all combinations of gene lists in the `gene_lists` directory. In this directory each list is given as a separate `.txt` file, with a single header row and one gene name or ID per row, for example:
 
-```
+```text
 Gene name or identifier
 ENSG00000264954.2
 ENSG00000224383.8
@@ -2750,7 +2749,7 @@ The resulting plot displays the number of items shared among all possible combin
 
 In this example a heatmap is used to visualize gene presence and absence for all gene lists in the `gene_lists` directory. In this directory each list is given as a separate `.txt` file, with a single header row and one gene name or ID per row, for example:
 
-```
+```text
 Gene name or identifier
 ENSG00000264954.2
 ENSG00000224383.8
@@ -2780,13 +2779,13 @@ venn = Venn(gl)
 setmap(venn, element_fontsize = 4, set_fontsize = 4)
 ```
 
-The resulting heatmap displays genes and gene lists as rows and columns, respectively. The columns and rows are arranged so that genes and gene lists with similar presence / absence patterns are grouped together. 
+The resulting heatmap displays genes and gene lists as rows and columns, respectively. The columns and rows are arranged so that genes and gene lists with similar presence / absence patterns are grouped together.
 
 ### Transpose a data frame
 
 To convert this:
 
-```
+```text
 snp                 sample1  sample2
 ABCA12              AA       AA
 APAF1               CC       CC
@@ -2796,7 +2795,7 @@ ARS-BFGL-BAC-1020   AA       GG
 
 To this:
 
-```
+```text
 snp      ABCA12  APAF1  ARS-BFGL-BAC-10172  ARS-BFGL-BAC-1020
 sample1  AA      CC     GG                  AA
 sample2  AA      CC     AG                  GG
@@ -2816,15 +2815,15 @@ sample2 <- c('AA', 'CC', 'AG', 'GG')
 genotypes <- data.frame(snp, sample1, sample2)
 
 genotypes %>%
-  tibble::rownames_to_column() %>%  
-  pivot_longer(-rowname) %>% 
+  tibble::rownames_to_column() %>%
+  pivot_longer(-rowname) %>%
   pivot_wider(names_from=rowname, values_from=value) ->
   genotypes_transposed
-  
+
 genotypes_transposed %>%
   row_to_names(row_number = 1) ->
   genotypes_transposed_with_column_names
-  
+
 write.table(genotypes_transposed_with_column_names, file = "genotypes_transposed_with_column_names.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
 ```
 
@@ -2848,7 +2847,7 @@ Or use [datamash](#datamash).
 
 To convert this:
 
-```
+```text
 sample   ABCA12  APAF1  ARS-BFGL-BAC-10172  ARS-BFGL-BAC-1020
 sample1  AA      CC     GG                  AA
 sample2  AA      CC     AG                  GG
@@ -2856,7 +2855,7 @@ sample2  AA      CC     AG                  GG
 
 To this:
 
-```
+```text
 sample   ABCA12_1  ABCA12_2  APAF1_1  APAF1_2  ARS-BFGL-BAC-10172_1  ARS-BFGL-BAC-10172_2  ARS-BFGL-BAC-1020_1  ARS-BFGL-BAC-1020_2
 sample1  A         A         C        C        G                     G                     A                    A
 sample2  A         A         C        C        A                     G                     G                    G
@@ -2890,7 +2889,7 @@ write.table(genotypes, file = "genotypes_split.txt", row.names = FALSE, col.name
 
 To convert this:
 
-```
+```text
 sample          alleles
 HOCANF12689774  1000112112
 HOCANF12689787  2011112012
@@ -2899,7 +2898,7 @@ HOCANF12689790  1011002122
 
 To this:
 
-```
+```text
 sample          Hapmap43437-BTA-101873  ARS-BFGL-NGS-16466  Hapmap34944-BES1_Contig627_1906  ARS-BFGL-NGS-98142  Hapmap53946-rs29015852  ARS-BFGL-NGS-114208  ARS-BFGL-NGS-66449  ARS-BFGL-BAC-32770  ARS-BFGL-NGS-65067  ARS-BFGL-BAC-32722
 HOCANF12689774  AB                      BB                  BB                               BB                  AB                      AB                   AA                  AB                  AB                  AA
 HOCANF12689787  AA                      BB                  AB                               AB                  AB                      AB                   AA                  BB                  AB                  AA
@@ -2948,12 +2947,12 @@ tb <- tribble(
 )
 
 #get names of sample columns
-names(tb) %>% 
+names(tb) %>%
   str_subset(pattern = "^sample") ->
   columns_to_decode
 
 #convert genotypes to values from A and B columns
-tb %>% 
+tb %>%
   mutate_at(
     vars(one_of(columns_to_decode)),
     list(~case_when(
@@ -2968,11 +2967,11 @@ tb %>%
 print(tb_converted)
 
 ## A tibble: 3 x 6
-#  chr     pos sample1 sample2 A     B    
+#  chr     pos sample1 sample2 A     B
 #  <chr> <dbl> <chr>   <chr>   <chr> <chr>
-#1 1         2 0/0     0/1     REF   ALT  
-#2 1        12 0/0     1/1     ALT   REF  
-#3 1        12 ./.     1/1     ALT   REF 
+#1 1         2 0/0     0/1     REF   ALT
+#2 1        12 0/0     1/1     ALT   REF
+#3 1        12 ./.     1/1     ALT   REF
 ```
 
 A different approach, using nested ifelse():
@@ -3038,10 +3037,10 @@ names(tb) %>%
 
 #function to convert genotypes to values from A and B columns
 convert <- function(df, col, format) {
-  
+
   A <- paste(format, "A", sep = "_")
   B <- paste(format, "B", sep = "_")
-  
+
   object <- df %>%
     mutate(
       !!col := case_when(
@@ -3061,10 +3060,10 @@ print(tb)
 
 ## A tibble: 3 x 6
 # chr     pos sample1_1 sample1_2 FORWARD_A FORWARD_B
-# <chr> <dbl> <chr>     <chr>     <chr>     <chr>    
-#1 1         2 A         A         G         T        
-#2 1        12 B         B         C         A        
-#3 1        12 .         B         T         G  
+# <chr> <dbl> <chr>     <chr>     <chr>     <chr>
+#1 1         2 A         A         G         T
+#2 1        12 B         B         C         A
+#3 1        12 .         B         T         G
 ```
 
 ### Add comment lines to output
@@ -3092,13 +3091,13 @@ vcf %>% drop_na(POS) ->
   vcf
 
 #keep rows with single base in REF and ALT
-vcf %>% 
+vcf %>%
   filter(str_detect(REF, "^[GATCN]$")) %>%
   filter(str_detect(ALT, "^[GATCN]$")) ->
   vcf
 
 #sort by chromosome then position
-vcf %>% 
+vcf %>%
   arrange(CHROM, POS) ->
   vcf
 ```
@@ -3124,7 +3123,7 @@ In the following example the rows from multiple files are combined. Additional c
 
 The input files are structured as follows, with additional columns not shown:
 
-```
+```text
 fusion_name, junction_read_count
 Wfdc3--AABR07030443.2, 16
 Wfdc3--AABR07030443.2, 2
@@ -3187,7 +3186,7 @@ counts_per_MT_fusion %>%
   replace(is.na(.), 0) ->
   samples_as_columns
 
-#Convert the data from long to wide, with values of fusion_name becoming 
+#Convert the data from long to wide, with values of fusion_name becoming
 #columns
 counts_per_MT_fusion %>%
   spread(fusion_name, fusion_count) %>%
@@ -3244,7 +3243,7 @@ rsync -avzh user@192.168.0.101:~/source_directory destination
 
 ### Create an image from a container stored in Docker Hub
 
-In this example a container that can be downloaded from Docker Hub using `docker pull pstothard/cgview` is used to generate a Singularity container: 
+In this example a container that can be downloaded from Docker Hub using `docker pull pstothard/cgview` is used to generate a Singularity container:
 
 ```bash
 singularity build cgview.sif docker://pstothard/cgview
@@ -3266,7 +3265,7 @@ In this example the number of lines in several `.fastq.gz` files is quickly dete
 
 The naming scheme of the `.fastq.gz` files is as follows (the sample name is in the file name, for example `DG15B032198-1`):
 
-```
+```text
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R2.fastq.gz
 HI.5173.002.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz
@@ -3306,14 +3305,14 @@ done
 
 Each job should create two files for each input file, for example:
 
-```
+```text
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.out
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz.err
 ```
 
 The `.out` files will contain the name of the input file and the number of lines, for example:
 
-```
+```text
 HI.5173.001.NEBNext_Index_12.DG15B032198-1_R1.fastq.gz 229623444
 ```
 
@@ -3578,7 +3577,7 @@ tmux new-session -s multiple \; \
 send-keys 'vim' C-m \; \
 split-window -v -p 25 \; \
 split-window -h -p 50 \; \
-select-pane -t 0 \; 
+select-pane -t 0 \;
 ```
 
 The following creates six equally sized panes:
@@ -3648,7 +3647,7 @@ The above command uses the complement option (`-c`) to convert the first set to 
 
 ### Delete characters
 
-Use the `-d` option with `tr` to delete characters. 
+Use the `-d` option with `tr` to delete characters.
 
 The following `tr` command deletes all digits:
 
@@ -3686,7 +3685,7 @@ vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 -
 
 ```bash
 bgzip Chr5.vcf
-tabix -fp vcf Chr5.vcf.gz 
+tabix -fp vcf Chr5.vcf.gz
 bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
 ```
 
@@ -3694,7 +3693,7 @@ bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
 
 In this example the regions of interest are stored in a text file called `regions.txt`. Each line describes the chromosome, start, and end of a region:
 
-```
+```text
 3 62148416 62200719
 4 54643953 54720351
 4 63732381 63795159
@@ -3703,7 +3702,7 @@ In this example the regions of interest are stored in a text file called `region
 ```
 
 ```bash
-bgzip input.vcf 
+bgzip input.vcf
 tabix -p vcf input.vcf.gz
 tabix --print-header -R regions.txt input.vcf.gz > regions_of_interest.vcf
 ```
@@ -3738,7 +3737,7 @@ Next edit the `.fam` file in `plink_bed` to describe family relationships, sex, 
 The following is from the `plink` documentation:
 
 > A text file with no header line, and one line per sample with the following six fields:
-> 
+>
 > Family ID ('FID')
 > Within-family ID ('IID'; cannot be '0')
 > Within-family ID of father ('0' if father isn't in dataset)
@@ -3778,7 +3777,7 @@ Next edit the `.fam` file in `plink_bed` to describe family relationships, sex, 
 The following is from the `plink` documentation:
 
 > A text file with no header line, and one line per sample with the following six fields:
-> 
+>
 > Family ID ('FID')
 > Within-family ID ('IID'; cannot be '0')
 > Within-family ID of father ('0' if father isn't in dataset)
@@ -3816,7 +3815,7 @@ Next edit the `.fam` file in `plink_bed` to describe family relationships, sex, 
 The following is from the `plink` documentation:
 
 > A text file with no header line, and one line per sample with the following six fields:
-> 
+>
 > Family ID ('FID')
 > Within-family ID ('IID'; cannot be '0')
 > Within-family ID of father ('0' if father isn't in dataset)
@@ -3828,7 +3827,7 @@ Next, create a text file containing the Family ID and Within-family ID of each s
 
 In this example the file `roh_samples.txt` consists of:
 
-```
+```text
 family1 M-2
 family4 M-9
 family3 M-10
@@ -3897,7 +3896,7 @@ cat relatedness/input.vcf.relatedness2 | column -t
 
 ### Filter multi-sample genotypes
 
-Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files based on sample genotypes. 
+Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files based on sample genotypes.
 
 The following approach can be used to exclude sites where any sample meets the following criteria: is homozygous and the genotype quality is greater than `30` and the genotype is not `0/0`. Worded another way, a variant is kept if no sample exhibits a good-quality homozygous alternative genotype.
 
@@ -3917,7 +3916,7 @@ echo $FILTER
 
 This produces:
 
-```
+```text
 !( ( isHom( GEN[0] ) & GEN[0].GQ > 30 & isVariant( GEN[0] ) ) | ( isHom( GEN[1] ) & GEN[1].GQ > 30 & isVariant( GEN[1] ) ) | ( isHom( GEN[2] ) & GEN[2].GQ > 30 & isVariant( GEN[2] ) ) | ( isHom( GEN[3] ) & GEN[3].GQ > 30 & isVariant( GEN[3] ) ) | ( isHom( GEN[4] ) & GEN[4].GQ > 30 & isVariant( GEN[4] ) ) | ( isHom( GEN[5] ) & GEN[5].GQ > 30 & isVariant( GEN[5] ) ) | ( isHom( GEN[6] ) & GEN[6].GQ > 30 & isVariant( GEN[6] ) ) | ( isHom( GEN[7] ) & GEN[7].GQ > 30 & isVariant( GEN[7] ) ) | ( isHom( GEN[8] ) & GEN[8].GQ > 30 & isVariant( GEN[8] ) ) | ( isHom( GEN[9] ) & GEN[9].GQ > 30 & isVariant( GEN[9] ) ) | ( isHom( GEN[10] ) & GEN[10].GQ > 30 & isVariant( GEN[10] ) ) | ( isHom( GEN[11] ) & GEN[11].GQ > 30 & isVariant( GEN[11] ) ) | ( isHom( GEN[12] ) & GEN[12].GQ > 30 & isVariant( GEN[12] ) ) | ( isHom( GEN[13] ) & GEN[13].GQ > 30 & isVariant( GEN[13] ) ) | ( isHom( GEN[14] ) & GEN[14].GQ > 30 & isVariant( GEN[14] ) ) | ( isHom( GEN[15] ) & GEN[15].GQ > 30 & isVariant( GEN[15] ) ) | ( isHom( GEN[16] ) & GEN[16].GQ > 30 & isVariant( GEN[16] ) ) | ( isHom( GEN[17] ) & GEN[17].GQ > 30 & isVariant( GEN[17] ) ) | ( isHom( GEN[18] ) & GEN[18].GQ > 30 & isVariant( GEN[18] ) ) | ( isHom( GEN[19] ) & GEN[19].GQ > 30 & isVariant( GEN[19] ) ) )
 ```
 
@@ -3991,7 +3990,7 @@ vep --cache --format vcf --vcf \
 
 ### Add variant IDs
 
-Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) `annotate` to add variant IDs. 
+Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) `annotate` to add variant IDs.
 
 In this example the file `canis_lupus_familiaris.sorted.vcf` has variant IDs to be transferred to `input.vcf`.
 
@@ -4073,7 +4072,7 @@ Next edit `sample_order.txt` to reflect the desired sample order.
 
 For example, change the contents from this:
 
-```
+```text
 M-9
 M-10
 M-15
@@ -4083,7 +4082,7 @@ M-2
 
 To this:
 
-```
+```text
 M-2
 M-9
 M-10
@@ -4131,10 +4130,10 @@ Then convert the TSV file to CSV:
 awk 'BEGIN { FS="\t"; OFS="," } {
   rebuilt=0
   for(i=1; i<=NF; ++i) {
-    if ($i ~ /,/ && $i !~ /^".*"$/) { 
+    if ($i ~ /,/ && $i !~ /^".*"$/) {
       gsub("\"", "\"\"", $i)
       $i = "\"" $i "\""
-      rebuilt=1 
+      rebuilt=1
     }
   }
   if (!rebuilt) { $1=$1 }
@@ -4152,7 +4151,7 @@ ssconvert input.csv input.xls
 
 [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) can generate p-values for different models.
 
-In this example the `+++++` specifies that the first five samples are cases. The `-------` specifies that the next seven samples are controls. The `000` specifies that the last three samples should be ignored. 
+In this example the `+++++` specifies that the first five samples are cases. The `-------` specifies that the next seven samples are controls. The `000` specifies that the last three samples should be ignored.
 
 ```bash
 cat input.vcf | java -jar SnpSift.jar caseControl "+++++-------000" > input.case-control.vcf
@@ -4186,13 +4185,13 @@ vim *.html
 
 Then use `argdo` to perform a search and replace across all the files. In this example blank lines are removed:
 
-```
+```text
 :argdo %s/^$//ge
 ```
 
 In this example the text between `<p class="last-updated">` and `</p>` are replaced with the current date. Note the use of `\zs` and `\ze` so that the text between those tags is replaced and not the tags themselves:
 
-```
+```text
 :argdo %s/<p class="last-updated">\zs[^<]*\ze<\/p>/\=strftime("%c")/ge
 ```
 
@@ -4200,25 +4199,31 @@ In this example the text between `<p class="last-updated">` and `</p>` are repla
 
 In replacement syntax use `\r` instead of `\n` to represent newlines. For example, to replace commas with newlines:
 
-```
-:%s/,/\r/g 
+```text
+:%s/,/\r/g
 ```
 
 ### Compare two files
 
 ```bash
-vimdiff file1 file2 
+vimdiff file1 file2
 ```
 
 ### Copy to the clipboard
 
-```
+```text
 "+y
+```
+
+### Remove trailing whitespace
+
+```text
+:%s/\s\+$//e
 ```
 
 ### View ^M characters
 
-```
+```text
 :e ++ff=unix
 ```
 
