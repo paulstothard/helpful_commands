@@ -1,6 +1,6 @@
 # helpful_commands
 
-[![Check Links](https://github.com/paulstothard/helpful_commands/actions/workflows/links.yml/badge.svg)](https://github.com/paulstothard/repo/helpful_commands/workflows/links.yml)
+[![Check Links](https://github.com/paulstothard/helpful_commands/actions/workflows/links.yml/badge.svg)](https://github.com/paulstothard/repo/helpful_commands/workflows/links.yml) [![GitHub Super-Linter](https://github.com/paulstothard/helpful_commands/actions/workflows/linter.yml/badge.svg)](https://github.com/paulstothard/repo/helpful_commands/workflows/linter.yml)
 
 Command-line tools, commands, and code snippets for performing routine data processing and bioinformatics tasks.
 
