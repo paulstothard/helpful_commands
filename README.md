@@ -1,3 +1,6 @@
+# helpful_commands
+
+Command-line tools, commands, and code snippets for performing routine data processing and bioinformatics tasks.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
