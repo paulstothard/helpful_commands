@@ -1208,7 +1208,7 @@ wget -S -d -c -t 45 -v -r ftp://account:password@host:port/*
 
 [Rclone](https://rclone.org) can be used to download data from many cloud storage providers.
 
-First, follow the [configuration instructions](https://rclone.org/drivei). The commands below assume that the remote system was named `my_google_drive` during the configuration.
+First, follow the [configuration instructions](https://rclone.org/drive/). The commands below assume that the remote system was named `my_google_drive` during the configuration.
 
 Note that you can use the `Add shortcut to Drive` option in Google Drive to make folders and files in `Shared with me` easier to access using rclone.
 
@@ -1637,7 +1637,7 @@ git push -u origin main
 
 In this example, the following files will no longer be tracked: `sensitive_data.txt`, and all files with a `.vcf` extension in the directory `test`.
 
-Note that adding a `.gitignore` file will not remove tracked files; this must be done with `git rm`. See [Removing files from the repository](#removing-files-from-the-repository).
+Note that adding a `.gitignore` file will not remove tracked files; this must be done with `git rm`. See [Remove files from the repository](#remove-files-from-the-repository).
 
 ### Check the status of a working directory
 
@@ -3945,7 +3945,7 @@ Annotate a VCF file:
 java -jar snpEff.jar -Xmx8g CanFam3.1.99 input.vcf > input.ann.vcf
 ```
 
-Alternatively, use [VEP](https://uswest.ensembl.org/info/docs/tools/vep/index.html) to predict variant effects. VEP can be used to annotate structural variants.
+Alternatively, use [VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) to predict variant effects. VEP can be used to annotate structural variants.
 
 ```bash
 SPECIES=canis_lupus
