@@ -1,5 +1,7 @@
 # helpful_commands
 
+[![Check Links](https://github.com/paulstothard/helpful_commands/actions/workflows/links.yml/badge.svg)](https://github.com/paulstothard/repo/helpful_commands/workflows/links.yml)
+
 Command-line tools, commands, and code snippets for performing routine data processing and bioinformatics tasks.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
