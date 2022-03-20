@@ -849,6 +849,8 @@ for(@new){s/,/ /g} print join "\t", @new' sequenced_samples.csv
 
 ## datamash
 
+[GNU datamash](https://www.gnu.org/software/datamash/) is a command-line program which performs basic numeric, textual and statistical operations on input textual data files.
+
 ### Group records by one column and print information about each group
 
 In the following example the input CSV file has a header line. Records are grouped based on the value in column `2`, and for each group the mean value of column `5` is printed:
@@ -1123,7 +1125,7 @@ vd input.xls +:Sheet1:1:1 -b -o output.csv
 
 ### Convert CSV to Excel
 
-The following uses `ssconvert`, which is distributed with Gnumeric:
+The following uses `ssconvert`, which is distributed with [Gnumeric](http://gnumeric.org):
 
 ```bash
 ssconvert input.csv output.xlsx
@@ -4157,7 +4159,7 @@ awk 'BEGIN { FS="\t"; OFS="," } {
 }' input.tsv > input.csv
 ```
 
-Use `ssconvert` from Gnumeric to convert the CSV file to an Excel file:
+Use `ssconvert` from [Gnumeric](http://gnumeric.org) to convert the CSV file to an Excel file:
 
 ```bash
 ssconvert input.csv input.xls
