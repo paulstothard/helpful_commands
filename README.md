@@ -306,7 +306,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
 
 ## awk
 
-   ### Add a header line to a file
+### Add a header line to a file
 
 ```bash
 awk 'BEGIN{print "my header text"}1' input
