@@ -306,7 +306,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
 
 ## awk
 
-### Add a header line to a file
+   ### Add a header line to a file
 
 ```bash
 awk 'BEGIN{print "my header text"}1' input
@@ -1145,7 +1145,7 @@ wkhtmltopdf http://google.com google.pdf
 The following uses [wkhtmltopdf](https://wkhtmltopdf.org) and [gs](https://www.ghostscript.com/index.html):
 
 ```bash
-url=http://www.3rs-reduction.co.uk/html/main_menu.html; depth=1
+url=https://sites.ualberta.ca/~stothard/; depth=1
 wget --spider --force-html -r -l${depth} ${url} 2>&1 | grep '^--' | awk '{ print $3 }' | grep -i '\.\(html\|htm\)$' | uniq > url-list.txt
 while read i; do wkhtmltopdf "$i" "$(echo "$i" | sed -e 's/https\?:\/\///' -e 's/\//-/g' ).pdf"; done < url-list.txt
 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged-output.pdf $(ls -lrt -1 *.pdf)
@@ -3949,7 +3949,7 @@ Annotate a VCF file:
 java -jar snpEff.jar -Xmx8g CanFam3.1.99 input.vcf > input.ann.vcf
 ```
 
-Alternatively, use [VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) to predict variant effects. VEP can be used to annotate structural variants.
+Alternatively, use Ensembl VEP to predict variant effects. VEP can be used to annotate structural variants.
 
 ```bash
 SPECIES=canis_lupus
