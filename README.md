@@ -312,7 +312,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
 ### Add a header line to a file
 
 ```bash
-awk 'BEGIN{print "my header text"}1' input
+awk 'BEGIN{print "my header text"}1' input 
 ```
 
 ### Convert a CSV file to a FASTA file
