@@ -3560,15 +3560,15 @@ cat sequenced_samples.csv | awk 'NR<2{print $0; next}{print $0| "sort -t',' -k2,
 This example uses the following input from the text file `input.txt`:
 
 ```text
-chrX	Other
-chrY	Information
-MT	!
-chr1	Some
-chr2	Data
-chr3	Or    
-chr3	Annotation
-chr10	Or
-chr21	Any
+chrX Other
+chrY Information
+MT !
+chr1 Some
+chr2 Data
+chr3 Or    
+chr3 Annotation
+chr10 Or
+chr21 Any
 ```
 
 To sort by chromosome use the following:
@@ -3580,15 +3580,15 @@ sort -k1,1 -V -f -s input.txt
 The above generates the following output:
 
 ```text
-chr1	Some
-chr2	Data
-chr3	Or    
-chr3	Annotation
-chr10	Or
-chr21	Any
-chrX	Other
-chrY	Information
-MT	!
+chr1 Some
+chr2 Data
+chr3 Or    
+chr3 Annotation
+chr10 Or
+chr21 Any
+chrX Other
+chrY Information
+MT !
 ```
 
 ## tmux
