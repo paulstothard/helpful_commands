@@ -3553,6 +3553,42 @@ The above command can be modified to sort by the second column, numerically from
 cat sequenced_samples.csv | awk 'NR<2{print $0; next}{print $0| "sort -t',' -k2,2n"}'
 ```
 
+### Sort by chromosome
+
+This example uses the following input from the text file `input.txt`:
+
+```text
+chrX	Other
+chrY	Information
+MT	!
+chr1	Some
+chr2	Data
+chr3	Or    
+chr3	Annotation
+chr10	Or
+chr21	Any
+```
+
+To sort by chromosome use the following:
+
+```bash
+sort -k1,1 -V -f -s input.txt
+```
+
+The above generates the following output:
+
+```text
+chr1	Some
+chr2	Data
+chr3	Or    
+chr3	Annotation
+chr10	Or
+chr21	Any
+chrX	Other
+chrY	Information
+MT	!
+```
+
 ## tmux
 
 ### Start a tmux session
@@ -3773,6 +3809,36 @@ cat plink_check_sex/input.sexcheck
 ```
 
 In the output `1` = male, `2` = female, `other` = unknown.
+
+### Count genotypes
+
+Use [--geno-counts](https://www.cog-genomics.org/plink/2.0/basic_stats#geno_counts) in `plink2`:
+
+```bash
+plink2 --vcf SNPs.vcf --geno-counts 'cols=chrom,pos,ref,alt,homref,refalt,altxy,hapref,hapalt,missing' --allow-extra-chr --chr-set 95
+```
+
+Or use `bcftools`. First split multiallelic sites into biallelic records using `bcftools norm`:
+
+```bash
+bgzip snps.vcf
+tabix -fp vcf snps.vcf.gz
+bcftools norm -m-any snps.vcf.gz -Oz > snps.norm.vcf.gz
+```
+
+Then generate a CSV report providing genotype counts for each variant:
+
+```bash
+INPUT=snps.norm.vcf.gz
+OUTPUT=snps.norm.vcf.genotype.counts.csv
+
+paste \
+<(bcftools view "$INPUT" | awk -F"\t" 'BEGIN {print "CHR\tPOS\tID\tREF\tALT"} !/^#/ {print $1"\t"$2"\t"$3"\t"$4"\t"$5}') \
+<(bcftools query -f '[\t%SAMPLE=%GT]\n' "$INPUT" | awk 'BEGIN {print "nHomRef"} {print gsub(/0\|0|0\/0/, "")}') \
+<(bcftools query -f '[\t%SAMPLE=%GT]\n' "$INPUT" | awk 'BEGIN {print "nHet"} {print gsub(/0\|1|1\|0|0\/1|1\/0/, "")}') \
+<(bcftools query -f '[\t%SAMPLE=%GT]\n' "$INPUT" | awk 'BEGIN {print "nHomAlt"} {print gsub(/1\|1|1\/1/, "")}') \
+| sed 's/,\t/\t/g' | sed 's/,$//g' > "$OUTPUT"
+```
 
 ### Count Mendelian errors using plink
 
