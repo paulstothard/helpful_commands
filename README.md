@@ -3817,7 +3817,7 @@ In the output `1` = male, `2` = female, `other` = unknown.
 Use [--geno-counts](https://www.cog-genomics.org/plink/2.0/basic_stats#geno_counts) in `plink2`:
 
 ```bash
-plink2 --vcf SNPs.vcf --geno-counts 'cols=chrom,pos,ref,alt,homref,refalt,altxy,hapref,hapalt,missing' --allow-extra-chr --chr-set 95
+plink2 --vcf snps.vcf --geno-counts 'cols=chrom,pos,ref,alt,homref,refalt,altxy,hapref,hapalt,missing' --allow-extra-chr --chr-set 95
 ```
 
 Or use `bcftools`. First split multiallelic sites into biallelic records using `bcftools norm`:
