@@ -4090,7 +4090,11 @@ input.vcf > input.rsID.vcf
 
 ### Transfer annotations from another VCF
 
-In this example some annotations are added to the file `source.vcf` (calculated from genotypes) and then annotations are transferred to the file `input.vcf`. The results are in `output.vcf`. The transfer of annotations is done using [vcfanno](https://github.com/brentp/vcfanno). This procedure is useful for annotating variants in one file with information obtained, for example, from a much larger population of samples.
+In this example some annotations are added to the file `source.vcf` (calculated from genotypes) and then annotations are transferred to the file `input.vcf`. The results are written to `output.vcf`.
+
+The transfer of annotations is done using [vcfanno](https://github.com/brentp/vcfanno).
+
+This procedure is useful for annotating variants in one file with information obtained, for example, from a much larger population of samples. The resulting tags can be used in downstream filtering operations.
 
 First fill some additional annotation fields to `source.vcf`:
 
