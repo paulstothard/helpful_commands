@@ -289,6 +289,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Filter multi-sample genotypes](#filter-multi-sample-genotypes)
   - [Add predicted consequences](#add-predicted-consequences)
   - [Add variant IDs](#add-variant-ids)
+  - [Transfer annotations from another VCF](#transfer-annotations-from-another-vcf)
   - [Filter variants based on predicted consequences](#filter-variants-based-on-predicted-consequences)
   - [Keep variants where FILTER is PASS](#keep-variants-where-filter-is-pass)
   - [Count variants](#count-variants)
