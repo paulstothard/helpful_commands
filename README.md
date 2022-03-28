@@ -4088,6 +4088,49 @@ canis_lupus_familiaris.sorted.vcf.gz \
 input.vcf > input.rsID.vcf
 ```
 
+### Transfer annotations from another VCF
+
+In this example some annotations are added to the file `source.vcf` (calculated from genotypes) and then annotations are transferred to the file `input.vcf`. The results are in `output.vcf`. The transfer of annotations is done using [vcfanno](https://github.com/brentp/vcfanno). This procedure is useful for annotating variants in one file with information obtained, for example, from a much larger population of samples.
+
+First fill some additional annotation fields to `source.vcf`:
+
+```bash
+bgzip source.vcf
+tabix -fp vcf source.vcf.gz
+bcftools +fill-tags source.vcf.gz -Oz -o source.additional-fields.vcf.gz -- -t AC_Hom,AC_Het
+```
+
+Create a `config.toml` file for vcfanno:
+
+```text
+[[annotation]]
+file="source.additional-fields.vcf.gz"
+fields=["AF", "AC_Hom", "AC_Het"]
+names=["source.AF", "source.AC_Hom", "source.AC_Het"]
+ops=["self", "self", "self"]
+```
+
+Prepare the `input.vcf` file:
+
+```bash
+bgzip input.vcf
+tabix -fp vcf input.vcf.gz
+```
+
+Create an index for `source.additional-fields.vcf.gz`:
+
+```bash
+tabix -fp vcf source.additional-fields.vcf.gz
+```
+
+Perform the annotation transfer:
+
+```bash
+vcfanno config.toml input.vcf.gz > out.vcf
+```
+
+The file `out.vcf` should now include `INFO` tags `source.AF`, `source.AC_Hom`, and `source.AC_Het` with values calculated from the samples in `source.vcf`.
+
 ### Filter variants based on predicted consequences
 
 Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files that have been annotated using [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/).
