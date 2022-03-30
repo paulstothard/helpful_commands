@@ -3843,6 +3843,31 @@ paste \
 | sed 's/,\t/\t/g' | sed 's/,$//g' > "$OUTPUT"
 ```
 
+In some cases a good alternative is to use `bcftools` to calculate additional `INFO` tags from the genotypes. The following adds `AC_Hom` and `AC_Het` tags to the VCF file.
+
+```bash
+bgzip source.vcf
+tabix -fp vcf source.vcf.gz
+bcftools +fill-tags source.vcf.gz -Oz -o source.additional-fields.vcf.gz -- -t AC_Hom,AC_Het
+```
+
+### Determine the proportion of missing genotypes in each sample
+
+```bash
+INPUT=SNPs.vcf
+paste \
+<(bcftools query -f '[%SAMPLE\t]\n' "$INPUT" | head -1 | tr '\t' '\n') \
+<(bcftools query -f '[%GT\t]\n' "$INPUT" | awk -v OFS="\t" '{for (i=1;i<=NF;i++) if ($i == "./.") sum[i]+=1 } END {for (i in sum) print i, sum[i] / NR }' | sort -k1,1n | cut -f 2)
+```
+
+The above produces output like:
+
+```text
+sample1	0.956705
+sample2	0.124076
+sample3	0.0281456
+```
+
 ### Count Mendelian errors using plink
 
 Use [--mendel](https://www.cog-genomics.org/plink/1.9/basic_stats#mendel) in `plink`.
@@ -4153,7 +4178,13 @@ Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF f
 The following keeps variants that have a `FILTER` value of `PASS`:
 
 ```bash
-cat input.ann.vcf | SnpSift filter "( FILTER = 'PASS' )" > input.PASS.vcf
+cat input.vcf | SnpSift filter "( FILTER = 'PASS' )" > input.PASS.vcf
+```
+
+Or, use `bcftools`:
+
+```bash
+bcftools view -f PASS input.vcf > input.PASS.vcf
 ```
 
 ### Count variants
@@ -4305,6 +4336,20 @@ The following removes all `INFO` fields and all `FORMAT` fields except for `GT` 
 
 ```bash
 bcftools annotate -x INFO,^FORMAT/GT,FORMAT/GQ input.vcf > input_GT_GQ.vcf
+```
+
+### Remove a sample
+
+In this example sample `GM-2` is removed:
+
+```bash
+vcftools --remove-indv GM-2 --vcf input.vcf --recode --out output.vcf
+```
+
+### Remove sites with any missing genotypes
+
+```bash
+bcftools view -e 'GT[*]="mis"' input.vcf > output.vcf
 ```
 
 ## vim
