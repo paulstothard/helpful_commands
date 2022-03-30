@@ -3866,9 +3866,9 @@ paste \
 The above produces output like:
 
 ```text
-sample1	0.956705
-sample2	0.124076
-sample3	0.0281456
+sample1 0.956705
+sample2 0.124076
+sample3 0.0281456
 ```
 
 ### Count Mendelian errors using plink
