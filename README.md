@@ -2646,6 +2646,14 @@ perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
 perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
 ```
 
+### Remove lines that match a pattern
+
+In this example, lines from `input.txt` are written to `output.txt` unless they start with `some_text`:
+
+```bash
+perl -n -e 'print unless m/^some_text/' input.txt > output.txt
+```
+
 ### Replace commas with tabs
 
 ```bash
@@ -3368,9 +3376,17 @@ diff line_counts_per_sample_R1.tab line_counts_per_sample_R2.tab
 sed $'1s/^/my header text\\\n&/' input
 ```
 
+### Edit the header line with sed
+
+In this example `pos,reads_pp` is changed to `pos,reads` in the first line of the file. The `-i` is used to edit the file in place:
+
+```bash
+sed -i '' -e "1,1s/pos,reads_pp/pos,reads/" input.csv
+```
+
 ### Print a specific line of a file
 
-In this example line `26404`:
+In this example line `26404` is printed:
 
 ```bash
 sed -n "26404p" input.txt
