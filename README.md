@@ -114,6 +114,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
 - [find](#find)
   - [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
   - [Sort files before processing](#sort-files-before-processing)
+  - [Use files as the argument list for a command](#use-files-as-the-argument-list-for-a-command)
   - [Process files in pairs](#process-files-in-pairs)
   - [Copy the files returned by find](#copy-the-files-returned-by-find)
   - [Copy the files returned by find, naming the copies after a directory in the path](#copy-the-files-returned-by-find-naming-the-copies-after-a-directory-in-the-path)
