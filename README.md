@@ -1360,6 +1360,20 @@ while IFS="" read -r -d "" file; do
 done
 ```
 
+### Use files as the argument list for a command
+
+The following finds files ending with `.vcf.gz`, sorts the files based on the number appearing after the first `-` in the filename, and prints the filenames separated by spaces by supplying all to `echo`:
+
+```bash
+find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | xargs -r0 echo
+```
+
+To print the filenames on separate lines, use:
+
+```bash
+find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | xargs -r0 -L 1 echo
+```
+
 ### Process files in pairs
 
 High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
