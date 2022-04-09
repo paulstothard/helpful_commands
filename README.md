@@ -295,6 +295,8 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Add variant IDs](#add-variant-ids)
   - [Transfer annotations from another VCF](#transfer-annotations-from-another-vcf)
   - [Filter variants based on predicted consequences](#filter-variants-based-on-predicted-consequences)
+  - [Keep variants with a missing ID](#keep-variants-with-a-missing-id)
+  - [Keep variants with an assigned ID](#keep-variants-with-an-assigned-id)
   - [Keep variants where FILTER is PASS](#keep-variants-where-filter-is-pass)
   - [Count variants](#count-variants)
   - [Identify variants found in all VCF files](#identify-variants-found-in-all-vcf-files)
