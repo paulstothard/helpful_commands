@@ -4226,11 +4226,11 @@ bcftools view -f PASS input.vcf > input.PASS.vcf
 ### Count variants
 
 ```bash
-grep -c -v '#' input.ann.vcf
+grep -c -v '^#' input.ann.vcf
 ```
 
 ```bash
-zgrep -c -v '#' input.ann.vcf.gz
+zgrep -c -v '^#' input.ann.vcf.gz
 ```
 
 ### Identify variants found in all VCF files
