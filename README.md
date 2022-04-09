@@ -340,6 +340,12 @@ In this example lines are printed when the value in column `1` equals `9913`:
 awk -F, '{if ($1 == 9913) print $0}' input.csv
 ```
 
+To also print all lines starting with `#` (header lines for example), use:
+
+```bash
+awk -F, '$1 ~ /^#/ {print; next} {if ($1 == 9913) print $0}' input.csv
+```
+
 Print the first line and lines when the value in column `1` equals `9913`:
 
 ```bash
@@ -4205,6 +4211,18 @@ The following keeps variants that are predicted to have `HIGH` or `MODERATE` imp
 
 ```bash
 cat input.ann.vcf | SnpSift filter "((ANN[*].IMPACT = 'HIGH') | (ANN[*].IMPACT = 'MODERATE'))" > input.ann.high_or_moderate.vcf
+```
+
+### Keep variants with a missing ID
+
+```bash
+awk -F $'\t' '$1 ~ /^#/ {print; next} $3~/^\./' input.vcf > input.noID.vcf
+```
+
+### Keep variants with an assigned ID
+
+```bash
+awk -F $'\t' '$1 ~ /^#/ {print; next} $3~/^\./ {next} {print}' input.vcf > input.ID.vcf
 ```
 
 ### Keep variants where FILTER is PASS
