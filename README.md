@@ -1000,6 +1000,13 @@ quay.io/biocontainers/snippy:4.6.0--hdfd78af_1 \
 snippy --cpus 4 --outdir output --reference sequence.gbk --R1 J10_S210_R1_001.fastq --R2 J10_S210_R2_001.fastq
 ```
 
+### Get an interactive bash shell in a Docker container
+
+```bash
+docker pull quay.io/biocontainers/snippy:4.6.0--hdfd78af_1
+docker run -it quay.io/biocontainers/snippy:4.6.0--hdfd78af_1 /bin/bash
+```
+
 ### List images
 
 ```bash
