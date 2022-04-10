@@ -85,6 +85,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
   - [Annotate a bacterial genome using Prokka](#annotate-a-bacterial-genome-using-prokka)
   - [Compare sequence reads to a bacterial genome to find SNPs using Snippy](#compare-sequence-reads-to-a-bacterial-genome-to-find-snps-using-snippy)
+  - [Get an interactive bash shell in a Docker container](#get-an-interactive-bash-shell-in-a-docker-container)
   - [List images](#list-images)
   - [List running containers](#list-running-containers)
   - [Stop a container](#stop-a-container)
