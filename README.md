@@ -4257,6 +4257,8 @@ bcftools view -f PASS input.vcf > input.PASS.vcf
 grep -c -v '^#' input.ann.vcf
 ```
 
+Or:
+
 ```bash
 zgrep -c -v '^#' input.ann.vcf.gz
 ```
@@ -4414,6 +4416,20 @@ vcftools --remove-indv GM-2 --vcf input.vcf --recode --out output.vcf
 
 ```bash
 bcftools view -e 'GT[*]="mis"' input.vcf > output.vcf
+```
+
+### Remove all genotypes
+
+```bash
+bgzip input.vcf
+tabix -p input.vcf.gz
+bcftools view -G input.vcf.gz -Oz -o output.vcf.gz
+```
+
+Or:
+
+```bash
+bcftools view -G input.vcf > output.vcf
 ```
 
 ## vim
