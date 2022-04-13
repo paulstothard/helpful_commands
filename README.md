@@ -3795,7 +3795,7 @@ vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 -
 
 ```bash
 bgzip Chr5.vcf
-tabix -fp vcf Chr5.vcf.gz
+tabix -p vcf Chr5.vcf.gz
 bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
 ```
 
@@ -4340,8 +4340,8 @@ In this example the contents of `snps.vcf` and `indels.vcf` are combined.
 ```bash
 bgzip snps.vcf
 bgzip indels.vcf
-tabix -p snps.vcf.gz
-tabix -p indels.vcf.gz
+tabix -p vcf snps.vcf.gz
+tabix -p vcf indels.vcf.gz
 bcftools concat --allow-overlaps \
 snps.vcf.gz \
 indels.vcf.gz \
@@ -4423,7 +4423,7 @@ bcftools view -e 'GT[*]="mis"' input.vcf > output.vcf
 
 ```bash
 bgzip input.vcf
-tabix -p input.vcf.gz
+tabix -p vcf input.vcf.gz
 bcftools view -G input.vcf.gz -Oz -o output.vcf.gz
 ```
 
