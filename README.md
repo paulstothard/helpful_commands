@@ -4356,27 +4356,10 @@ First remove header content:
 grep -v '^##' input.vcf > input.tsv
 ```
 
-Then convert the TSV file to CSV:
+Then use [VisiData](https://github.com/saulpw/visidata) to convert the TSV file to an Excel file:
 
 ```bash
-awk 'BEGIN { FS="\t"; OFS="," } {
-  rebuilt=0
-  for(i=1; i<=NF; ++i) {
-    if ($i ~ /,/ && $i !~ /^".*"$/) {
-      gsub("\"", "\"\"", $i)
-      $i = "\"" $i "\""
-      rebuilt=1
-    }
-  }
-  if (!rebuilt) { $1=$1 }
-  print
-}' input.tsv > input.csv
-```
-
-Use `ssconvert` from [Gnumeric](http://gnumeric.org) to convert the CSV file to an Excel file:
-
-```bash
-ssconvert input.csv input.xls
+vd input.csv -b -o input.xlsx
 ```
 
 ### Perform case-control analysis
