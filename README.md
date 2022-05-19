@@ -1306,7 +1306,42 @@ cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
 gzip *.fastq
 ```
 
+Note that `fasterq-dump` will generate large cache files in `~/ncbi/public/sra`. If this directory does not have sufficient storage create a symbolic link to another directory that does, for example `/scratch`:
+
+```bash
+mv ~/ncbi/public/sra /scratch/
+ln -s /scratch/sra ~/ncbi/public/sra
+```
+
 [SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions and returns a selectable list of ENA download URLs and sequencing run metadata.
+
+### Download a reference genome FASTA file from Ensembl
+
+To obtain a list of files available for a particular species:
+
+```bash
+rsync --list-only rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/
+```
+
+To download one of the files:
+
+```bash
+rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/Oncorhynchus_mykiss.USDA_OmykA_1.1.dna.toplevel.fa.gz .
+```
+
+### Download a reference genome GTF file from Ensembl
+
+To obtain a list of files available for a particular species:
+
+```bash
+rsync --list-only rsync://ftp.ensembl.org/ensembl/pub/current_gtf/oncorhynchus_mykiss/
+```
+
+To download one of the files:
+
+```bash
+rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_gtf/oncorhynchus_mykiss/Oncorhynchus_mykiss.USDA_OmykA_1.1.106.gtf.gz .
+```
 
 ## find
 
