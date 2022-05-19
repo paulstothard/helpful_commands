@@ -112,6 +112,8 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Download from Google Drive](#download-from-google-drive)
   - [Download a GenBank file with curl](#download-a-genbank-file-with-curl)
   - [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
+  - [Download a reference genome FASTA file from Ensembl](#download-a-reference-genome-fasta-file-from-ensembl)
+  - [Download a reference genome GTF file from Ensembl](#download-a-reference-genome-gtf-file-from-ensembl)
 - [find](#find)
   - [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
   - [Sort files before processing](#sort-files-before-processing)
