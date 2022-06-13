@@ -1552,6 +1552,43 @@ First, copy the clone URL on the GitHub repository page by clicking `Clone or Do
 git clone https://github.com/stothard-group/helpful_commands.git
 ```
 
+### Clone all your repositories
+
+Use the official [GitHub CLI tool](https://github.com/cli/cli) `gh`.
+
+Change `org_or_username` to your username to download all your repositories, or to your organization name to download all the repositories of your organization:
+
+```bash
+org_or_username=paulstothard
+```
+
+Authenticate with a GitHub host:
+
+```bash
+gh auth login
+```
+
+Clone up to 1000 repositories under the `$org_or_username` folder:
+
+```bash
+gh repo list "$org_or_username" --limit 1000 | while read -r repo _; do
+  gh repo clone "$repo" "$repo"
+done
+```
+
+Optionally, to clone new repositories and update existing ones:
+
+```bash
+gh repo list "$org_or_username" --limit 1000 | while read -r repo _; do
+  gh repo clone "$repo" "$repo" -- -q 2>/dev/null || (
+    cd "$repo"
+    git checkout -q main 2>/dev/null || true
+    git checkout -q master 2>/dev/null || true
+    git pull -q
+  )
+done
+```
+
 ### Mark changed files to be included in the next commit
 
 To add one or more files:
