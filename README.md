@@ -128,6 +128,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
 - [Git](#git)
   - [Create a new Git repository](#create-a-new-git-repository)
   - [Sync a repository to your local machine](#sync-a-repository-to-your-local-machine)
+  - [Clone all your repositories](#clone-all-your-repositories)
   - [Mark changed files to be included in the next commit](#mark-changed-files-to-be-included-in-the-next-commit)
   - [Undo a Git add before a commit](#undo-a-git-add-before-a-commit)
   - [Remove files from the repository](#remove-files-from-the-repository)
