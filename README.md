@@ -3996,6 +3996,37 @@ sample2 0.124076
 sample3 0.0281456
 ```
 
+### Determine genotype concordance
+
+Use `bcftools`:
+
+```bash
+bgzip A.vcf
+tabix -fp vcf A.vcf.gz
+
+bgzip B.vcf
+tabix -fp vcf B.vcf.gz
+
+bcftools gtcheck -g A.vcf.gz B.vcf.gz
+```
+
+Or use SnpSift:
+
+```bash
+java -jar SnpSift.jar concordance A.vcf B.vcf
+```
+
+Or use Picard. In this example the comparison is limited to the sample named `HOCANF12689774`:
+
+```bash
+java -jar ~/bin/picard.jar GenotypeConcordance \
+CALL_VCF=A.vcf \
+CALL_SAMPLE=HOCANF12689774 \
+O=gc_concordance.vcf \
+TRUTH_VCF=B.vcf \
+TRUTH_SAMPLE=HOCANF12689774
+```
+
 ### Count Mendelian errors using plink
 
 Use [--mendel](https://www.cog-genomics.org/plink/1.9/basic_stats#mendel) in `plink`.
@@ -4299,19 +4330,19 @@ The following keeps variants that are predicted to have `HIGH` or `MODERATE` imp
 cat input.ann.vcf | SnpSift filter "((ANN[*].IMPACT = 'HIGH') | (ANN[*].IMPACT = 'MODERATE'))" > input.ann.high_or_moderate.vcf
 ```
 
-### Keep variants with a missing ID
+### Keep only variants with a missing ID
 
 ```bash
 awk -F $'\t' '$1 ~ /^#/ {print; next} $3~/^\./' input.vcf > input.noID.vcf
 ```
 
-### Keep variants with an assigned ID
+### Keep only variants with an assigned ID
 
 ```bash
 awk -F $'\t' '$1 ~ /^#/ {print; next} $3~/^\./ {next} {print}' input.vcf > input.ID.vcf
 ```
 
-### Keep variants where FILTER is PASS
+### Keep only variants where FILTER is PASS
 
 Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files.
 
@@ -4325,6 +4356,30 @@ Or, use `bcftools`:
 
 ```bash
 bcftools view -f PASS input.vcf > input.PASS.vcf
+```
+
+### Keep only biallelic SNPs
+
+```bash
+bgzip input.vcf
+tabix -fp vcf input.vcf.gz
+bcftools view --min-alleles 2 --max-alleles 2 --types snps --output-file biallelic-snp.vcf.gz input.vcf.gz
+```
+
+### Keep only SNPs
+
+```bash
+bgzip input.vcf
+tabix -fp vcf input.vcf.gz
+bcftools view --types snps --output-file snp.vcf.gz input.vcf.gz
+```
+
+### Keep only indels
+
+```bash
+bgzip input.vcf
+tabix -fp vcf input.vcf.gz
+bcftools view --types indels --output-file indels.vcf.gz input.vcf.gz
 ```
 
 ### Count variants
