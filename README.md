@@ -2568,7 +2568,8 @@ To display the crontab use `crontab -l`.
 The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl) and [ffmpeg](https://ffmpeg.org/):
 
 ```bash
-youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass https://www.youtube.com/playlist?list=PL92319EECC1754042
+playlist_URL=https://www.youtube.com/playlist?list=PL92319EECC1754042
+youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass --rm-cache-dir --continue "$playlist_URL"
 ```
 
 ### Perform a calculation using bc
