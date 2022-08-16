@@ -38,6 +38,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Save the output of a command in a variable](#save-the-output-of-a-command-in-a-variable)
   - [Set variables using values from a CSV file](#set-variables-using-values-from-a-csv-file)
   - [Perform a calculation on the command line](#perform-a-calculation-on-the-command-line)
+  - [Combine FASTA files into a single file replacing each FASTA record name with the name of the input file](#combine-fasta-files-into-a-single-file-replacing-each-fasta-record-name-with-the-name-of-the-input-file)
 - [brew](#brew)
   - [List installed packages](#list-installed-packages)
   - [View available packages](#view-available-packages)
