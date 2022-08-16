@@ -606,6 +606,28 @@ echo "$(( n - 1 * 2 ))"
 answer="$(( n - 1 * 2 ))"
 ```
 
+### Combine FASTA files into a single file replacing each FASTA record name with the name of the input file
+
+```bash
+for file in *.fasta
+do
+   echo ">$file" >> out.fasta
+   tail -n +2 "$file" >> out.fasta
+done
+```
+
+Or
+
+```bash
+for file in *.fasta
+do
+   {
+     echo ">$file"
+     tail -n +2 "$file"
+   } >> out.fasta
+done
+```
+
 ## brew
 
 ### List installed packages
