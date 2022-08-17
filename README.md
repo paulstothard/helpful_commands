@@ -317,6 +317,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Remove a sample](#remove-a-sample)
   - [Remove sites with any missing genotypes](#remove-sites-with-any-missing-genotypes)
   - [Remove all genotypes](#remove-all-genotypes)
+  - [Print samples](#print-samples)
 - [vim](#vim)
   - [Search and replace across multiple files](#search-and-replace-across-multiple-files)
   - [Search and replace newlines](#search-and-replace-newlines)
