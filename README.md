@@ -617,7 +617,7 @@ do
 done
 ```
 
-Or
+Or:
 
 ```bash
 for file in *.fasta
@@ -1530,13 +1530,13 @@ Print the number of lines in every `.csv` or `.tab` file in or below current dir
 find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" >> output.txt; done
 ```
 
-Or
+Or:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec wc -l {} \; > output.txt
 ```
 
-Or
+Or:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {} > output.txt
@@ -1550,13 +1550,13 @@ Print the number of lines in every `.csv` or `.tab` file in or below current dir
 find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
 ```
 
-Or
+Or:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec sh -c 'wc -l "$1" > "$1.output.txt"' -- {} \;
 ```
 
-Or
+Or:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
@@ -4572,6 +4572,18 @@ Or:
 
 ```bash
 bcftools view -G input.vcf > output.vcf
+```
+
+### Print samples
+
+```bash
+bcftools query -l input.vcf.gz
+```
+
+Or:
+
+```bash
+bcftools query -l input.vcf
 ```
 
 ## vim
