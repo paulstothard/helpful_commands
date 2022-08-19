@@ -4194,11 +4194,19 @@ vcftools --vcf input.vcf --not-chr X --max-missing-count 0 --relatedness2 \
 cat relatedness/input.vcf.relatedness2 | column -t
 ```
 
-### Filter multi-sample genotypes
+### Filter sites based on genotypes and other criteria
 
-Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files based on sample genotypes.
+Use [bcftools view](https://samtools.github.io/bcftools/bcftools.html#view) to filter sites based on an [expression](https://samtools.github.io/bcftools/bcftools.html#expressions). Sites for which the expression is true can be kept using the `-i` option or excluded using the `-e` option.
 
-The following approach can be used to exclude sites where any sample meets the following criteria: is homozygous and the genotype quality is greater than `30` and the genotype is not `0/0`. Worded another way, a variant is kept if no sample exhibits a good-quality homozygous alternative genotype.
+In the following example sites are excluded if any sample is both homozygous for an alternate allele and has a genotype quality greater than 30:
+
+```bash
+bcftools view -e 'GT[*]="AA" & GQ[*]>30' SNPs.vcf
+```
+
+[SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) can also be used to filter VCF files based on sample genotypes.
+
+The following approach can be used to exclude sites where any sample meets the following criteria: is homozygous and the genotype quality is greater than `30` and the genotype is not `0/0`. Worded another way, a site is kept if no sample exhibits a good-quality homozygous alternate genotype.
 
 In this example there are 6 samples in the VCF file.
 
