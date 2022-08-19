@@ -296,7 +296,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Find runs of homozygosity using plink](#find-runs-of-homozygosity-using-plink)
   - [Add new samples](#add-new-samples)
   - [Check relatedness between samples](#check-relatedness-between-samples)
-  - [Filter multi-sample genotypes](#filter-multi-sample-genotypes)
+  - [Filter sites based on genotypes and other criteria](#filter-sites-based-on-genotypes-and-other-criteria)
   - [Add predicted consequences](#add-predicted-consequences)
   - [Add variant IDs](#add-variant-ids)
   - [Transfer annotations from another VCF](#transfer-annotations-from-another-vcf)
