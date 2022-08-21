@@ -4419,6 +4419,21 @@ tabix -fp vcf input.vcf.gz
 bcftools view --types indels --output-file indels.vcf.gz input.vcf.gz
 ```
 
+### Keep only sites not found in a second VCF
+
+Use the [bcftools isec command](https://samtools.github.io/bcftools/bcftools.html#isec).
+
+```bash
+bcftools isec --complement -c some \
+file1.vcf.gz \
+file2.vcf.gz \
+-p sites-in-file-1-not-in-file-2
+```
+
+The sites in `file1.vcf.gz` that are not in `file2.vcf.gz` can be found in `sites-in-file-1-not-in-file-2/0000.vcf`.
+
+The `-c some` causes sites to be considered equivalent when some subset of ALT alleles match. To require identical REF and ALT alleles use `-c none`. To match based only on position, use `-c all`.
+
 ### Count variants
 
 ```bash
