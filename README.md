@@ -307,6 +307,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Keep only biallelic SNPs](#keep-only-biallelic-snps)
   - [Keep only SNPs](#keep-only-snps)
   - [Keep only indels](#keep-only-indels)
+  - [Keep only sites not found in a second VCF](#keep-only-sites-not-found-in-a-second-vcf)
   - [Count variants](#count-variants)
   - [Identify variants found in all VCF files](#identify-variants-found-in-all-vcf-files)
   - [Change sample order](#change-sample-order)
