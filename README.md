@@ -1526,9 +1526,9 @@ find . \( -name "*_R1_*" -name "*.fastq.gz" \) -type f \
   #$fnx: 6613_S82_L001_R1_001.fastq.gz
   #$fn: 6613_S82_L001_R1_001
   
-  #$file: ./6613_S82_L001_R2_001.fastq.gz
-  #$fnx: 6613_S82_L001_R2_001.fastq.gz
-  #$fn: 6613_S82_L001_R2_001
+  #$file2: ./6613_S82_L001_R2_001.fastq.gz
+  #$fnx2: 6613_S82_L001_R2_001.fastq.gz
+  #$fn2: 6613_S82_L001_R2_001
   
   echo "Processing file '$fnx' and '$fnx2'"
   
