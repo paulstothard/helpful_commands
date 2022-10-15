@@ -4338,7 +4338,7 @@ bcftools view -f PASS input.vcf > input.PASS.vcf
 ```bash
 bgzip input.vcf
 tabix -fp vcf input.vcf.gz
-bcftools view --min-alleles 2 --max-alleles 2 --types snps --output-file biallelic-snp.vcf.gz input.vcf.gz
+bcftools view -Oz --min-alleles 2 --max-alleles 2 --types snps --output-file biallelic-snp.vcf.gz input.vcf.gz
 ```
 
 ### Keep only SNPs
@@ -4346,7 +4346,7 @@ bcftools view --min-alleles 2 --max-alleles 2 --types snps --output-file biallel
 ```bash
 bgzip input.vcf
 tabix -fp vcf input.vcf.gz
-bcftools view --types snps --output-file snp.vcf.gz input.vcf.gz
+bcftools view -Oz --types snps --output-file snp.vcf.gz input.vcf.gz
 ```
 
 ### Keep only indels
@@ -4354,7 +4354,7 @@ bcftools view --types snps --output-file snp.vcf.gz input.vcf.gz
 ```bash
 bgzip input.vcf
 tabix -fp vcf input.vcf.gz
-bcftools view --types indels --output-file indels.vcf.gz input.vcf.gz
+bcftools view -Oz --types indels --output-file indels.vcf.gz input.vcf.gz
 ```
 
 ### Keep only sites not found in a second VCF
