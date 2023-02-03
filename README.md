@@ -123,6 +123,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
   - [Download a reference genome FASTA file from Ensembl](#download-a-reference-genome-fasta-file-from-ensembl)
   - [Download a reference genome GTF file from Ensembl](#download-a-reference-genome-gtf-file-from-ensembl)
+  - [Download files from a Globus endpoint using Globus CLI](#download-files-from-a-globus-endpoint-using-globus-cli)
 - [find](#find)
   - [Perform a series of commands on files returned by find](#perform-a-series-of-commands-on-files-returned-by-find)
   - [Sort files before processing](#sort-files-before-processing)
@@ -1542,6 +1543,31 @@ To download one of the files:
 
 ```bash
 rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_gtf/oncorhynchus_mykiss/Oncorhynchus_mykiss.USDA_OmykA_1.1.106.gtf.gz .
+```
+
+### Download files from a Globus endpoint using Globus CLI
+
+Note that the destination must be another Globus endpoint.
+
+Install Globus CLI with pip and log into your Globus account
+
+```bash
+pip install globus-cli
+globus login
+```
+
+Access the Globus Web App and note the UUIDs for the source and destination endpoints on the respective overview pages.
+
+To transfer a single file:
+
+```bash
+globus transfer {source UUID}:/path/to/source/file {dest UUID}:/path/to/dest/file
+```
+
+To transfer all files in a directory:
+
+```bash
+globus transfer {source UUID}:/path/to/source/dir/ {dest UUID}:/path/to/dest/dir/ --recursive
 ```
 
 ## find
