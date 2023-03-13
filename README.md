@@ -1922,36 +1922,36 @@ To remove one or more files:
 
 ```bash
 git rm <filename>
+git commit -m "Remove <filename>"
 ```
 
 To remove a directory:
 
 ```bash
 git rm -r <directory>
+git commit -m "Remove <directory>"
 ```
 
 To remove a file from the index (this untracks the file, it does not delete the file itself):
 
 ```bash
 git rm --cached <filename>
+git commit -m "Remove <filename>"
 ```
-
-These changes must be committed with git commit.
 
 ### Move or rename a file or directory
 
 ```bash
 git mv <filename-old> <filename-new>
+git commit -m "Move <filename-old> to <filename-new>"
 ```
-
-This change must be committed with git commit.
 
 ### Save the marked files to the local Git repository
 
 The commit should include a message using the -m option:
 
 ```bash
-git commit -m "A concise description of the changes"
+git commit -m "A concise description of the changes, e.g. 'Add tests for input file parsing'"
 ```
 
 The following changes can be made to commits that have **not** been pushed to a remote repository. To rewrite the very last commit, with any currently staged changes:
