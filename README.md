@@ -128,7 +128,8 @@ Command-line tools, commands, and code snippets for performing routine data proc
     - [Download a GenBank file with curl](#download-a-genbank-file-with-curl)
     - [Download sequences from the NCBI Assembly database](#download-sequences-from-the-ncbi-assembly-database)
     - [Download reference genomes and related files from NCBI](#download-reference-genomes-and-related-files-from-ncbi)
-    - [Download fastq files based on a list of SRA accessions](#download-fastq-files-based-on-a-list-of-sra-accessions)
+    - [Download fastq files based on a list of SRA accessions using the SRA Toolkit](#download-fastq-files-based-on-a-list-of-sra-accessions-using-the-sra-toolkit)
+    - [Download fastq files based on a list of SRA accessions using Kingfisher](#download-fastq-files-based-on-a-list-of-sra-accessions-using-kingfisher)
     - [Download a reference genome FASTA file from Ensembl](#download-a-reference-genome-fasta-file-from-ensembl)
     - [Download a reference genome GTF file from Ensembl](#download-a-reference-genome-gtf-file-from-ensembl)
     - [Download files from a Globus endpoint using Globus CLI](#download-files-from-a-globus-endpoint-using-globus-cli)
@@ -235,6 +236,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
     - [Perform BLAST in parallel](#perform-blast-in-parallel)
     - [Read parameters from a file using parallel](#read-parameters-from-a-file-using-parallel)
     - [Perform a separate BLAST search for each query and database using parallel](#perform-a-separate-blast-search-for-each-query-and-database-using-parallel)
+    - [Download sequence files and resume without repeating completed jobs using parallel](#download-sequence-files-and-resume-without-repeating-completed-jobs-using-parallel)
   - [paste](#paste)
     - [Combine columns with paste](#combine-columns-with-paste)
   - [Perl](#perl)
@@ -1598,7 +1600,7 @@ datasets download genome taxon mouse --reference --include genome,protein,cds,gf
 
 For more commands and options see the [how-to guides](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/how-tos/).
 
-### Download fastq files based on a list of SRA accessions
+### Download fastq files based on a list of SRA accessions using the SRA Toolkit
 
 The following uses the [SRA Toolkit](https://github.com/ncbi/sra-tools).
 
@@ -1629,6 +1631,16 @@ ln -s /scratch/sra ~/ncbi/public/sra
 ```
 
 [SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions and returns a selectable list of ENA download URLs and sequencing run metadata.
+
+### Download fastq files based on a list of SRA accessions using Kingfisher
+
+The following example uses [Kingfisher](https://github.com/wwood/kingfisher-download), which can download data from the ENA, NCBI, AWS, and GCP.
+
+The accessions are in a file named `SRR_Acc_List.txt` and are passed to Kingfisher using `parallel`. The `--resume` and `--joblog` options allows the command to be re-run without repeating previously completed jobs.
+
+```bash
+cat SRR_Acc_List.txt | parallel --resume --joblog log.txt --verbose --progress -j 1 'kingfisher get -r {} -m ena-ascp aws-http prefetch'
+```
 
 ### Download a reference genome FASTA file from Ensembl
 
@@ -3067,6 +3079,16 @@ outdir=output
 mkdir "$outdir"
 parallel --dryrun -j 1 "blastp -evalue 0.0001 -query {1} -db {2} -out $outdir/{1/.}_{2/.}.tab" ::: "$querydir"/*.faa ::: "$databasedir"/*.faa
 parallel --verbose -j 1 "blastp -evalue 0.0001 -query {1} -db {2} -out $outdir/{1/.}_{2/.}.tab" ::: "$querydir"/*.faa ::: "$databasedir"/*.faa
+```
+
+### Download sequence files and resume without repeating completed jobs using parallel
+
+The following example uses [Kingfisher](https://github.com/wwood/kingfisher-download), which can download data from the ENA, NCBI, AWS, and GCP.
+
+The accessions are in a file named `SRR_Acc_List.txt` and are passed to Kingfisher using `parallel`. The `--resume` and `--joblog` options allows the command to be re-run without repeating previously completed jobs.
+
+```bash
+cat SRR_Acc_List.txt | parallel --resume --joblog log.txt --verbose --progress -j 1 'kingfisher get -r {} -m ena-ascp aws-http prefetch'
 ```
 
 ## paste
