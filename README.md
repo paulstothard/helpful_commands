@@ -87,7 +87,6 @@ Command-line tools, commands, and code snippets for performing routine data proc
     - [Transpose](#transpose)
   - [Docker](#docker)
     - [Perform a sequence comparison using legacy BLAST](#perform-a-sequence-comparison-using-legacy-blast)
-    - [Annotate sequence variants using VEP](#annotate-sequence-variants-using-vep)
     - [Annotate a bacterial genome using Prokka](#annotate-a-bacterial-genome-using-prokka)
     - [Annotate a bacterial genome using Bakta](#annotate-a-bacterial-genome-using-bakta)
     - [Compare sequence reads to a bacterial genome to find SNPs using Snippy](#compare-sequence-reads-to-a-bacterial-genome-to-find-snps-using-snippy)
@@ -1068,47 +1067,6 @@ To perform a blastn search using the formatted database and a query called `quer
 
 ```bash
 docker run -it --rm -v "$(pwd)":/directory/database -v "${HOME}":/directory/query -u "$(id -u)":"$(id -g)" -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database/database.fasta -i query/query.fasta
-```
-
-### Annotate sequence variants using VEP
-
-Download a VEP Docker image:
-
-```bash
-docker pull ensemblorg/ensembl-vep
-```
-
-Download cache files for the bovine genome and VEP plugins:
-
-```bash
-docker run -t -i -v "$(pwd)":/opt/vep/.vep -u "$(id -u)":"$(id -g)" ensemblorg/ensembl-vep perl INSTALL.pl -a cfp -s bos_taurus -y ARS-UCD1.2 -g all
-```
-
-Create directories for input and output files:
-
-```bash
-mkdir input
-mkdir output
-```
-
-Copy the VCF files to be annotated to the newly created `input` directory and process them as follows:
-
-```bash
-find ./input -name "*.vcf" | while read f; do
-    filename=$(basename -- "$f")
-    filename_no_extension="${filename%.*}"
-    docker run -v "$(pwd)":/opt/vep/.vep ensemblorg/ensembl-vep \
-        -u "$(id -u)":"$(id -g)" \
-        ./vep --cache --format vcf --tab --force_overwrite \
-        --dir_cache /opt/vep/.vep/ \
-        --dir_plugins /opt/vep/.vep/Plugins/ \
-        --input_file /opt/vep/.vep/input/${filename} \
-        --output_file /opt/vep/.vep/output/${filename_no_extension}.tab \
-        --species bos_taurus --assembly ARS-UCD1.2 \
-        --plugin Conservation,/opt/vep/.vep/Plugins/gerp_conservation_scores.bos_taurus.ARS-UCD1.2.bw --plugin Blosum62 --plugin Downstream --plugin Phenotypes --plugin TSSDistance --plugin miRNA \
-        --variant_class --sift b --nearest gene --overlaps --gene_phenotype --regulatory --protein --symbol --ccds --uniprot --biotype --domains --check_existing --pubmed \
-        --verbose
-done
 ```
 
 ### Annotate a bacterial genome using Prokka
@@ -5009,7 +4967,7 @@ grep -v '^##' input.vcf > input.tsv
 Then use [VisiData](https://github.com/saulpw/visidata) to convert the TSV file to an Excel file:
 
 ```bash
-vd input.csv -b -o input.xlsx
+vd input.tsv -b -o input.xlsx
 ```
 
 ### Perform case-control analysis
