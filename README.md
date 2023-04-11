@@ -1476,7 +1476,7 @@ rclone listremotes
 To list directories:
 
 ```bash
-rclone lsd my_google_drve:
+rclone lsd my_google_drive:
 ```
 
 To list the contents of a directory
@@ -1490,6 +1490,8 @@ To copy the drive to local storage:
 ```bash
 rclone copy -P my_google_drive:some_directory ./some_directory
 ```
+
+Alternatively, use [Transmit](https://panic.com/transmit/) or [Google Drive for desktop](https://www.google.com/drive/download/).
 
 ### Download a GenBank file with bio
 
