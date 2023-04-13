@@ -3949,8 +3949,8 @@ The above uses `\(` and `\)` to "remember" matching characters and then uses `\1
 
 The different parts of the search part of the command have the following meanings:
 
-* `^` match the start of a line
-* `[a-zA-Z0-9]\{3\}` match three letters or numbers
+- `^` match the start of a line
+- `[a-zA-Z0-9]\{3\}` match three letters or numbers
 
 ### Delete lines
 
