@@ -106,7 +106,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Convert PDF to PNG](#convert-pdf-to-png)
   - [Convert PNG to PDF](#convert-png-to-pdf)
   - [Convert DOCX to PDF](#convert-docx-to-pdf)
-  - [Convert Excel to CSV with csvkit](#convert-excel-to-csv-with-csvkit)
+  - [Convert Excel to CSV](#convert-excel-to-csv)
   - [Convert CSV to Excel](#convert-csv-to-excel)
   - [Convert TSV to Excel](#convert-tsv-to-excel)
   - [Convert HTML to PDF](#convert-html-to-pdf)
@@ -1283,7 +1283,7 @@ The following uses [pandoc](https://pandoc.org) and on macOS also requires [basi
 pandoc word_file.docx --output word_file.pdf
 ```
 
-### Convert Excel to CSV with csvkit
+### Convert Excel to CSV
 
 The following uses [csvkit](https://github.com/wireservice/csvkit):
 
