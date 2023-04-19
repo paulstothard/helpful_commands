@@ -106,7 +106,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Convert PDF to PNG](#convert-pdf-to-png)
   - [Convert PNG to PDF](#convert-png-to-pdf)
   - [Convert DOCX to PDF](#convert-docx-to-pdf)
-  - [Convert Excel to CSV](#convert-excel-to-csv)
+  - [Convert Excel to CSV](#convert-excel-to-csv-1)
   - [Convert CSV to Excel](#convert-csv-to-excel)
   - [Convert TSV to Excel](#convert-tsv-to-excel)
   - [Convert HTML to PDF](#convert-html-to-pdf)
