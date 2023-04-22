@@ -447,6 +447,12 @@ In this example the counts for each distinct value in column `9` are printed:
 awk -F $'\t' '{count[$9]++}END{for(j in count) print j"\t"count[j]}' input.tab
 ```
 
+Same as above but skipping the first line and formatting the output to increase readability:
+
+```bash
+awk -F $'\t' 'NR>1{count[$9]++}END{for(j in count) printf "%-20s %s\n",j,count[j]}' input.tab
+```
+
 In this example the counts for each distinct pair of values in column `1` and column `2` are printed:
 
 ```bash
@@ -4300,6 +4306,22 @@ tabix -p vcf input.vcf.gz
 tabix --print-header -R regions.txt input.vcf.gz > regions_of_interest.vcf
 ```
 
+### Keep a subset of samples
+
+In this example the samples to keep are in a text file called `sample_list.txt`, one sample per line. The `--min-ac` option is used to remove sites that are monomorphic in the subset of samples:
+
+```bash
+bcftools view input.vcf.gz -Oz --samples-file sample_list.txt --min-ac=1 --output-file output.vcf.gz
+```
+
+### Rename samples
+
+In this example the new sample names are in the file `new_sample_names.txt`, one name per line, in the same order as they appear in the VCF file:
+
+```bash
+bcftools reheader input.vcf.gz --samples new_sample_names.txt --output output.vcf.gz 
+```
+
 ### Assess sex by calculating X-chromosome heterozygosity
 
 ```bash
@@ -4701,6 +4723,12 @@ To add all tags, e.g. `AC_Hom`, `AC_Het`, etc:
 
 ```bash
 bcftools +fill-tags input.vcf -o output.vcf
+```
+
+Or
+
+```bash
+bcftools +fill-tags input.vcf.gz -- -t all -Oz -o output.vcf.gz
 ```
 
 ### Interpreting INFO tags
