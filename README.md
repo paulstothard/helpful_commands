@@ -316,6 +316,8 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Extract variants from a region of interest](#extract-variants-from-a-region-of-interest)
   - [Extract variants from multiple regions of interest](#extract-variants-from-multiple-regions-of-interest)
   - [Extract variants from multiple regions of interest described in a file](#extract-variants-from-multiple-regions-of-interest-described-in-a-file)
+  - [Keep a subset of samples](#keep-a-subset-of-samples)
+  - [Rename samples](#rename-samples)
   - [Assess sex by calculating X-chromosome heterozygosity](#assess-sex-by-calculating-x-chromosome-heterozygosity)
   - [Assess sex using plink](#assess-sex-using-plink)
   - [Count genotypes](#count-genotypes)
