@@ -4727,12 +4727,6 @@ To add all tags, e.g. `AC_Hom`, `AC_Het`, etc:
 bcftools +fill-tags input.vcf -o output.vcf
 ```
 
-Or
-
-```bash
-bcftools +fill-tags input.vcf.gz -- -t all -Oz -o output.vcf.gz
-```
-
 ### Interpreting INFO tags
 
 Suppose a site has one ALT allele and the following genotype counts: 4627 homozygous REF, 429 heterozygous, and 60 homozygous ALT.
