@@ -2384,6 +2384,14 @@ gene f  .                   0
 
 Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-columns) from [csvkit](#csvkit).
 
+### Combine rows and print some columns using join and add header
+
+The following combines rows from two files based on shared identifiers and prints some columns from each file (using the `-o` option). `awk` is used to add column names to the output file:
+
+```bash
+join -t, -1 1 -2 1 -o 2.2,1.2,2.2,1.4,1.5,1.6 <(sort -t, -k1 file1.csv) <(sort -t, -k1 file2.csv) | awk -F, 'BEGIN{print "patient,status,sample,lane,fastq_1,fastq_2"}{print}' OFS=, > final_samplesheet.csv
+```
+
 ## Mamba
 
 [Mamba](https://github.com/mamba-org/mamba) is a reimplementation of the conda package manager in C++.
