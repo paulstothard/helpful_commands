@@ -178,7 +178,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Create an animated GIF from a YouTube video](#create-an-animated-gif-from-a-youtube-video)
 - [join](#join)
   - [Combine rows based on shared keys with join](#combine-rows-based-on-shared-keys-with-join)
-  - [Combine rows and print some columns using join and add header](#combine-rows-and-print-some-columns-using-join-and-add-header)
+  - [Combine rows and print a subset of columns using join](#combine-rows-and-print-a-subset-of-columns-using-join)
 - [Mamba](#mamba)
   - [Install Mamba](#install-mamba)
   - [Create an environment and install some packages with mamba](#create-an-environment-and-install-some-packages-with-mamba)
