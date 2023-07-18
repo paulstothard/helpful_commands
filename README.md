@@ -2984,6 +2984,14 @@ find . \( -name "*_1.*" -name "*.fastq.gz" \) -type f \
 done
 ```
 
+### Calculate coverage statistics for a BAM file
+
+Use [mosdepth](https://github.com/brentp/mosdepth). The following generates a variety of useful output files prefixed with `20079`:
+
+```bash
+mosdepth 20079 20079.markdup.sorted.bam
+```
+
 ## parallel
 
 ### Extract files in parallel
