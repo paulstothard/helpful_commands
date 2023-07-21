@@ -3836,7 +3836,7 @@ The `-B` is used to provide the container with access to directories.
 
 ### Count reads in compressed fastq files
 
-In this example the number of reads in several `.fastq.gz` files is determined by submitting jobs to Slurm using `sbatch`. The advantage of this approach is that counts for each file are generated in parallel, which is much faster than running the count for each file sequentially.
+In this example the number of reads in several `.fastq.gz` files is determined by submitting jobs to Slurm using `sbatch`. The advantage of this approach is that the counts for each file are generated in parallel, so that results can be obtained more quickly.
 
 The naming scheme of the `.fastq.gz` files is as follows (the sample name is in the file name, for example `ctrl1`):
 
@@ -3912,7 +3912,7 @@ paste R1.reads R2.reads
 
 ### Merge VCF files in batches
 
-In this example VCF files are merged in batches by submitting jobs to Slurm using `sbatch`. The advantage of this approach is that the merge for each batch of files is performed in parallel, which is much faster than merging all the files sequentially.
+In this example VCF files are merged in batches by submitting jobs to Slurm using `sbatch`. The advantage of this approach is that `bcftools merge` commands are run in parallel, so that results can be obtained more quickly.
 
 The input files for this example are as follows:
 
