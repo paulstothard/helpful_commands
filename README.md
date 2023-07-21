@@ -3868,7 +3868,9 @@ parallel --dryrun --delay 1 -j 1 \
 "sbatch -o {1}.out -e {1}.err count-reads.sbatch {1}" ::: *.fastq.gz
 ```
 
-The `::: *.fastq.gz` leads to one `sbatch` command being constructed per `.fastq.gz` file in the current directory. Each instance of `{1}` gets replaced with the full name of the `.fastq.gz` file, such that each input file gets a unique and traceable output filename (so that results aren't overwritten and the relationships among files are clear).
+The `::: *.fastq.gz` leads to one `sbatch` command being constructed per `.fastq.gz` file in the current directory.
+
+Each instance of `{1}` gets replaced with the full name of the `.fastq.gz` file, such that each input file gets a unique and traceable output filename (so that results aren't overwritten and the relationships among files are clear).
 
 To submit the jobs, run the `parallel` command again, but without the `--dryrun` option:
 
@@ -3955,7 +3957,9 @@ parallel --dryrun --delay 1 -j 1 \
 -N $batch_size "sbatch -o {#}.merged.out -e {#}.merged.err merge-vcfs.sbatch {#} {} " ::: *.haplotypecaller.vcf.gz
 ```
 
-The `::: *.haplotypecaller.vcf.gz` and `batch_size=4` lead to one `sbatch` command being constructed per group of four `.haplotypecaller.vcf.gz` files in the current directory. The final group may contain fewer than four files depending on the total number of input files, which is fine. Each instance of `{#}` gets replaced with the job sequence number (`1`, `2`, `3`, etc.), and is used to construct unique filenames for each group of input files. The `{}` is replaced with the names of the files in the current group.
+The `::: *.haplotypecaller.vcf.gz` and `batch_size=4` lead to one `sbatch` command being constructed per group of four `.haplotypecaller.vcf.gz` files in the current directory. The final group may contain fewer than four files depending on the total number of input files, which is fine.
+
+Each instance of `{#}` gets replaced with the job sequence number (`1`, `2`, `3`, etc.), and is used to construct unique filenames for each group of input files. The `{}` is replaced with the names of the files in the current group.
 
 To submit the jobs, run the `parallel` command again, but without the `--dryrun` option:
 
