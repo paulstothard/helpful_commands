@@ -3859,7 +3859,7 @@ echo "$1 $READS"
 
 The above uses `zcat` to output the file contents to `wc` which counts the lines. `expr` then takes the count from `wc` and divides by `4` to give the number of sequence reads.
 
-`parallel` can be used to submit a job for each `.fastq.gz` file. The `--dryrun` option causes `parallel` to print out the commands instead of running them. The `--delay 1` inserts a one second delay between printing or running jobs. Use the following to print the `sbatch` commands:
+`parallel` can be used to submit a job for each `.fastq.gz` file. The `--dryrun` option causes `parallel` to print out the commands instead of running them. The `--delay 1` inserts a one second delay between printing or running jobs. Use the following to print the `sbatch` commands that will be run later on:
 
 ```bash
 parallel --dryrun --delay 1 -j 1 \
@@ -3868,7 +3868,7 @@ parallel --dryrun --delay 1 -j 1 \
 
 The `::: *.fastq.gz` leads to one `sbatch` command being constructed per `.fastq.gz` file in the current directory. Each instance of `{1}` gets replaced with the full name of the `.fastq.gz` file, such that each input file gets a unique and related output filename (so that results aren't overwritten).
 
-To submit the jobs, run the `parallel` command again, without the `--dryrun` option:
+To submit the jobs, run the `parallel` command again, but without the `--dryrun` option:
 
 ```bash
 parallel --delay 1 -j 1 \
@@ -3906,6 +3906,82 @@ Once the read number files have been generated, they can be analyzed, e.g.:
 cat *R1.fastq.gz.out | sort > R1.reads
 cat *R2.fastq.gz.out | sort > R2.reads
 paste R1.reads R2.reads
+```
+
+### Merge VCF files in batches
+
+In this example VCF files are merged in batches. The input files are as follows:
+
+```text
+21297.haplotypecaller.vcf.gz      23019.haplotypecaller.vcf.gz      23991.haplotypecaller.vcf.gz
+21297.haplotypecaller.vcf.gz.tbi  23019.haplotypecaller.vcf.gz.tbi  23991.haplotypecaller.vcf.gz.tbi
+21987.haplotypecaller.vcf.gz      23955.haplotypecaller.vcf.gz      24315.haplotypecaller.vcf.gz
+21987.haplotypecaller.vcf.gz.tbi  23955.haplotypecaller.vcf.gz.tbi  24315.haplotypecaller.vcf.gz.tbi
+```
+
+First create an `sbatch` script called `merge-vcfs.sbatch` (replace `someuser` with your username):
+
+```bash
+#!/bin/bash
+#SBATCH --account=def-someuser
+#SBATCH --time=0:30:0
+#SBATCH --ntasks=1
+#SBATCH --mem=1000M
+
+module load bcftools
+module load tabix
+
+output="$1"
+shift
+
+bcftools merge "$@" -Oz -o $output.merged.vcf.gz
+tabix -p vcf $output.merged.vcf.gz
+```
+
+The above uses `bcftools` to merge the input files and `tabix` to index the resulting file. The first argument to `merge-vcfs.sbatch` is used to construct the output file name and the remaining arguments are used as the input files.
+
+`parallel` can be used to submit jobs for batches of input files. The `--dryrun` option causes `parallel` to print out the commands instead of running them. The `--delay 1` inserts a one second delay between printing or running jobs. Use the following to print the `sbatch` commands that will be run later on:
+
+```bash
+# You will likely want to increase batch_size to something like 50
+batch_size=4
+parallel --dryrun --delay 1 -j 1 \
+-N $batch_size "sbatch -o {#}.merged.out -e {#}.merged.err merge-vcfs.sbatch {#} {} " ::: *.haplotypecaller.vcf.gz
+```
+
+The `::: *.haplotypecaller.vcf.gz` and `-N $batch_size` leads to one `sbatch` command being constructed per group of `.haplotypecaller.vcf.gz` files in the current directory. Each instance of `{#}` gets replaced with the job sequence number (`1`, `2`, `3`, etc.), such that each input file gets a unique and related output filename (so that results aren't overwritten). The `{}` is replaced with the input file names.
+
+To submit the jobs, run the `parallel` command again, but without the `--dryrun` option:
+
+```bash
+parallel --delay 1 -j 1 \
+-N $batch_size "sbatch -o {#}.merged.out -e {#}.merged.err merge-vcfs.sbatch {#} {} " ::: *.haplotypecaller.vcf.gz
+```
+
+Once the jobs are submitted their status can be checked (replace `username` with your username):
+
+```bash
+squeue -u username
+```
+
+Each job should create three files for each group of input files, for example:
+
+```text
+1.merged.err
+1.merged.out
+1.merged.vcf.gz
+```
+
+The `.out` files and `.err` files will usually be empty. If the commands do generate errors or warnings, they will be in the `.err` files. For example:
+
+```text
+[W::hts_idx_load3] The index file is older than the data file: 23991.haplotypecaller.vcf.gz.tbi
+```
+
+Next, submit another job to merge the merged files. It may be necessary to construct a modified version of `merge-vcfs.sbatch` that requests additional resources. In this example we will use the same `merge-vcfs.sbatch` script as before.
+
+```bash
+sbatch -o final.merged.out -e final.merged.err merge-vcfs.sbatch final *.merged.vcf.gz
 ```
 
 ## sed
