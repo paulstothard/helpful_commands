@@ -3950,7 +3950,7 @@ parallel --dryrun --delay 1 -j 1 \
 -N $batch_size "sbatch -o {#}.merged.out -e {#}.merged.err merge-vcfs.sbatch {#} {} " ::: *.haplotypecaller.vcf.gz
 ```
 
-The `::: *.haplotypecaller.vcf.gz` and `-N $batch_size` leads to one `sbatch` command being constructed per group of `.haplotypecaller.vcf.gz` files in the current directory. Each instance of `{#}` gets replaced with the job sequence number (`1`, `2`, `3`, etc.), such that each input file gets a unique and related output filename (so that results aren't overwritten). The `{}` is replaced with the input file names.
+The `::: *.haplotypecaller.vcf.gz` and `-N $batch_size` lead to one `sbatch` command being constructed per group of `.haplotypecaller.vcf.gz` files in the current directory. Each instance of `{#}` gets replaced with the job sequence number (`1`, `2`, `3`, etc.), and is used to construct unique filenames for each group of input files. The `{}` is replaced with the names of the files in the current group.
 
 To submit the jobs, run the `parallel` command again, but without the `--dryrun` option:
 
@@ -3965,25 +3965,28 @@ Once the jobs are submitted their status can be checked (replace `username` with
 squeue -u username
 ```
 
-Each job should create three files for each group of input files, for example:
+Each job should create four files, for example:
 
 ```text
 1.merged.err
 1.merged.out
 1.merged.vcf.gz
+1.merged.vcf.gz.tbi
 ```
 
-The `.out` files and `.err` files will usually be empty. If the commands do generate errors or warnings, they will be in the `.err` files. For example:
+The `.out` files and `.err` files will usually be empty. If a job does generate errors or warnings, they will be in the `.err` file. For example:
 
 ```text
 [W::hts_idx_load3] The index file is older than the data file: 23991.haplotypecaller.vcf.gz.tbi
 ```
 
-Next, submit another job to merge the merged files. It may be necessary to construct a modified version of `merge-vcfs.sbatch` that requests additional resources. In this example we will use the same `merge-vcfs.sbatch` script as before.
+Once all the jobs are complete, submit one more job to merge the merged files. It may be necessary to construct a modified version of `merge-vcfs.sbatch` that requests additional resources. In this example we will use the same `merge-vcfs.sbatch` script as before.
 
 ```bash
 sbatch -o final.merged.out -e final.merged.err merge-vcfs.sbatch final *.merged.vcf.gz
 ```
+
+The final merged file will be named `final.merged.vcf.gz`.
 
 ## sed
 
