@@ -228,6 +228,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Combine FASTA files into a single file replacing each FASTA record name with the name of the input file](#combine-fasta-files-into-a-single-file-replacing-each-fasta-record-name-with-the-name-of-the-input-file)
   - [Obtain the flanking sequence of a site of interest from a FASTA file](#obtain-the-flanking-sequence-of-a-site-of-interest-from-a-fasta-file)
   - [Merge compressed fastq files](#merge-compressed-fastq-files)
+  - [Calculate coverage statistics for a BAM file](#calculate-coverage-statistics-for-a-bam-file)
 - [parallel](#parallel)
   - [Extract files in parallel](#extract-files-in-parallel)
   - [Compress files in parallel](#compress-files-in-parallel)
