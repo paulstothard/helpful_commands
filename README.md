@@ -190,8 +190,6 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [List environments with mamba](#list-environments-with-mamba)
   - [List packages installed in the active environment with mamba](#list-packages-installed-in-the-active-environment-with-mamba)
   - [Remove an environment with mamba](#remove-an-environment-with-mamba)
-  - [Export an environment to a yaml file with mamba](#export-an-environment-to-a-yaml-file-with-mamba)
-  - [Create an environment from a yaml file with mamba](#create-an-environment-from-a-yaml-file-with-mamba)
 - [md5sum](#md5sum)
   - [Generate a file of checksums](#generate-a-file-of-checksums)
   - [Validate checksums](#validate-checksums)
