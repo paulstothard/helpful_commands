@@ -873,7 +873,7 @@ conda deactivate
 conda env remove --name my-env
 ```
 
-### Export environment to yaml file
+### Export an environment to a yaml file
 
 Use the `export` command while the environment is active:
 
@@ -881,7 +881,7 @@ Use the `export` command while the environment is active:
 conda env export > env-environment.yaml
 ```
 
-### Create conda environment from yaml file
+### Create a conda environment from a yaml file
 
 ```bash
 conda env create --file env-environment.yaml
@@ -2467,6 +2467,20 @@ In this example the environment to remove is called `my-env`:
 ```bash
 conda deactivate
 mamba env remove --name my-env
+```
+
+### Export an environment to a yaml file with mamba
+
+Use the `export` command while the environment is active:
+
+```bash
+mamba env export > env-environment.yaml
+```
+
+### Create an environment from a yaml file with mamba
+
+```bash
+mamba env create --file env-environment.yaml
 ```
 
 ## md5sum
