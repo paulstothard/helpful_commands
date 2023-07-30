@@ -1428,10 +1428,10 @@ See [bio](https://github.com/ialbert/bio) and the [example commands](https://git
 Some example commands taken from the [bio documentation](https://github.com/ialbert/bio/blob/master/README.md):
   
 ```bash
-# Fetch genbank data
+# Fetch GenBank data
 bio fetch NC_045512 MN996532 > genomes.gb
 
-# Convert the first then bases of the genomes to FASTA.
+# Convert the first ten bases of the genomes to FASTA.
 bio fasta genomes.gb --end 10
 
 # Align the coding sequences for the S protein
