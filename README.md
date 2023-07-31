@@ -1456,6 +1456,10 @@ bio define exon
 bio define food vacuole
 ```
 
+### Convert between audiovisual file formats
+
+See [ffmprovisr](https://amiaopensource.github.io/ffmprovisr/) for commands to modify and covert audiovisual files.
+
 ## File downloads
 
 ### Download an entire website
