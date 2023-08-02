@@ -1885,7 +1885,7 @@ The following removes files with a `bam` extension:
 find . -type f -name '*.bam' -exec rm {} \;
 ```
 
-### Process multiple files and redirect output to one file
+### Redirect output to one file
 
 Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
 
@@ -1905,7 +1905,7 @@ Or:
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -l {} > output.txt
 ```
 
-### Process multiple files and redirect output to separate files
+### Redirect output to separate files
 
 Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files:
 
@@ -1923,6 +1923,14 @@ Or:
 
 ```bash
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
+```
+
+### Run a command on multiple files at once
+
+Use `+` instead of `\;` to run a command on multiple files at once. The following runs `cat` on all `.csv` and `.tab` files in or below the current directory:
+
+```bash
+find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec cat {} +
 ```
 
 ## Git
