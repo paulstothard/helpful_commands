@@ -118,6 +118,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Convert PPTX to PDF](#convert-pptx-to-pdf)
   - [Convert PPTX to PNG](#convert-pptx-to-png)
   - [Convert between sequence file formats](#convert-between-sequence-file-formats)
+  - [Convert between audiovisual file formats](#convert-between-audiovisual-file-formats)
 - [File downloads](#file-downloads)
   - [Download an entire website](#download-an-entire-website)
   - [Download from an FTP server](#download-from-an-ftp-server)
