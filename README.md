@@ -2844,6 +2844,16 @@ echo "2*(42+42)" | bc
 expr 6 + 2 \* 5
 ```
 
+### Performa a calculation using qalc
+
+[qalc](https://github.com/Qalculate/libqalculate) is a calculator with support for units. The following uses qalc to convert 1.5 hours to minutes:
+
+```bash
+qalc "1.5 hours to minutes"
+```
+
+See the [qalc documentation](https://qalculate.github.io/manual/qalc.html) for more examples.
+
 ### Perform a remote BLAST search
 
 The following uses [BLAST+](https://www.ncbi.nlm.nih.gov/books/NBK279690/) to compare a protein sequence query against the `nr` database:
