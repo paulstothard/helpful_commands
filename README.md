@@ -727,14 +727,14 @@ To obtain the sample name:
 ```bash
 file=NS.2035.002.IDT_i7_9---IDT_i5_9.2032929-45-1_R1.fastq.gz
 
-#remove from the start up to and including the first i5_
+# remove from the start up to and including the first i5_
 without_upstream=${file#*i5_}
 
-#remove from the end up to and including the first _
+# remove from the end up to and including the first _
 without_upstream_and_downstream=${without_upstream%_*}
 
-#check the result
-#9.2032929-45-1
+# check the result
+# 9.2032929-45-1
 echo $without_upstream_and_downstream
 ```
 
@@ -1430,31 +1430,31 @@ See [bio](https://github.com/ialbert/bio) and the [example commands](https://git
 Some example commands taken from the [bio documentation](https://github.com/ialbert/bio/blob/master/README.md):
   
 ```bash
-# Fetch GenBank data
+# fetch GenBank data
 bio fetch NC_045512 MN996532 > genomes.gb
 
-# Convert the first ten bases of the genomes to FASTA.
+# convert the first ten bases of the genomes to FASTA.
 bio fasta genomes.gb --end 10
 
-# Align the coding sequences for the S protein
+# align the coding sequences for the S protein
 bio fasta genomes.gb --gene S --protein | bio align | head
 
-# Print the GFF record that corresponds to the coding sequence for gene S
+# print the GFF record that corresponds to the coding sequence for gene S
 bio gff genomes.gb --gene S 
 
-# Show the descendants of taxid 117565
+# show the descendants of taxid 117565
 bio taxon 117565 | head
 
-# Show the lineage of a taxonomic rank.
+# show the lineage of a taxonomic rank.
 bio taxon 117565 --lineage | head
 
-# Get metadata on a viral sample
+# get metadata on a viral sample
 bio meta 11138 -H | head
 
-# Define a sequence ontology terms
+# define a sequence ontology terms
 bio define exon
 
-# Define a gene ontology terms
+# define a gene ontology terms
 bio define food vacuole
 ```
 
@@ -1709,16 +1709,16 @@ find . -name "*.maf" -type f | while IFS= read -r file; do
   fnx=$(basename -- "$file")
   fn="${fnx%.*}"
 
-  #$file: dir/filename.extension
-  #$dir: dir
-  #$fnx: filename.extension
-  #$fn: filename
+  # $file: dir/filename.extension
+  # $dir: dir
+  # $fnx: filename.extension
+  # $fn: filename
 
   echo "Processing file '$fnx' in directory '$dir'"
   cd "$dir"
 
-  #always print the first two lines
-  #print lines where value in column 101 is PASS
+  # always print the first two lines
+  # print lines where value in column 101 is PASS
   awk -F $'\t' 'NR < 3; NR > 2 {if ($101 == "PASS") print $0}' "$fnx" > "${fn}.new"
   mv "$fnx" "${fnx}.bak"
   mv "${fn}.new" "$fnx"
@@ -1793,22 +1793,22 @@ find . \( -name "*_R1_*" -name "*.fastq.gz" \) -type f \
   fnx=$(basename -- "$file")
   fn="${fnx%%.*}"
   
-  #Construct name of other file
+  # Construct name of other file
   file2="${file/_R1_/_R2_}"
   fnx2=$(basename -- "$file2")
   fn2="${fnx2%%.*}"
   
-  #$file: ./6613_S82_L001_R1_001.fastq.gz
-  #$fnx: 6613_S82_L001_R1_001.fastq.gz
-  #$fn: 6613_S82_L001_R1_001
+  # $file: ./6613_S82_L001_R1_001.fastq.gz
+  # $fnx: 6613_S82_L001_R1_001.fastq.gz
+  # $fn: 6613_S82_L001_R1_001
   
-  #$file2: ./6613_S82_L001_R2_001.fastq.gz
-  #$fnx2: 6613_S82_L001_R2_001.fastq.gz
-  #$fn2: 6613_S82_L001_R2_001
+  # $file2: ./6613_S82_L001_R2_001.fastq.gz
+  # $fnx2: 6613_S82_L001_R2_001.fastq.gz
+  # $fn2: 6613_S82_L001_R2_001
   
   echo "Processing file '$fnx' and '$fnx2'"
   
-  #place commands here that work on file pairs
+  # place commands here that work on file pairs
   lines_R1=$(zcat "$file" | wc -l)
   lines_R2=$(zcat "$file2" | wc -l)
   
@@ -2991,15 +2991,15 @@ rm -f merged_2.fastq.gz
 find . \( -name "*_1.*" -name "*.fastq.gz" \) -type f \
 | while IFS= read -r file1; do
 
-  #Forward and reverse filename examples:
-  #S00EC-0001_S30_1.fastq.gz
-  #S00EC-0001_S30_2.fastq.gz
-  #Construct name of other file
+  # forward and reverse filename examples:
+  # S00EC-0001_S30_1.fastq.gz
+  # S00EC-0001_S30_2.fastq.gz
+  # construct name of other file
   file2="${file1/_1./_2.}"
   
   echo "Processing file '$file1' and '$file2'"
   
-  #Check that number of lines match
+  # check that number of lines match
   lines_R1=$(zcat "$file1" | wc -l)
   lines_R2=$(zcat "$file2" | wc -l)
   
@@ -3335,14 +3335,14 @@ library(UpSetR)
 setwd('/path/to/gene_lists')
 filenames <- list.files(pattern = "*.txt", full.names = FALSE)
 
-#create list of character vectors, each named after the source filename
-#assumes each file has single header line (skip = 1)
+# create list of character vectors, each named after the source filename
+# assumes each file has single header line (skip = 1)
 gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
 
-#remove underscores from vector names
+# remove underscores from vector names
 names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
 
-#remove file extension from vector names
+# remove file extension from vector names
 names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
 
 upset(fromList(gl), nsets = length(gl), order.by = "freq")
@@ -3370,14 +3370,14 @@ library(RVenn)
 setwd('/path/to/gene_lists')
 filenames <- list.files(pattern = "*.txt", full.names = FALSE)
 
-#create list of character vectors, each named after the source filename
-#assumes each file has single header line (skip = 1)
+# create list of character vectors, each named after the source filename
+# assumes each file has single header line (skip = 1)
 gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
 
-#remove underscores from vector names
+# remove underscores from vector names
 names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
 
-#remove file extension from vector names
+# remove file extension from vector names
 names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
 
 venn = Venn(gl)
@@ -3413,7 +3413,7 @@ library(dplyr)
 library(tidyr)
 library(janitor)
 
-#prepare sample data frame
+# prepare sample data frame
 snp <- c('ABCA12', 'APAF1', 'ARS-BFGL-BAC-10172', 'ARS-BFGL-BAC-1020')
 sample1 <- c('AA', 'CC', 'GG', 'AA')
 sample2 <- c('AA', 'CC', 'AG', 'GG')
@@ -3472,7 +3472,7 @@ Use this:
 library(dplyr)
 library(tidyr)
 
-#prepare sample data frame
+# prepare sample data frame
 sample <- c('sample1', 'sample2')
 ABCA12 <- c('AA', 'AA')
 APAF1 <- c('CC', 'CC')
@@ -3480,7 +3480,7 @@ APAF1 <- c('CC', 'CC')
 `ARS-BFGL-BAC-1020` <- c('AA', 'GG')
 genotypes <- tibble(sample, ABCA12, APAF1, `ARS-BFGL-BAC-10172`, `ARS-BFGL-BAC-1020`)
 
-#[-1] prevents first column from being split
+# [-1] prevents first column from being split
 for(column_name in names(genotypes)[-1]){
   genotypes %>%
     separate(column_name, c(paste(column_name, "1", sep = "_"), paste(column_name, "2", sep = "_")), sep = 1) ->
@@ -3516,18 +3516,18 @@ Use this:
 library(dplyr)
 library(tidyr)
 
-#prepare sample data frame
+# prepare sample data frame
 sample <- c('HOCANF12689774', 'HOCANF12689787', 'HOCANF12689790')
 alleles <- c('1000112112', '2011112012', '1011002122')
 genotypes <- data.frame(sample, alleles)
 
-#vector of snp names
+# vector of snp names
 snps <- c('Hapmap43437-BTA-101873', 'ARS-BFGL-NGS-16466', 'Hapmap34944-BES1_Contig627_1906', 'ARS-BFGL-NGS-98142', 'Hapmap53946-rs29015852', 'ARS-BFGL-NGS-114208', 'ARS-BFGL-NGS-66449', 'ARS-BFGL-BAC-32770', 'ARS-BFGL-NGS-65067', 'ARS-BFGL-BAC-32722')
 
-#create a new column for each digit in alleles
+# create a new column for each digit in alleles
 genotypes_one_column_per_snp <- separate(genotypes, col = alleles, sep = "(?<=\\d)", into = snps)
 
-#convert each digit to textual representation
+# convert each digit to textual representation
 genotypes_one_column_per_snp_decoded = reshape2::dcast(
   dplyr::mutate(
     reshape2::melt(genotypes_one_column_per_snp, id.var = "sample"),
@@ -3551,12 +3551,12 @@ tb <- tribble(
   "1",  12,   ".",      "AA",     "ALT","REF",
 )
 
-#get names of sample columns
+# get names of sample columns
 names(tb) %>%
   str_subset(pattern = "^sample") ->
   columns_to_decode
 
-#convert genotypes to values from A and B columns
+# convert genotypes to values from A and B columns
 tb %>%
   mutate_at(
     vars(one_of(columns_to_decode)),
@@ -3592,12 +3592,12 @@ tb <- tribble(
   "1",  12,   ".",      "AA",     "ALT","REF",
 )
 
-#get names of sample columns
+# get names of sample columns
 names(tb) %>%
   str_subset(pattern = "^sample") ->
   columns_to_decode
 
-#function to convert genotypes to values from A and B columns
+# function to convert genotypes to values from A and B columns
 convert_genotypes <- function (df, col) {
   df[[col]] <-
     ifelse((df[[col]] == "AA") & (df[["A"]] == "REF"), "0/0",
@@ -3635,12 +3635,12 @@ tb <- tribble(
   "1",  12,   ".",        "G",        "T",        "G",
 )
 
-#get names of sample columns
+# get names of sample columns
 names(tb) %>%
   str_subset(pattern = "^sample") ->
   columns_to_decode
 
-#function to convert genotypes to values from A and B columns
+# function to convert genotypes to values from A and B columns
 convert <- function(df, col, format) {
 
   A <- paste(format, "A", sep = "_")
@@ -3676,10 +3676,11 @@ print(tb)
 ```r
 library(dplyr)
 
-#vcf is a tibble
-#add comment character to start of first column name
+# vcf is a tibble
+# add comment character to start of first column name
 vcf <- rename(vcf, `#CHROM` = CHROM)
-#write out comment line and then column names
+
+# write out comment line and then column names
 writeLines(c("##fileformat=VCFv4.2", paste(names(vcf), collapse = "\t")), con = "genotypes.vcf")
 write.table(vcf, file = "genotypes.vcf", row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t", append=TRUE)
 ```
@@ -3689,19 +3690,18 @@ write.table(vcf, file = "genotypes.vcf", row.names = FALSE, col.names = FALSE, q
 ```r
 library(tidyverse)
 
-#vcf is tibble
-
-#remove rows where POS is NA
+# vcf is tibble
+# remove rows where POS is NA
 vcf %>% drop_na(POS) ->
   vcf
 
-#keep rows with single base in REF and ALT
+# keep rows with single base in REF and ALT
 vcf %>%
   filter(str_detect(REF, "^[GATCN]$")) %>%
   filter(str_detect(ALT, "^[GATCN]$")) ->
   vcf
 
-#sort by chromosome then position
+# sort by chromosome then position
 vcf %>%
   arrange(CHROM, POS) ->
   vcf
@@ -3713,8 +3713,8 @@ vcf %>%
 library(purrr)
 library(tibble)
 
-#vcf and genotypes are tibbles
-#add columns from genotypes to vcf
+# vcf and genotypes are tibbles
+# add columns from genotypes to vcf
 for (column in names(genotypes)) {
   vcf %>%
     add_column(!!(column) := genotypes[[column]]) ->
@@ -3743,62 +3743,62 @@ library(tidyverse)
 library(janitor)
 library(xlsx)
 
-#Directory containing the files
+# directory containing the files
 input_dir <- "data/input/"
-#Pattern to use when identifying input files
+# pattern to use when identifying input files
 file_pattern <- "*.preliminary"
 
-#Create tibble of input files (full path and file name in separate columns)
+# create tibble of input files (full path and file name in separate columns)
 input_files <-
   tibble(
     full_path = list.files(input_dir, pattern = file_pattern, full.names = TRUE),
     file_name = list.files(input_dir, pattern = file_pattern, full.names = FALSE)
   )
 
-#Function to add source info to each row
+# function to add source info to each row
 read_tsv_and_add_source <- function(file_name, full_path) {
   read_tsv(full_path) %>%
     clean_names %>%
     mutate(file_name = file_name) %>%
     mutate(full_path = full_path) %>%
-    #convert '180_S1_R1_001.fusion_candidates.preliminary' to '180_S1_R1_001'
+    # convert '180_S1_R1_001.fusion_candidates.preliminary' to '180_S1_R1_001'
     mutate(sample = str_split(file_name, ".fusion", simplify = TRUE)[[1]])
 }
 
-#Read all files into a single tibble
+# read all files into a single tibble
 input_files %>%
   rowwise() %>%
   do(., read_tsv_and_add_source(.$file_name, .$full_path)) ->
   combined_data_with_source
 
-#Group data by fusion_name and sample and for each group calculate the sum of
-#junction_read_count
+# group data by fusion_name and sample and for each group calculate the sum of
+# junction_read_count
 combined_data_with_source %>%
   group_by(fusion_name, sample) %>%
   summarise(fusion_count = sum(junction_read_count), .groups = NULL) ->
   counts_per_fusion
 
-#Filter by fusion_name, keeping rows where fusion_name consists of two MT
-#genes, for example Mt-co1--Mt-nd2
+# filter by fusion_name, keeping rows where fusion_name consists of two MT
+# genes, for example Mt-co1--Mt-nd2
 counts_per_fusion %>%
   filter(str_detect(fusion_name, "^Mt-")) %>%
   filter(str_detect(fusion_name, "--Mt-")) ->
   counts_per_MT_fusion
 
-#Convert the data from long to wide, with values of sample becoming columns
+# convert the data from long to wide, with values of sample becoming columns
 counts_per_MT_fusion %>%
   spread(sample, fusion_count) %>%
   replace(is.na(.), 0) ->
   samples_as_columns
 
-#Convert the data from long to wide, with values of fusion_name becoming
-#columns
+# convert the data from long to wide, with values of fusion_name becoming
+# columns
 counts_per_MT_fusion %>%
   spread(fusion_name, fusion_count) %>%
   replace(is.na(.), 0) ->
   fusions_as_columns
 
-#Write the data to an Excel file
+# write the data to an Excel file
 write.xlsx(
   as.data.frame(samples_as_columns),
   "output.xlsx",
@@ -3981,7 +3981,7 @@ Note that the resource requirements may need to be adjusted depending on the num
 `parallel` can then be used to submit jobs that apply `merge-vcfs.sbatch` to batches of input files. The `--dryrun` option causes `parallel` to print out the commands instead of running them. The `--delay 1` inserts a one second delay between printing or running jobs:
 
 ```bash
-# You will likely want to increase batch_size to something like 50
+# you will likely want to increase batch_size to something like 50
 batch_size=4
 parallel --dryrun --delay 1 -j 1 \
 -N $batch_size "sbatch -o {#}.merged.out -e {#}.merged.err merge-vcfs.sbatch {#} {} " ::: *.haplotypecaller.vcf.gz
@@ -4463,9 +4463,9 @@ bcftools reheader input.vcf.gz --samples new_sample_names.txt --output output.vc
 ### Assess sex by calculating X-chromosome heterozygosity
 
 ```bash
-#vcftools adds .het extension to output automatically, so output becomes output.vcf.het
+# vcftools adds .het extension to output automatically, so output becomes output.vcf.het
 vcftools --vcf input.vcf --chr X --het --out output.vcf
-#add column to vcftools output reporting percent heterozygous genotypes
+# add column to vcftools output reporting percent heterozygous genotypes
 awk -F$'\t' 'BEGIN{OFS="\t"}; {if(NR==1){print $0,"Percent HET"} else {print $0, ($4 - $2) / $4 * 100}}' output.vcf.het > output.vcf.percent_het
 ```
 
@@ -4815,17 +4815,17 @@ WD="$(pwd)"
 export PERL5LIB="$PERL5LIB:$WD/$VEP_CACHE"
 export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$WD/$VEP_CACHE/htslib"
 
-#create cache directory and output directory
+# create cache directory and output directory
 mkdir -p $OUTDIR
 mkdir -p $VEP_CACHE
 
-#build cache
+# build cache
 vep_install -a cfp -s $SPECIES -y $ASSEMBLY \
 -c $VEP_CACHE \
 -d $VEP_CACHE \
 --PLUGINS all --CONVERT
 
-#run vep
+# run vep
 SPECIES=canis_lupus_familiaris
 vep --cache --format vcf --vcf \
 --dir_cache $VEP_CACHE \
