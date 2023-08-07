@@ -222,6 +222,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Create a collection of MP3 files from a YouTube playlist](#create-a-collection-of-mp3-files-from-a-youtube-playlist)
   - [Perform a calculation using bc](#perform-a-calculation-using-bc)
   - [Perform a calculation using expr](#perform-a-calculation-using-expr)
+  - [Performa a calculation using qalc](#performa-a-calculation-using-qalc)
   - [Perform a remote BLAST search](#perform-a-remote-blast-search)
   - [Count the bases in a fastq file](#count-the-bases-in-a-fastq-file)
   - [Count the reads in a fastq file](#count-the-reads-in-a-fastq-file)
