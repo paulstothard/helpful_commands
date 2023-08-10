@@ -4792,6 +4792,38 @@ cat snps.vcf | java -jar SnpSift.jar filter "$FILTER" > snps_with_no_homozygous_
 set -H
 ```
 
+### Keep sites that are homozygous reference in all samples
+
+Use [bcftools view](https://samtools.github.io/bcftools/bcftools.html#view) to filter sites based on an [expression](https://samtools.github.io/bcftools/bcftools.html#expressions). Sites for which the expression is true can be kept using the `-i` option or excluded using the `-e` option.
+
+In the following example, sites are kept (`-i`) if all `10` samples are homozygous for the reference allele:
+
+```bash
+bcftools view -i 'COUNT(GT="RR")=10' variants.vcf.gz
+```
+
+In the following example, sites are removed (`-e`) if any sample contains an alternate allele:
+
+```bash
+bcftools view -e 'GT[*]="alt"' variants.vcf.gz
+```
+
+### Remove sites that are homozygous reference in all samples
+
+Use [bcftools view](https://samtools.github.io/bcftools/bcftools.html#view) to filter sites based on an [expression](https://samtools.github.io/bcftools/bcftools.html#expressions). Sites for which the expression is true can be kept using the `-i` option or excluded using the `-e` option.
+
+In the following example, sites are removed (`-e`) if all `10` samples are homozygous for the reference allele:
+
+```bash
+bcftools view -e 'COUNT(GT="RR")=10' variants.vcf.gz
+```
+
+In the following example, sites are kept (`-i`) if any sample contains an alternate allele:
+
+```bash
+bcftools view -i 'GT[*]="alt"' variants.vcf.gz
+```
+
 ### Add predicted consequences
 
 Use [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/) to predict variant effects.
