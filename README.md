@@ -336,6 +336,8 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Merge files from non-overlapping sample sets](#merge-files-from-non-overlapping-sample-sets)
   - [Check relatedness between samples](#check-relatedness-between-samples)
   - [Filter sites based on genotypes and other criteria](#filter-sites-based-on-genotypes-and-other-criteria)
+  - [Keep sites that are homozygous reference in all samples](#keep-sites-that-are-homozygous-reference-in-all-samples)
+  - [Remove sites that are homozygous reference in all samples](#remove-sites-that-are-homozygous-reference-in-all-samples)
   - [Add predicted consequences](#add-predicted-consequences)
   - [Add variant IDs](#add-variant-ids)
   - [Add all INFO tags](#add-all-info-tags)
