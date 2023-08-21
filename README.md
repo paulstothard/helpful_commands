@@ -1812,8 +1812,8 @@ find . \( -name "*_R1_*" -name "*.fastq.gz" \) -type f \
   echo "Processing file '$fnx' and '$fnx2'"
   
   # place commands here that work on file pairs
-  lines_R1=$(zcat "$file" | wc -l)
-  lines_R2=$(zcat "$file2" | wc -l)
+  lines_R1=$(zcat < "$file" | wc -l)
+  lines_R2=$(zcat < "$file2" | wc -l)
   
   if [ "$lines_R1" == "$lines_R2" ] ; then
     echo "Both files contain $lines_R1 lines"
@@ -2870,7 +2870,7 @@ blastp -query "$in" -remote -db nr -out "$out" -outfmt '7 qseqid stitle sstart s
 ### Count the bases in a fastq file
 
 ```bash
-zcat SRR13388732_1.fastq.gz | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
+zcat < SRR13388732_1.fastq.gz | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
 ```
 
 Or:
@@ -2889,7 +2889,7 @@ echo $READS
 
 ```bash
 file=SRR13388732_1.fastq.gz
-READS=$(expr $(zcat $file | wc -l) / 4)
+READS=$(expr $(zcat < $file | wc -l) / 4)
 echo $READS
 ```
 
@@ -3013,8 +3013,8 @@ find . \( -name "*_1.*" -name "*.fastq.gz" \) -type f \
   echo "Processing file '$file1' and '$file2'"
   
   # check that number of lines match
-  lines_R1=$(zcat "$file1" | wc -l)
-  lines_R2=$(zcat "$file2" | wc -l)
+  lines_R1=$(zcat < "$file1" | wc -l)
+  lines_R2=$(zcat < "$file2" | wc -l)
   
   if [ "$lines_R1" == "$lines_R2" ] ; then
     echo "Both files contain $lines_R1 lines, proceeding with merge"
@@ -3044,7 +3044,7 @@ mosdepth 20079 20079.markdup.sorted.bam
 In the following command `{.}` is used to get the basename and remove the last extension of each input file:
 
 ```bash
-parallel 'zcat {} > {.}.unpacked' ::: *.gz
+parallel 'zcat < {} > {.}.unpacked' ::: *.gz
 ```
 
 Or:
