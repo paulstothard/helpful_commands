@@ -5299,3 +5299,41 @@ vimdiff file1 file2
 ### Type tab characters
 
 In insert mode type `Ctrl`-`v` then `tab`.
+
+### Paste text without auto-indenting
+
+First, turn on paste mode so that auto-indenting is turned off:
+
+```text
+:set paste
+```
+
+Now paste the text.
+
+Then turn off paste mode:
+
+```text
+:set nopaste
+```
+
+To allow quick toggling of paste mode using F2, add the following to `.vimrc`:
+
+```text
+set pastetoggle=<F2>
+```
+
+Now you can avoid auto-indenting of pasted text as follows: press F2, paste the text, press F2 again.
+
+### Check the value of a setting
+
+To check the value of a setting, in this example the `paste` setting, use:
+
+```text
+:set paste?
+```
+
+Or:
+
+```text
+echo &paste
+```
