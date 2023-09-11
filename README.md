@@ -372,6 +372,8 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Remove trailing whitespace](#remove-trailing-whitespace)
   - [View ^M characters](#view-m-characters)
   - [Type tab characters](#type-tab-characters)
+  - [Paste text without auto-indenting](#paste-text-without-auto-indenting)
+  - [Check the value of a setting](#check-the-value-of-a-setting)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
