@@ -1276,8 +1276,10 @@ vd input.csv -b -o output.html
 The following uses `find` and the `pdftoppm` command from the [poppler](https://poppler.freedesktop.org) package to generate a PNG image of the first page of every PDF file in the working directory:
 
 ```bash
-find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png {} {} \;
+find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png -r 600 {} {} \;
 ```
+
+The `-r 600` option sets the resolution to 600 dpi. The `-f 1` and `-l 1` options specify the first and last pages to convert. The `{}` is used to specify the input and output file names (they are passed twice to `pdftoppm` from `find`). `pdftoppm` automatically appends the page number to the output file name.
 
 ### Convert PNG to PDF
 
