@@ -596,6 +596,12 @@ The sequences are extracted from the file `ARS-UCD1.2_Btau5.0.1Y.fa`:
 awk -F'>' 'NR==FNR{ids[$0]; next} NF>1{f=($2 in ids)} f' ids.txt ARS-UCD1.2_Btau5.0.1Y.fa
 ```
 
+### Reverse the order of lines in a file using awk
+
+```bash
+awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' input.txt
+```
+
 ## Bash
 
 ### View STDOUT and append it to a file
@@ -1282,6 +1288,16 @@ find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png -r 600 {} {} \;
 ```
 
 The `-r 600` option sets the resolution to 600 dpi. The `-f 1` and `-l 1` options specify the first and last pages to convert. The `{}` is used to specify the input and output file names (they are passed twice to `pdftoppm` from `find`). `pdftoppm` automatically appends the page number to the output file name.
+
+### Convert SVG to PNG
+
+The following uses [svgexport](https://github.com/shakiba/svgexport):
+
+```bash
+SVGEXPORT_TIMEOUT=60 svgexport input.svg output.png 4000:
+```
+
+The `SVGEXPORT_TIMEOUT=60` option sets the timeout to 60 seconds. The `4000:` option sets the width to 4000 pixels and the height is automatically calculated to maintain the aspect ratio.
 
 ### Convert PNG to PDF
 
@@ -3039,6 +3055,18 @@ Use [mosdepth](https://github.com/brentp/mosdepth). The following generates a va
 
 ```bash
 mosdepth 20079 20079.markdup.sorted.bam
+```
+
+### Reverse the order of lines in a file
+
+```bash
+tail -r input.txt > output.txt
+```
+
+Or:
+
+```bash
+tac input.txt > output.txt
 ```
 
 ## parallel
