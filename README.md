@@ -286,6 +286,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
 - [sbatch](#sbatch)
   - [Count reads in compressed fastq files](#count-reads-in-compressed-fastq-files)
   - [Merge VCF files in batches](#merge-vcf-files-in-batches)
+  - [Merge VCF files in batches using a job array](#merge-vcf-files-in-batches-using-a-job-array)
 - [sed](#sed)
   - [Add a header line to a file with sed](#add-a-header-line-to-a-file-with-sed)
   - [Edit the header line with sed](#edit-the-header-line-with-sed)
