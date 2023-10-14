@@ -2455,20 +2455,20 @@ In this example an environment called `ngs` is created:
 
 ```bash
 mamba create -y --name ngs
-conda activate ngs
+mamba activate ngs
 mamba install -y -c bioconda -c conda-forge multiqc fastqc trimmomatic bowtie2 subread samtools
 ```
 
 ### Deactivate an environment with mamba
 
 ```bash
-conda deactivate
+mamba deactivate
 ```
 
 ### Activate an environment with mamba
 
 ```bash
-conda activate ngs
+mamba activate ngs
 ```
 
 ### List available packages with mamba
@@ -2486,14 +2486,14 @@ mamba search -c bioconda -c conda-forge blast
 ### Add additional packages to an environment with mamba
 
 ```bash
-conda activate ngs
+mamba activate ngs
 mamba install -y -c bioconda -c conda-forge picard
 ```
 
 ### List environments with mamba
 
 ```bash
-mamba info --envs
+mamba env list
 ```
 
 ### List packages installed in the active environment with mamba
@@ -2507,7 +2507,7 @@ mamba list
 In this example the environment to remove is called `my-env`:
 
 ```bash
-conda deactivate
+mamba deactivate
 mamba env remove --name my-env
 ```
 
@@ -3864,6 +3864,52 @@ write.xlsx(
   row.names = FALSE,
   append = TRUE
 )
+```
+
+### Understanding an object
+
+When working with R, especially in exploratory data analysis or when inheriting someone else's code, you might encounter objects of unknown type or structure. Below are some functions to help you inspect and understand such objects:
+
+```r
+# Assume 'object' is the unknown object you're trying to inspect
+
+# Check the class of the object
+class(object)
+#> "data.frame", "numeric", "factor", etc.
+
+# Check the underlying type or storage mode
+typeof(object)
+#> "double", "integer", "list", "character", etc.
+
+# Get the dimensions (if applicable, e.g., for matrices and data frames)
+dim(object)
+#> e.g., c(100, 5) for a data frame with 100 rows and 5 columns
+
+# Check the length (number of elements or components)
+length(object)
+#> e.g., 100 for a vector of length 100
+
+# View a compact structure of the object
+str(object)
+#> Outputs structure directly to the console
+
+# Inspect all attributes of the object
+attributes(object)
+#> e.g., $names, $class, $row.names, etc.
+
+# Get a statistical summary (if applicable)
+summary(object)
+#> Summary statistics for each column of a data frame, for example
+
+# Preview the first few elements or rows of the object
+head(object)
+#> The first 6 elements for vectors or the first 6 rows for data frames
+
+# Check if the object is of certain types
+is.vector(object)
+is.list(object)
+is.matrix(object)
+#> Returns TRUE or FALSE
 ```
 
 ## rsync
