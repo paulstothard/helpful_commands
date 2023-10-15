@@ -3867,7 +3867,7 @@ write.xlsx(
 )
 ```
 
-### Understanding an object
+### Understand an object
 
 When working with R, especially in exploratory data analysis or when inheriting someone else's code, you might encounter objects of unknown type or structure. Below are some functions to help you inspect and understand such objects:
 
