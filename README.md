@@ -286,6 +286,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Create an image from a container stored in Docker Hub](#create-an-image-from-a-container-stored-in-docker-hub)
 - [sbatch](#sbatch)
   - [Count reads in compressed fastq files](#count-reads-in-compressed-fastq-files)
+  - [Run fastqc on compressed fastq files using a job array](#run-fastqc-on-compressed-fastq-files-using-a-job-array)
   - [Merge VCF files in batches](#merge-vcf-files-in-batches)
   - [Merge VCF files in batches using a job array](#merge-vcf-files-in-batches-using-a-job-array)
 - [sed](#sed)
