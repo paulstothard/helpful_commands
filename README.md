@@ -277,6 +277,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Filter and sort rows](#filter-and-sort-rows)
   - [Add columns from one tibble to another](#add-columns-from-one-tibble-to-another)
   - [Combine multiple input files](#combine-multiple-input-files)
+  - [Understanding an object](#understanding-an-object)
 - [rsync](#rsync)
   - [Sync a directory on local system](#sync-a-directory-on-local-system)
   - [Sync a directory to a remote system](#sync-a-directory-to-a-remote-system)
