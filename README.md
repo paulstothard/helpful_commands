@@ -4237,7 +4237,7 @@ sbatch --array=1 --time=1:00:00 \
 fastqc.sbatch R1.list
 ```
 
-The `--time` option is used to specify the new time limit and overrides the value in the batch script.
+The `--time` option is used to specify the new time limit and overrides the value in the script.
 
 To resubmit jobs 3 and 5:
 
