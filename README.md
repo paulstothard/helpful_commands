@@ -3959,7 +3959,101 @@ singularity exec -B /scratch cgview.sif java -jar /usr/bin/cgview.jar --help
 
 The `-B` is used to provide the container with access to directories.
 
-## sbatch
+## sed
+
+### Add a header line to a file with sed
+
+```bash
+sed $'1s/^/my header text\\\n&/' input
+```
+
+### Edit the header line with sed
+
+In this example `pos,reads_pp` is changed to `pos,reads` in the first line of the file. The `-i` is used to edit the file in place:
+
+```bash
+sed -i '' -e "1,1s/pos,reads_pp/pos,reads/" input.csv
+```
+
+### Print a specific line of a file
+
+In this example line `26404` is printed:
+
+```bash
+sed -n "26404p" input.txt
+```
+
+### Change filenames using a regular expression
+
+In this example `chr30` is replaced with `chrX`:
+
+```bash
+for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
+```
+
+### Search and replace on lines
+
+The `sed` command can be used to find and replace text and supports its own [regular expression syntax](https://www.gnu.org/software/sed/manual/html_node/Regular-Expressions.html).
+
+The following replaces all occurrences of `Red Angus` with `Angus`:
+
+```bash
+sed 's/Red Angus/Angus/g' sequenced_samples.csv
+```
+
+In the above the `g` indicates that all matches on a line should be replaced.
+
+The following restricts the processing to lines 302 to 305:
+
+```bash
+sed '302,305 s/Red Angus/Angus/g' sequenced_samples.csv
+```
+
+The following replaces the first occurrence of `LIM` on each line with `---`:
+
+```bash
+sed 's/LIM/---/1' sequenced_samples.csv
+```
+
+The following adds underscores around the first three characters of each line:
+
+```bash
+sed 's/^\([a-zA-Z0-9]\{3\}\)/_\1_/g' sequenced_samples.csv
+```
+
+The above uses `\(` and `\)` to "remember" matching characters and then uses `\1` to use the stored matching text in the replacement portion. Thus the replacement text becomes `_` followed by the actual matched text, followed by `_`.
+
+The different parts of the search part of the command have the following meanings:
+
+- `^` match the start of a line
+- `[a-zA-Z0-9]\{3\}` match three letters or numbers
+
+### Delete lines
+
+The following deletes the first line:
+
+```bash
+sed '1d' sequenced_samples.csv
+```
+
+The following deletes from line 500 to the end of the file (represented by `$`):
+
+```bash
+sed '500,$d' sequenced_samples.csv
+```
+
+## Share data with project group members
+
+```bash
+cd projects/some_project
+chmod g+x my_dir
+cd my_dir
+mkdir shared_dir
+chmod g+x shared_dir
+chmod +t shared_dir
+```
+
+## Slurm
 
 ### Count reads in compressed fastq files
 
@@ -4353,102 +4447,6 @@ merge-vcfs-job-array.sbatch final_merge_file_list.txt $final_merge_batch_size fi
 ```
 
 The final merged file will be named `0.final.merged.vcf.gz`.
-
-## sed
-
-### Add a header line to a file with sed
-
-```bash
-sed $'1s/^/my header text\\\n&/' input
-```
-
-### Edit the header line with sed
-
-In this example `pos,reads_pp` is changed to `pos,reads` in the first line of the file. The `-i` is used to edit the file in place:
-
-```bash
-sed -i '' -e "1,1s/pos,reads_pp/pos,reads/" input.csv
-```
-
-### Print a specific line of a file
-
-In this example line `26404` is printed:
-
-```bash
-sed -n "26404p" input.txt
-```
-
-### Change filenames using a regular expression
-
-In this example `chr30` is replaced with `chrX`:
-
-```bash
-for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
-```
-
-### Search and replace on lines
-
-The `sed` command can be used to find and replace text and supports its own [regular expression syntax](https://www.gnu.org/software/sed/manual/html_node/Regular-Expressions.html).
-
-The following replaces all occurrences of `Red Angus` with `Angus`:
-
-```bash
-sed 's/Red Angus/Angus/g' sequenced_samples.csv
-```
-
-In the above the `g` indicates that all matches on a line should be replaced.
-
-The following restricts the processing to lines 302 to 305:
-
-```bash
-sed '302,305 s/Red Angus/Angus/g' sequenced_samples.csv
-```
-
-The following replaces the first occurrence of `LIM` on each line with `---`:
-
-```bash
-sed 's/LIM/---/1' sequenced_samples.csv
-```
-
-The following adds underscores around the first three characters of each line:
-
-```bash
-sed 's/^\([a-zA-Z0-9]\{3\}\)/_\1_/g' sequenced_samples.csv
-```
-
-The above uses `\(` and `\)` to "remember" matching characters and then uses `\1` to use the stored matching text in the replacement portion. Thus the replacement text becomes `_` followed by the actual matched text, followed by `_`.
-
-The different parts of the search part of the command have the following meanings:
-
-- `^` match the start of a line
-- `[a-zA-Z0-9]\{3\}` match three letters or numbers
-
-### Delete lines
-
-The following deletes the first line:
-
-```bash
-sed '1d' sequenced_samples.csv
-```
-
-The following deletes from line 500 to the end of the file (represented by `$`):
-
-```bash
-sed '500,$d' sequenced_samples.csv
-```
-
-## Share data with project group members
-
-```bash
-cd projects/some_project
-chmod g+x my_dir
-cd my_dir
-mkdir shared_dir
-chmod g+x shared_dir
-chmod +t shared_dir
-```
-
-## Slurm
 
 ### View statistics related to the efficiency of resource usage of a completed job
 
