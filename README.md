@@ -4447,6 +4447,285 @@ merge-vcfs-job-array.sbatch final_merge_file_list.txt $final_merge_batch_size fi
 
 The final merged file will be named `0.final.merged.vcf.gz`.
 
+### Run a Snakemake workflow
+
+The `module load` command can be included within the `shell` sections of a Snakemake workflow, to load the software needed for the commands that follow.
+
+Sometimes different modules have conflicting software environments, so they are usually loaded only in the `shell` sections where they are required, e.g.:
+
+```python
+shell:
+    """
+    module load emboss
+    # commands here that use emboss
+    """
+```
+
+If there is a module that needs to be loaded for every rule, the `shell.prefix()` command can be added to the top of the Snakefile. Note the semicolon and space before the final double quote in the value passed to `shell.prefix()`:
+
+```python
+shell.prefix("module load python/3.8; ")
+```
+
+Resource requests are specified for each rule where the jobs are submitted to the cluster, using the `resources` parameter. In the following example, the `cores` value specifies the number of cores for a multi-threaded application, `mem_mb` is the amount of memory requested in megabytes, and `runtime` is the [walltime](https://en.wikipedia.org/wiki/Elapsed_real_time) requested, in minutes:
+
+```python
+resources:
+    cores = 1,
+    mem_mb = 100,
+    runtime = 30
+```
+
+Rules that run commands that require few resources to run (e.g. downloading a small file) can be marked as `localrules`, which causes Snakemake to run them directly on the head node instead of submitting them to the job queue for execution on a compute node:
+
+```python
+localrules: gc_content, some_other_rule
+```
+
+Here is a simple Snakemake workflow (saved in a file called `Snakefile`) for calculating the GC content of sequences:
+
+```python
+accessions, = glob_wildcards("fasta_files/{accession}.fa")
+
+rule final:
+    input:
+        "result/gc_table.txt"
+
+rule gc_content:
+    input:
+        "fasta_files/{accession}.fa"
+    output:
+        "gc/{accession}_gc.txt"
+    params:
+        "{accession}"
+    resources:
+        cores = 1,
+        mem_mb = 100,
+        runtime = 30
+    shell:
+        """
+        module load emboss
+        GC=$(infoseq -noheading -auto -only -pgc {input})
+        echo "{params}: $GC" > {output}
+        """
+
+rule collect_gc:
+    input:
+        expand("gc/{accession}_gc.txt", accession=accessions)
+    resources:
+        cores = 1,
+        mem_mb = 100,
+        runtime = 30
+    output:
+        "result/gc_table.txt"
+    shell:
+        "cat {input} > {output}"
+```
+
+Install Snakemake using [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)):
+
+```bash
+module load python
+pip install snakemake --user
+```
+
+To run the workflow, use the `snakemake` command with the `--cluster` parameter (replace `someuser` with your username):
+
+```bash
+sbc="sbatch -N 1 -c {resources.cores}\
+ --mem={resources.mem_mb}\
+ --time={resources.runtime}\
+ --account=def-someuser"
+snakemake --cluster "$sbc" --printshellcmds -j 10
+```
+
+Note that a `--dry-run` option can be added to a `snakemake` command to see what jobs will be run but without actually executing them.
+
+The `--printshellcmds` option used above is useful for troubleshooting as it prints to the screen exactly what is submitted by the `shell` section of a rule. Here is an example of the `rule gc_content` shell commands printed to the screen:
+
+```bash
+module load emboss
+GC=$(infoseq -noheading -only -pgc fasta_files/NC_005831.2.fa)
+echo "NC_005831.2: $GC" > gc/NC_005831.2_gc.txt
+```
+
+Using the `-j` flag to limit the number of currently submitted or running jobs can help prevent reductions in your account's [priority on the cluster](https://docs.alliancecan.ca/wiki/Job_scheduling_policies). This option is especially important when running a workflow that has the potential of submitted hundreds of jobs simultaneously.
+
+Once the jobs are submitted their status can be checked as before (replace `username` with your username):
+
+```bash
+squeue -u username
+```
+
+## Running an nf-core Nextflow workflow
+
+The [nf-core](https://nf-co.re/) project provides a collection of Nextflow workflows for bioinformatics.
+
+In the following example [nf-core/sarek](https://nf-co.re/sarek) pipeline is used to process a test data set available with the pipeline.
+
+See the [DRAC Nextflow documentation](https://docs.alliancecan.ca/wiki/Nextflow) for more information on running Nextflow workflows on Alliance clusters.
+
+First, install nf-core tools (this step is slow but only needs to be done once). Here I am installing the tools in the `scratch` directory:
+
+```bash
+cd ~/scratch
+module purge
+module load python/3.8
+module load postgresql/15.3
+python -m venv nf-core-env
+source nf-core-env/bin/activate
+python -m pip install nf_core==2.6
+```
+
+In the future you can activate the environment using:
+
+```bash
+cd ~/scratch
+source nf-core-env/bin/activate
+```
+
+Set some environment variables:
+
+```bash
+export NFCORE_PL=sarek
+export PL_VERSION=3.2.0
+```
+
+`NFCORE_PL` is the name of the pipeline, and `PL_VERSION` is the version of the pipeline to use. You can find the latest version using the nf-core/sarek [documentation](https://nf-co.re/sarek). You don't necessarily need to use the latest version, particularly if you are using a specific version for a publication. The `export` command allows you to set environment variables that will be available to any commands you run in the current shell session, including jobs submitted to the cluster. If you log out of the cluster you will need to set these variables again.
+
+To view other pipelines available:
+
+```bash
+nf-core list
+```
+
+Of visit the nf-core [website](https://nf-co.re/).
+
+Create a folder to hold the Apptainer/Singularity containers (Apptainer/Singularity is a containerization platform like Docker). We will download the containers for the pipeline into this folder (if you have space you can store these elsewhere):
+
+```bash
+export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity
+mkdir -p $NXF_SINGULARITY_CACHEDIR
+```
+
+Download the pipeline and the containers for the pipeline:
+
+```bash
+cd ~/scratch
+nf-core download --force --singularity-cache-only --container singularity \
+--compress none -r ${PL_VERSION} -p 6 ${NFCORE_PL}
+```
+
+Create a Nextflow configuration file called `nextflow.config` and containing the following, replacing `<my-account>` with your account name:
+
+```bash
+singularity{
+  autoMounts = true
+}
+
+process {
+  executor = 'slurm' 
+  pollInterval = '60 sec'
+  clusterOptions = '--account=<my-account>'
+  submitRateLimit = '60/1min'
+  queueSize = 100 
+  errorStrategy = 'retry'
+  maxRetries = 1
+  errorStrategy = { task.exitStatus in [125,139] ? 'retry' : 'finish' }
+  memory = { check_max( 4.GB * task.attempt, 'memory' ) }
+  cpu = 1  
+  time = '3h' 
+}
+
+profiles {
+  beluga{
+    max_memory='186G'
+    max_cpu=40
+    max_time='168h'
+  }
+  narval{
+    max_memory='249G'
+    max_cpu=64
+    max_time='168h'
+  }
+  cedar{
+    max_memory='124G'
+    max_cpu=32
+    max_time='168h'
+  }
+}
+```
+
+To create this file using `vim` enter `vim nextflow.config` and then in `vim` use `:set paste` to enter paste mode. Next, right-click to paste the above, then enter `:set nopaste` to exit paste mode, and enter `:wq` to save and exit.
+
+Nextflow itself uses too many resources to be run on the login node, so we will run it as a job. Create a batch script called `sarek.sbatch` with the following contents, replacing `<my-email>` with your email address and `<my-account>` with your account name:
+
+```bash
+#!/bin/bash
+#SBATCH --mail-user=<my-email>
+#SBATCH --mail-type=BEGIN
+#SBATCH --mail-type=END
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=REQUEUE
+#SBATCH --mail-type=ALL
+#SBATCH --account=<my-account>
+#SBATCH --job-name=${NFCORE_PL}-${PL_VERSION}
+#SBATCH --output=${NFCORE_PL}-${PL_VERSION}_output_%j.txt
+#SBATCH --error=${NFCORE_PL}-${PL_VERSION}_error_%j.txt
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=16000M
+#SBATCH --time=3:00:00
+
+module load nextflow/22.10.6
+module load apptainer/1.1.6
+
+nextflow run nf-core-${NFCORE_PL}-${PL_VERSION}/workflow/ \
+-c nextflow.config \
+-resume -profile test,singularity,cedar --outdir test
+```
+
+To create in `vim` enter `vim sarek.sbatch` and then in `vim` use `:set paste` to enter paste mode. Right-click to paste the above, enter `:set nopaste` to exit paste mode, and enter `:wq` to save and exit.
+
+The above batch script will run the pipeline using the `cedar` profile, which is suitable for the Cedar cluster. If you are using a different cluster, change the profile as appropriate, or add a new profile to the `nextflow.config` file. The `test,singularity` options are used to run the pipeline using the test data set and the Singularity containers we downloaded earlier.
+
+Submit the batch job:
+
+```bash
+sbatch sarek.sbatch
+```
+
+To view the status of the job:
+
+```bash
+squeue -u <my-username>
+```
+
+Once the job is complete, view the output and error files:
+
+```bash
+more sarek_output_*.txt
+more sarek_error_*.txt
+```
+
+And examine the contents of the `test` folder:
+
+```bash
+ls test
+```
+
+If you log out of the cluster you will need to set the environment variables again before re-running the pipeline:
+
+```bash
+cd ~/scratch
+source nf-core-env/bin/activate
+export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity
+export NFCORE_PL=sarek
+export PL_VERSION=3.2.0
+```
+
+Running an nf-core pipeline on a full data set requires providing more information to the pipeline using command-line parameters. See the [nf-core/sarek documentation](https://nf-co.re/sarek) for more information on how to do this with the sarek pipeline. You will also want to increase the time requested in the `sarek.sbatch` file.
+
 ### View statistics related to the efficiency of resource usage of a completed job
 
 ```bash
