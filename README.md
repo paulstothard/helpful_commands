@@ -4617,7 +4617,6 @@ mkdir -p $NXF_SINGULARITY_CACHEDIR
 Download the pipeline and the containers for the pipeline:
 
 ```bash
-cd ~/scratch
 nf-core download --force --singularity-cache-only --container singularity \
 --compress none -r ${PL_VERSION} -p 6 ${NFCORE_PL}
 ```
@@ -4676,8 +4675,8 @@ Nextflow itself uses too many resources to be run on the login node, so we will 
 #SBATCH --mail-type=ALL
 #SBATCH --account=<my-account>
 #SBATCH --job-name=${NFCORE_PL}-${PL_VERSION}
-#SBATCH --output=${NFCORE_PL}-${PL_VERSION}_output_%j.txt
-#SBATCH --error=${NFCORE_PL}-${PL_VERSION}_error_%j.txt
+#SBATCH --output=${NFCORE_PL}-${PL_VERSION}_%j_output.txt
+#SBATCH --error=${NFCORE_PL}-${PL_VERSION}_%j_error.txt
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16000M
@@ -4707,18 +4706,7 @@ To view the status of the job:
 squeue -u <my-username>
 ```
 
-Once the job is complete, view the output and error files:
-
-```bash
-more sarek_output_*.txt
-more sarek_error_*.txt
-```
-
-And examine the contents of the `test` folder:
-
-```bash
-ls test
-```
+Once the job is complete, examine the `_output.txt` and `_error.txt` files as well as the files in the `test` folder.
 
 If you log out of the cluster you will need to set the environment variables again before re-running the pipeline:
 
