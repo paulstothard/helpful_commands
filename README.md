@@ -4557,7 +4557,7 @@ Once the jobs are submitted their status can be checked as before (replace `user
 squeue -u username
 ```
 
-## Running an nf-core Nextflow workflow
+### Run an nf-core Nextflow workflow
 
 The [nf-core](https://nf-co.re/) project provides a collection of Nextflow workflows for bioinformatics.
 
@@ -4591,7 +4591,11 @@ export NFCORE_PL=sarek
 export PL_VERSION=3.2.0
 ```
 
-`NFCORE_PL` is the name of the pipeline, and `PL_VERSION` is the version of the pipeline to use. You can find the latest version using the nf-core/sarek [documentation](https://nf-co.re/sarek). You don't necessarily need to use the latest version, particularly if you are using a specific version for a publication. The `export` command allows you to set environment variables that will be available to any commands you run in the current shell session, including jobs submitted to the cluster. If you log out of the cluster you will need to set these variables again.
+`NFCORE_PL` is the name of the pipeline, and `PL_VERSION` is the version of the pipeline to use. You can find the latest version using the [nf-core/sarek documentation](https://nf-co.re/sarek).
+
+You don't necessarily need to use the latest version, particularly if you are using a specific version for a publication. The `export` command allows you to set environment variables that will be available to any commands you run in the current shell session, including jobs submitted to the cluster.
+
+If you log out of the cluster you will need to set these variables again.
 
 To view other pipelines available:
 
@@ -4599,7 +4603,7 @@ To view other pipelines available:
 nf-core list
 ```
 
-Of visit the nf-core [website](https://nf-co.re/).
+Of visit the [nf-core website](https://nf-co.re/).
 
 Create a folder to hold the Apptainer/Singularity containers (Apptainer/Singularity is a containerization platform like Docker). We will download the containers for the pipeline into this folder (if you have space you can store these elsewhere):
 
