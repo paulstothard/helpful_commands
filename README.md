@@ -298,7 +298,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Merge VCF files in batches](#merge-vcf-files-in-batches)
   - [Merge VCF files in batches using a job array](#merge-vcf-files-in-batches-using-a-job-array)
   - [Run a Snakemake workflow](#run-a-snakemake-workflow)
-- [Running an nf-core Nextflow workflow](#running-an-nf-core-nextflow-workflow)
+  - [Run an nf-core Nextflow workflow](#run-an-nf-core-nextflow-workflow)
   - [View statistics related to the efficiency of resource usage of a completed job](#view-statistics-related-to-the-efficiency-of-resource-usage-of-a-completed-job)
   - [View jobs](#view-jobs)
   - [View running jobs](#view-running-jobs)
