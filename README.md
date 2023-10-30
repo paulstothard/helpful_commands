@@ -1220,7 +1220,7 @@ docker container rm $(docker ps -a -q)
 docker system prune --all
 ```
 
-## FASTA files
+## FASTA and FASTQ files
 
 ### Split a multi-FASTA file into separate files named according to the sequence title
 
@@ -1370,6 +1370,366 @@ Check the output:
 
 ```bash
 grep ">" reference.reordered.fa
+```
+
+### Download FASTQ files based on a list of SRA accessions using the SRA Toolkit
+
+The following uses the [SRA Toolkit](https://github.com/ncbi/sra-tools).
+
+Paired-end data:
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fastq-dump -I --split-files --gzip {}
+```
+
+Single-end data:
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fastq-dump --gzip {}
+```
+
+For better performance use `fasterq-dump` (the following works for single-end and paired-end data):
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
+gzip *.fastq
+```
+
+Note that `fasterq-dump` will generate large cache files in `~/ncbi/public/sra`. If this directory does not have sufficient storage create a symbolic link to another directory that does, for example `/scratch`:
+
+```bash
+mv ~/ncbi/public/sra /scratch/
+ln -s /scratch/sra ~/ncbi/public/sra
+```
+
+[SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions and returns a selectable list of ENA download URLs and sequencing run metadata.
+
+### Download FASTQ files based on a list of SRA accessions using Kingfisher
+
+The following example uses [Kingfisher](https://github.com/wwood/kingfisher-download), which can download data from the ENA, NCBI, AWS, and GCP.
+
+The accessions are in a file named `SRR_Acc_List.txt` and are passed to Kingfisher using `parallel`. The `--resume` and `--joblog` options allows the command to be re-run without repeating previously completed jobs.
+
+```bash
+cat SRR_Acc_List.txt | parallel --resume --joblog log.txt --verbose --progress -j 1 'kingfisher get -r {} -m ena-ascp aws-http prefetch'
+```
+
+### Process FASTQ files in pairs
+
+High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
+
+```text
+6613_S82_L001_R1_001.fastq.gz
+6613_S82_L001_R2_001.fastq.gz
+70532_S37_L001_R1_001.fastq.gz
+70532_S37_L001_R2_001.fastq.gz
+k2712_S5_L001_R1_001.fastq.gz
+k2712_S5_L001_R2_001.fastq.gz
+```
+
+To analyze data from multiple samples, the following `while` loop code can be used. It iterates through the `R1` files and from each filename constructs the matching `R2` filename. Two useful variables called `fnx` and `fn` are also created for each file, storing the filename without the path to the file, and the filename without the path and without the file extension, respectively:
+
+```bash
+find . \( -name "*_R1_*" -name "*.fastq.gz" \) -type f \
+| while IFS= read -r file; do
+  fnx=$(basename -- "$file")
+  fn="${fnx%%.*}"
+  
+  # Construct name of other file
+  file2="${file/_R1_/_R2_}"
+  fnx2=$(basename -- "$file2")
+  fn2="${fnx2%%.*}"
+  
+  # $file: ./6613_S82_L001_R1_001.fastq.gz
+  # $fnx: 6613_S82_L001_R1_001.fastq.gz
+  # $fn: 6613_S82_L001_R1_001
+  
+  # $file2: ./6613_S82_L001_R2_001.fastq.gz
+  # $fnx2: 6613_S82_L001_R2_001.fastq.gz
+  # $fn2: 6613_S82_L001_R2_001
+  
+  echo "Processing file '$fnx' and '$fnx2'"
+  
+  # place commands here that work on file pairs
+  lines_R1=$(zcat < "$file" | wc -l)
+  lines_R2=$(zcat < "$file2" | wc -l)
+  
+  if [ "$lines_R1" == "$lines_R2" ] ; then
+    echo "Both files contain $lines_R1 lines"
+  else
+    echo "WARNING:"
+    echo "$fnx contains $lines_R1 lines"
+    echo "$fnx2 contains $lines_R2 lines"
+  fi
+done
+```
+
+Another option is to use [parallel](#parallel).
+
+### Count the bases in a FASTQ file
+
+```bash
+zcat < SRR13388732_1.fastq.gz | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
+```
+
+Or:
+
+```bash
+cat SRR13388732_1.fastq | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
+```
+
+### Count the reads in a FASTQ file
+
+```bash
+file=SRR13388732_1.fastq
+READS=$(expr $(cat $file | wc -l) / 4)
+echo $READS
+```
+
+```bash
+file=SRR13388732_1.fastq.gz
+READS=$(expr $(zcat < $file | wc -l) / 4)
+echo $READS
+```
+
+### Merge compressed FASTQ files
+
+In the following example the `sequences` folder contains paired-end data, in files like `S00EC-0001_S30_1.fastq.gz` and `S00EC-0001_S30_2.fastq.gz`. The goal is to merge all the forward reads into one file and all the reverse reads into another file.
+
+```bash
+cd sequences
+rm -f merged_1.fastq.gz
+rm -f merged_2.fastq.gz
+
+find . \( -name "*_1.*" -name "*.fastq.gz" \) -type f \
+| while IFS= read -r file1; do
+
+  # forward and reverse filename examples:
+  # S00EC-0001_S30_1.fastq.gz
+  # S00EC-0001_S30_2.fastq.gz
+  # construct name of other file
+  file2="${file1/_1./_2.}"
+  
+  echo "Processing file '$file1' and '$file2'"
+  
+  # check that number of lines match
+  lines_R1=$(zcat < "$file1" | wc -l)
+  lines_R2=$(zcat < "$file2" | wc -l)
+  
+  if [ "$lines_R1" == "$lines_R2" ] ; then
+    echo "Both files contain $lines_R1 lines, proceeding with merge"
+    cat $file1 >> merged_1.fastq.gz
+    cat $file2 >> merged_2.fastq.gz
+  else
+    echo "WARNING:"
+    echo "$file1 contains $lines_R1 lines"
+    echo "$file2 contains $lines_R2 lines"
+    exit 1
+  fi
+done
+```
+
+### Process FASTQ files in pairs using parallel
+
+In the following example paired-end reads with names like `sampleA_1.fastq.gz` and `sampleA_2.fastq.gz` in a directory called `data` are mapped to a reference called `ref` using `bowtie2`:
+
+```bash
+parallel -j2 "bowtie2 --threads 4 -x ref -k1 -q -1 {1} -2 {2} -S {1/.}.sam >& {1/.}.log" ::: data/*_1.fastq.gz :::+ data/*_2.fastq.gz
+```
+
+The `{1/.}` removes the path and the extension from the first filename, leaving the sample name.
+
+### Count reads in compressed FASTQ files using Slurm and parallel
+
+In this example the number of reads in several `.fastq.gz` files is determined by submitting jobs to Slurm using `sbatch`. The advantage of this approach is that the counts for each file are generated in parallel, so that results can be obtained more quickly.
+
+The naming scheme of the `.fastq.gz` files is as follows (the sample name is in the file name, for example `ctrl1`):
+
+```text
+ctrl1_R1.fastq.gz  ctrl2_R2.fastq.gz  trtA1_R1.fastq.gz  trtA2_R2.fastq.gz
+ctrl1_R2.fastq.gz  ctrl3_R1.fastq.gz  trtA1_R2.fastq.gz  trtA3_R1.fastq.gz
+ctrl2_R1.fastq.gz  ctrl3_R2.fastq.gz  trtA2_R1.fastq.gz  trtA3_R2.fastq.gz
+```
+
+First create an `sbatch` script called `count-reads.sbatch` (replace `someuser` on the second line with your username):
+
+```bash
+#!/bin/bash
+#SBATCH --account=def-someuser
+#SBATCH --time=0:30:0
+#SBATCH --ntasks=1
+#SBATCH --mem=1000M
+
+READS=$(expr $(zcat $1 | wc -l) / 4)
+echo "$1 $READS"
+```
+
+The above uses `zcat` to output the file contents to `wc` which counts the lines. `expr` then takes the count from `wc` and divides by `4` to give the number of sequence reads.
+
+`parallel` can then be used to apply `count-reads.sbatch` to each `.fastq.gz` file. The `--dryrun` option causes `parallel` to print out the commands instead of running them. The `--delay 1` inserts a one second delay between printing or running jobs. Use the following to print the `sbatch` commands that will be run later on:
+
+```bash
+parallel --dryrun --delay 1 -j 1 \
+"sbatch -o {1}.out -e {1}.err count-reads.sbatch {1}" ::: *.fastq.gz
+```
+
+The `::: *.fastq.gz` leads to one `sbatch` command being constructed per `.fastq.gz` file in the current directory.
+
+Each instance of `{1}` gets replaced with the full name of the `.fastq.gz` file, such that each input file gets a unique and traceable output filename (so that results aren't overwritten and the relationships among files are clear).
+
+To submit the jobs, run the `parallel` command again, but without the `--dryrun` option:
+
+```bash
+parallel --delay 1 -j 1 \
+"sbatch -o {1}.out -e {1}.err count-reads.sbatch {1}" ::: *.fastq.gz
+```
+
+Once the jobs are submitted their statuses can be checked using `squeue` (replace `username` with your username):
+
+```bash
+squeue -u username
+```
+
+Each job creates two output files, for example:
+
+```text
+ctrl1_R1.fastq.gz.out
+ctrl1_R1.fastq.gz.err
+```
+
+The `.out` files will contain the name of the input file and the number of reads, for example:
+
+```text
+ctrl1_R1.fastq 77283
+```
+
+To quickly check the `.err` files, which contain any errors or warnings generated by the jobs, use:
+
+```bash
+cat *.err | more
+```
+
+Once the jobs are complete the output files can be analyzed, e.g.:
+
+```bash
+cat *R1.fastq.gz.out | sort > R1.reads
+cat *R2.fastq.gz.out | sort > R2.reads
+paste R1.reads R2.reads
+```
+
+### Run FastQC on compressed FASTQ files using Slurm and a job array
+
+An alternative to running the `sbatch` script for each input file using a loop or `parallel` is to run it once using the `--array=1-N` option where you replace `N` with the number of input files you want to process.
+
+The `--array` option causes Slurm to create what is called a job array. The advantage of using this approach is that all the jobs are grouped together when viewed using `squeue`, and job arrays can allow the scheduler to run jobs more efficiently.
+
+When the `--array` option is used, the contents of the batch script are run once for each input file. Within the batch script the input file is accessed using the variable `$SLURM_ARRAY_TASK_ID`, which is set by Slurm to the current array index.
+
+This example deals with `.fastq.gz` files, named as follows (the sample name is in the file name, for example `ctrl1`):
+
+```text
+ctrl1_R1.fastq.gz  ctrl2_R2.fastq.gz  trtA1_R1.fastq.gz  trtA2_R2.fastq.gz
+ctrl1_R2.fastq.gz  ctrl3_R1.fastq.gz  trtA1_R2.fastq.gz  trtA3_R1.fastq.gz
+ctrl2_R1.fastq.gz  ctrl3_R2.fastq.gz  trtA2_R1.fastq.gz  trtA3_R2.fastq.gz
+```
+
+Here is a batch script called `fastqc.sbatch`, which is designed to process `.fastq.gz` files using the `fastqc` program.
+
+```bash
+#!/bin/bash
+#SBATCH --account=def-someuser
+#SBATCH --time=0:30:0
+#SBATCH --ntasks=1
+#SBATCH --mem=1000M
+
+# Load required modules
+module load fastqc
+
+# This is to access the list of R1 files passed as an argument
+R1_LIST="$1"
+
+# Get the name of the R1 file to be processed from the list using
+# the current array index
+# e.g. ctrl1_R1.fastq.gz
+R1_FILE="$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$R1_LIST")"
+
+# Construct the name of the R2 file to be processed
+# e.g. ctrl1_R2.fastq.gz
+R2_FILE="${R1_FILE/_R1/_R2}"
+
+# Remove both extensions and the R1 to get the sample name
+# e.g. ctrl1
+SAMPLE_NAME="${R1_FILE/_R1.fastq.gz/}"
+
+# Create the output folder for fastqc results for the sample
+mkdir -p "fqc_$SAMPLE_NAME"
+
+# Run fastqc on the R1 and R2 files and output to a folder
+# named after the sample name
+fastqc "$R1_FILE" "$R2_FILE" -o "fqc_$SAMPLE_NAME"
+```
+
+Replace `someuser` with your username prior to using.
+
+Next, generate a file of the R1 files to be processed and store the length of the list in a variable:
+
+```bash
+ls *R1.fastq.gz > R1.list
+R1_COUNT=$(wc -l R1.list | cut -d' ' -f1)
+echo $R1_COUNT
+```
+
+Finally, submit the job array:
+
+```bash
+sbatch --array=1-$R1_COUNT -o %A-%a.fqc.out -e %A-%a.fqc.err \
+fastqc.sbatch R1.list
+```
+
+The `--array` option is used to specify the range of array indices to be used. In this case the range is `1` to the number of R1 files. These values will be used to set the `$SLURM_ARRAY_TASK_ID` variable in the batch script and to extract a line (using `sed`) from the `R1.list` file.
+
+The `-o` and `-e` options are used to specify the files that will receive output and error messages. The `%A` and `%a` are replaced by the job array ID (assigned by Slurm) and the array index, respectively. This naming scheme ensures that each job has a unique output and error file.
+
+The `R1.list` file is passed as an argument to the batch script so that it can be accessed within the script as `$1`.
+
+To view a list of your submitted jobs (replace `username` with your username):
+
+```bash
+squeue -u username
+```
+
+The job array will be listed as a single job, initially with a status of `PD` (pending). Once the job starts running the status will change to `R` (running). Once the job array is complete the status will change to `CG` (completing).
+
+The `fastqc` results will be written to folders named after the sample names, for example `fqc_ctrl1`. Output and error messages generated by the script will be written to files with names like `15268018-1.fqc.err` and `15268018-1.fqc.out`.
+
+The `1` in the file names corresponds to the array index and the `15268018` is the job array ID. You can match up the array index to a specific file by looking at the `R1.list` file. The first line of `R1.list` corresponds to array index `1`, the second line corresponds to array index `2`, etc.
+
+With `fastqc`, the `*.err` and `*.out` files will normally contain progress messages generated by the program when it was running. These files contain what is called "standard error" and "standard output" respectively.
+
+Suppose that a single job didn't complete because not enough time was requested. This can be determined by looking at the `*.err` file for that job or by an absence of expected output, or by using `sacct` with the job array ID (which is the prefix of the `*.err` and `*.out` files):
+
+```bash
+sacct -j 15268018 --format=JobID,JobName,State
+```
+
+The above command will show the status of the job array with ID `15268018`. State's that indicate a job didn't complete include `CANCELLED`, `FAILED`, and `TIMEOUT`.
+
+The job can be resubmitted using the same command as before, but with a different range of array indices. For example, to resubmit the first job:
+
+```bash
+sbatch --array=1 --time=1:00:00 \
+-o %A-%a.fqc.out -e %A-%a.fqc.err \
+fastqc.sbatch R1.list
+```
+
+The `--time` option is used to specify the new time limit and overrides the value in the script.
+
+To resubmit jobs 3 and 5:
+
+```bash
+sbatch --array=3,5 --time=1:00:00 \
+-o %A-%a.fqc.out -e %A-%a.fqc.err \
+fastqc.sbatch R1.list
 ```
 
 ## File conversion
@@ -1754,48 +2114,6 @@ datasets download genome taxon mouse --reference --include genome,protein,cds,gf
 
 For more commands and options see the [how-to guides](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/how-tos/).
 
-### Download fastq files based on a list of SRA accessions using the SRA Toolkit
-
-The following uses the [SRA Toolkit](https://github.com/ncbi/sra-tools).
-
-Paired-end data:
-
-```bash
-cat SRR_Acc_List.txt | xargs -I{} fastq-dump -I --split-files --gzip {}
-```
-
-Single-end data:
-
-```bash
-cat SRR_Acc_List.txt | xargs -I{} fastq-dump --gzip {}
-```
-
-For better performance use `fasterq-dump` (the following works for single-end and paired-end data):
-
-```bash
-cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
-gzip *.fastq
-```
-
-Note that `fasterq-dump` will generate large cache files in `~/ncbi/public/sra`. If this directory does not have sufficient storage create a symbolic link to another directory that does, for example `/scratch`:
-
-```bash
-mv ~/ncbi/public/sra /scratch/
-ln -s /scratch/sra ~/ncbi/public/sra
-```
-
-[SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions and returns a selectable list of ENA download URLs and sequencing run metadata.
-
-### Download fastq files based on a list of SRA accessions using Kingfisher
-
-The following example uses [Kingfisher](https://github.com/wwood/kingfisher-download), which can download data from the ENA, NCBI, AWS, and GCP.
-
-The accessions are in a file named `SRR_Acc_List.txt` and are passed to Kingfisher using `parallel`. The `--resume` and `--joblog` options allows the command to be re-run without repeating previously completed jobs.
-
-```bash
-cat SRR_Acc_List.txt | parallel --resume --joblog log.txt --verbose --progress -j 1 'kingfisher get -r {} -m ena-ascp aws-http prefetch'
-```
-
 ### Download a reference genome GTF file from Ensembl
 
 To obtain a list of files available for a particular species:
@@ -1933,58 +2251,6 @@ To print the filenames on separate lines, use:
 ```bash
 find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | xargs -r0 -L 1 echo
 ```
-
-### Process files in pairs
-
-High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
-
-```text
-6613_S82_L001_R1_001.fastq.gz
-6613_S82_L001_R2_001.fastq.gz
-70532_S37_L001_R1_001.fastq.gz
-70532_S37_L001_R2_001.fastq.gz
-k2712_S5_L001_R1_001.fastq.gz
-k2712_S5_L001_R2_001.fastq.gz
-```
-
-To analyze data from multiple samples, the following `while` loop code can be used. It iterates through the `R1` files and from each filename constructs the matching `R2` filename. Two useful variables called `fnx` and `fn` are also created for each file, storing the filename without the path to the file, and the filename without the path and without the file extension, respectively:
-
-```bash
-find . \( -name "*_R1_*" -name "*.fastq.gz" \) -type f \
-| while IFS= read -r file; do
-  fnx=$(basename -- "$file")
-  fn="${fnx%%.*}"
-  
-  # Construct name of other file
-  file2="${file/_R1_/_R2_}"
-  fnx2=$(basename -- "$file2")
-  fn2="${fnx2%%.*}"
-  
-  # $file: ./6613_S82_L001_R1_001.fastq.gz
-  # $fnx: 6613_S82_L001_R1_001.fastq.gz
-  # $fn: 6613_S82_L001_R1_001
-  
-  # $file2: ./6613_S82_L001_R2_001.fastq.gz
-  # $fnx2: 6613_S82_L001_R2_001.fastq.gz
-  # $fn2: 6613_S82_L001_R2_001
-  
-  echo "Processing file '$fnx' and '$fnx2'"
-  
-  # place commands here that work on file pairs
-  lines_R1=$(zcat < "$file" | wc -l)
-  lines_R2=$(zcat < "$file2" | wc -l)
-  
-  if [ "$lines_R1" == "$lines_R2" ] ; then
-    echo "Both files contain $lines_R1 lines"
-  else
-    echo "WARNING:"
-    echo "$fnx contains $lines_R1 lines"
-    echo "$fnx2 contains $lines_R2 lines"
-  fi
-done
-```
-
-Another option is to use [parallel](#parallel).
 
 ### Copy the files returned by find
 
@@ -3026,32 +3292,6 @@ out=ILFGCMKP_01075_nr.tab
 blastp -query "$in" -remote -db nr -out "$out" -outfmt '7 qseqid stitle sstart send qcovs qcovhsp pident evalue' -evalue 1e-10
 ```
 
-### Count the bases in a fastq file
-
-```bash
-zcat < SRR13388732_1.fastq.gz | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
-```
-
-Or:
-
-```bash
-cat SRR13388732_1.fastq | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
-```
-
-### Count the reads in a fastq file
-
-```bash
-file=SRR13388732_1.fastq
-READS=$(expr $(cat $file | wc -l) / 4)
-echo $READS
-```
-
-```bash
-file=SRR13388732_1.fastq.gz
-READS=$(expr $(zcat < $file | wc -l) / 4)
-echo $READS
-```
-
 ### Use SQL-like queries to work with a CSV or TSV file
 
 The following uses [q](https://github.com/harelba/q) to count distinct values in the column named `SNP`:
@@ -3091,43 +3331,6 @@ kill -9 1963
 ### Edit a PDF file
 
 Use [LibreOffice](https://www.libreoffice.org).
-
-### Merge compressed fastq files
-
-In the following example the `sequences` folder contains paired-end data, in files like `S00EC-0001_S30_1.fastq.gz` and `S00EC-0001_S30_2.fastq.gz`. The goal is to merge all the forward reads into one file and all the reverse reads into another file.
-
-```bash
-cd sequences
-rm -f merged_1.fastq.gz
-rm -f merged_2.fastq.gz
-
-find . \( -name "*_1.*" -name "*.fastq.gz" \) -type f \
-| while IFS= read -r file1; do
-
-  # forward and reverse filename examples:
-  # S00EC-0001_S30_1.fastq.gz
-  # S00EC-0001_S30_2.fastq.gz
-  # construct name of other file
-  file2="${file1/_1./_2.}"
-  
-  echo "Processing file '$file1' and '$file2'"
-  
-  # check that number of lines match
-  lines_R1=$(zcat < "$file1" | wc -l)
-  lines_R2=$(zcat < "$file2" | wc -l)
-  
-  if [ "$lines_R1" == "$lines_R2" ] ; then
-    echo "Both files contain $lines_R1 lines, proceeding with merge"
-    cat $file1 >> merged_1.fastq.gz
-    cat $file2 >> merged_2.fastq.gz
-  else
-    echo "WARNING:"
-    echo "$file1 contains $lines_R1 lines"
-    echo "$file2 contains $lines_R2 lines"
-    exit 1
-  fi
-done
-```
 
 ### Calculate coverage statistics for a BAM file
 
@@ -3172,16 +3375,6 @@ In the following example 5 jobs are run at the same time:
 ```bash
 parallel -j5 "gzip {}" ::: *.csv
 ```
-
-### Process files in pairs using parallel
-
-In the following example paired-end reads with names like `sampleA_1.fastq.gz` and `sampleA_2.fastq.gz` in a directory called `data` are mapped to a reference called `ref` using `bowtie2`:
-
-```bash
-parallel -j2 "bowtie2 --threads 4 -x ref -k1 -q -1 {1} -2 {2} -S {1/.}.sam >& {1/.}.log" ::: data/*_1.fastq.gz :::+ data/*_2.fastq.gz
-```
-
-The `{1/.}` removes the path and the extension from the first filename, leaving the sample name.
 
 ### Perform BLAST in parallel
 
@@ -4106,199 +4299,6 @@ chmod +t shared_dir
 ```
 
 ## Slurm
-
-### Count reads in compressed fastq files
-
-In this example the number of reads in several `.fastq.gz` files is determined by submitting jobs to Slurm using `sbatch`. The advantage of this approach is that the counts for each file are generated in parallel, so that results can be obtained more quickly.
-
-The naming scheme of the `.fastq.gz` files is as follows (the sample name is in the file name, for example `ctrl1`):
-
-```text
-ctrl1_R1.fastq.gz  ctrl2_R2.fastq.gz  trtA1_R1.fastq.gz  trtA2_R2.fastq.gz
-ctrl1_R2.fastq.gz  ctrl3_R1.fastq.gz  trtA1_R2.fastq.gz  trtA3_R1.fastq.gz
-ctrl2_R1.fastq.gz  ctrl3_R2.fastq.gz  trtA2_R1.fastq.gz  trtA3_R2.fastq.gz
-```
-
-First create an `sbatch` script called `count-reads.sbatch` (replace `someuser` on the second line with your username):
-
-```bash
-#!/bin/bash
-#SBATCH --account=def-someuser
-#SBATCH --time=0:30:0
-#SBATCH --ntasks=1
-#SBATCH --mem=1000M
-
-READS=$(expr $(zcat $1 | wc -l) / 4)
-echo "$1 $READS"
-```
-
-The above uses `zcat` to output the file contents to `wc` which counts the lines. `expr` then takes the count from `wc` and divides by `4` to give the number of sequence reads.
-
-`parallel` can then be used to apply `count-reads.sbatch` to each `.fastq.gz` file. The `--dryrun` option causes `parallel` to print out the commands instead of running them. The `--delay 1` inserts a one second delay between printing or running jobs. Use the following to print the `sbatch` commands that will be run later on:
-
-```bash
-parallel --dryrun --delay 1 -j 1 \
-"sbatch -o {1}.out -e {1}.err count-reads.sbatch {1}" ::: *.fastq.gz
-```
-
-The `::: *.fastq.gz` leads to one `sbatch` command being constructed per `.fastq.gz` file in the current directory.
-
-Each instance of `{1}` gets replaced with the full name of the `.fastq.gz` file, such that each input file gets a unique and traceable output filename (so that results aren't overwritten and the relationships among files are clear).
-
-To submit the jobs, run the `parallel` command again, but without the `--dryrun` option:
-
-```bash
-parallel --delay 1 -j 1 \
-"sbatch -o {1}.out -e {1}.err count-reads.sbatch {1}" ::: *.fastq.gz
-```
-
-Once the jobs are submitted their statuses can be checked using `squeue` (replace `username` with your username):
-
-```bash
-squeue -u username
-```
-
-Each job creates two output files, for example:
-
-```text
-ctrl1_R1.fastq.gz.out
-ctrl1_R1.fastq.gz.err
-```
-
-The `.out` files will contain the name of the input file and the number of reads, for example:
-
-```text
-ctrl1_R1.fastq 77283
-```
-
-To quickly check the `.err` files, which contain any errors or warnings generated by the jobs, use:
-
-```bash
-cat *.err | more
-```
-
-Once the jobs are complete the output files can be analyzed, e.g.:
-
-```bash
-cat *R1.fastq.gz.out | sort > R1.reads
-cat *R2.fastq.gz.out | sort > R2.reads
-paste R1.reads R2.reads
-```
-
-### Run fastqc on compressed fastq files using a job array
-
-An alternative to running the `sbatch` script for each input file using a loop or `parallel` is to run it once using the `--array=1-N` option where you replace `N` with the number of input files you want to process.
-
-The `--array` option causes Slurm to create what is called a job array. The advantage of using this approach is that all the jobs are grouped together when viewed using `squeue`, and job arrays can allow the scheduler to run jobs more efficiently.
-
-When the `--array` option is used, the contents of the batch script are run once for each input file. Within the batch script the input file is accessed using the variable `$SLURM_ARRAY_TASK_ID`, which is set by Slurm to the current array index.
-
-This example deals with `.fastq.gz` files, named as follows (the sample name is in the file name, for example `ctrl1`):
-
-```text
-ctrl1_R1.fastq.gz  ctrl2_R2.fastq.gz  trtA1_R1.fastq.gz  trtA2_R2.fastq.gz
-ctrl1_R2.fastq.gz  ctrl3_R1.fastq.gz  trtA1_R2.fastq.gz  trtA3_R1.fastq.gz
-ctrl2_R1.fastq.gz  ctrl3_R2.fastq.gz  trtA2_R1.fastq.gz  trtA3_R2.fastq.gz
-```
-
-Here is a batch script called `fastqc.sbatch`, which is designed to process `.fastq.gz` files using the `fastqc` program.
-
-```bash
-#!/bin/bash
-#SBATCH --account=def-someuser
-#SBATCH --time=0:30:0
-#SBATCH --ntasks=1
-#SBATCH --mem=1000M
-
-# Load required modules
-module load fastqc
-
-# This is to access the list of R1 files passed as an argument
-R1_LIST="$1"
-
-# Get the name of the R1 file to be processed from the list using
-# the current array index
-# e.g. ctrl1_R1.fastq.gz
-R1_FILE="$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$R1_LIST")"
-
-# Construct the name of the R2 file to be processed
-# e.g. ctrl1_R2.fastq.gz
-R2_FILE="${R1_FILE/_R1/_R2}"
-
-# Remove both extensions and the R1 to get the sample name
-# e.g. ctrl1
-SAMPLE_NAME="${R1_FILE/_R1.fastq.gz/}"
-
-# Create the output folder for fastqc results for the sample
-mkdir -p "fqc_$SAMPLE_NAME"
-
-# Run fastqc on the R1 and R2 files and output to a folder
-# named after the sample name
-fastqc "$R1_FILE" "$R2_FILE" -o "fqc_$SAMPLE_NAME"
-```
-
-Replace `someuser` with your username prior to using.
-
-Next, generate a file of the R1 files to be processed and store the length of the list in a variable:
-
-```bash
-ls *R1.fastq.gz > R1.list
-R1_COUNT=$(wc -l R1.list | cut -d' ' -f1)
-echo $R1_COUNT
-```
-
-Finally, submit the job array:
-
-```bash
-sbatch --array=1-$R1_COUNT -o %A-%a.fqc.out -e %A-%a.fqc.err \
-fastqc.sbatch R1.list
-```
-
-The `--array` option is used to specify the range of array indices to be used. In this case the range is `1` to the number of R1 files. These values will be used to set the `$SLURM_ARRAY_TASK_ID` variable in the batch script and to extract a line (using `sed`) from the `R1.list` file.
-
-The `-o` and `-e` options are used to specify the files that will receive output and error messages. The `%A` and `%a` are replaced by the job array ID (assigned by Slurm) and the array index, respectively. This naming scheme ensures that each job has a unique output and error file.
-
-The `R1.list` file is passed as an argument to the batch script so that it can be accessed within the script as `$1`.
-
-To view a list of your submitted jobs (replace `username` with your username):
-
-```bash
-squeue -u username
-```
-
-The job array will be listed as a single job, initially with a status of `PD` (pending). Once the job starts running the status will change to `R` (running). Once the job array is complete the status will change to `CG` (completing).
-
-The `fastqc` results will be written to folders named after the sample names, for example `fqc_ctrl1`. Output and error messages generated by the script will be written to files with names like `15268018-1.fqc.err` and `15268018-1.fqc.out`.
-
-The `1` in the file names corresponds to the array index and the `15268018` is the job array ID. You can match up the array index to a specific file by looking at the `R1.list` file. The first line of `R1.list` corresponds to array index `1`, the second line corresponds to array index `2`, etc.
-
-With `fastqc`, the `*.err` and `*.out` files will normally contain progress messages generated by the program when it was running. These files contain what is called "standard error" and "standard output" respectively.
-
-Suppose that a single job didn't complete because not enough time was requested. This can be determined by looking at the `*.err` file for that job or by an absence of expected output, or by using `sacct` with the job array ID (which is the prefix of the `*.err` and `*.out` files):
-
-```bash
-sacct -j 15268018 --format=JobID,JobName,State
-```
-
-The above command will show the status of the job array with ID `15268018`. State's that indicate a job didn't complete include `CANCELLED`, `FAILED`, and `TIMEOUT`.
-
-The job can be resubmitted using the same command as before, but with a different range of array indices. For example, to resubmit the first job:
-
-```bash
-sbatch --array=1 --time=1:00:00 \
--o %A-%a.fqc.out -e %A-%a.fqc.err \
-fastqc.sbatch R1.list
-```
-
-The `--time` option is used to specify the new time limit and overrides the value in the script.
-
-To resubmit jobs 3 and 5:
-
-```bash
-sbatch --array=3,5 --time=1:00:00 \
--o %A-%a.fqc.out -e %A-%a.fqc.err \
-fastqc.sbatch R1.list
-```
 
 ### Merge VCF files in batches
 
