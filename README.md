@@ -1243,6 +1243,24 @@ To download one of the files:
 rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/Oncorhynchus_mykiss.USDA_OmykA_1.1.dna.toplevel.fa.gz .
 ```
 
+### Download reference genome FASTA file and related files from NCBI
+
+Use the [NCBI Datasets command-line tools](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/).
+
+The following downloads the mouse reference genome sequence:
+
+```bash
+datasets download genome taxon mouse --reference --include genome
+```
+
+To download the mouse reference genome and associated amino acid sequences, nucleotide coding sequences, gff3 file, and gtf file:
+
+```bash
+datasets download genome taxon mouse --reference --include genome,protein,cds,gff3,gtf
+```
+
+For more commands and options see the [how-to guides](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/how-tos/).
+
 ### Combine FASTA files into a single file replacing each FASTA record name with the name of the input file
 
 ```bash
@@ -1322,6 +1340,33 @@ In this example the title `>KL1` is added to the beginning of the sequence in `K
 
 ```bash
 perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
+```
+
+### Reorder the sequences in a FASTA file based on a VCF file header
+
+Here the VCF used for reordering is `input.vcf.gz` and the FASTA file to be reordered is `reference.fa`. The new file is called `reference.reordered.fa`.
+
+`bcftools`, `tabix` and `samtools` are used:
+
+```bash
+# create index files for the VCF and FASTA files incase they don't already exist
+tabix -p vcf input.vcf.gz
+samtools faidx reference.fa
+
+# extract the sequence names from the VCF header
+bcftools view -h input.vcf.gz | grep "##contig" > sequence.dict
+
+# reorder the FASTA file
+SEQUENCES=$(cat sequence.dict | sed 's/.*ID=//' | sed 's/,.*//')
+for SEQ in $SEQUENCES; do
+  samtools faidx reference.fa "$SEQ" >> reference.reordered.fa
+done
+```
+
+Check the output:
+
+```bash
+grep ">" reference.reordered.fa
 ```
 
 ## File conversion
@@ -5827,6 +5872,51 @@ Or:
 
 ```bash
 bcftools query -l input.vcf
+```
+
+### Keep sites from chromosomes and reheader based on reference genome
+
+The following is used to create a new VCF file containing sites from chromosomes `1` to `18` and `X` and `MT`. The VCF header is then updated using a sequence dictionary from a reference genome.
+
+The starting VCF is `input.vcf.gz`. The reference genome is `reference.fa`. The final output VCF is `filtered.reheadered.vcf.gz`.
+
+This uses GATK, `bcftools`, and `tabix`.
+
+```bash
+# create index files incase they don't exist
+samtools faidx reference.fa
+tabix -p vcf input.vcf.gz
+
+# create sequence dictionary
+docker pull broadinstitute/gatk
+docker run -it --rm \
+-u "$(id -u)":"$(id -g)" \
+-v "$(pwd)":/directory \
+-w /directory \
+broadinstitute/gatk \
+  gatk CreateSequenceDictionary\
+    -R reference.fa \
+    -O reference.dict
+
+# extract sites from chromosomes 1 to 18, X, and MT
+bcftools view -r 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,X,Y,MT \
+input.vcf.gz -o filtered.vcf.gz -O z
+
+tabix -p vcf filtered.vcf.gz
+
+# reheader VCF using sequence dictionary
+docker run -it --rm \
+-u "$(id -u)":"$(id -g)" \
+-v "$(pwd)":/directory \
+-w /directory \
+broadinstitute/gatk \
+  gatk UpdateVCFSequenceDictionary \
+    -V filtered.vcf.gz \
+    -R reference.fa \
+    --output filtered.reheadered.vcf.gz \
+    --replace true
+
+tabix -p vcf filtered.reheadered.vcf.gz
 ```
 
 ## vim
