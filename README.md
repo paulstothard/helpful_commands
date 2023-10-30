@@ -4674,9 +4674,9 @@ Nextflow itself uses too many resources to be run on the login node, so we will 
 #SBATCH --mail-type=REQUEUE
 #SBATCH --mail-type=ALL
 #SBATCH --account=<my-account>
-#SBATCH --job-name=${NFCORE_PL}-${PL_VERSION}
-#SBATCH --output=${NFCORE_PL}-${PL_VERSION}_%j_output.txt
-#SBATCH --error=${NFCORE_PL}-${PL_VERSION}_%j_error.txt
+#SBATCH --job-name=sarek
+#SBATCH --output=sarek_%j.out
+#SBATCH --error=sarek_%j.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16000M
@@ -4706,7 +4706,7 @@ To view the status of the job:
 squeue -u <my-username>
 ```
 
-Once the job is complete, examine the `_output.txt` and `_error.txt` files as well as the files in the `test` folder.
+Once the job is complete, examine the `.out` and `.err` files as well as the files in the `test` folder.
 
 If you log out of the cluster you will need to set the environment variables again before re-running the pipeline:
 
