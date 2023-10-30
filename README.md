@@ -4414,14 +4414,14 @@ squeue -u username
 
 The [nf-core](https://nf-co.re/) project provides a collection of Nextflow workflows for bioinformatics.
 
-In the following example [nf-core/sarek](https://nf-co.re/sarek) pipeline is used to process a test data set available with the pipeline.
+In the following example the [nf-core/sarek](https://nf-co.re/sarek) pipeline for detecting germline or somatic variants is used to process a test data set.
 
 See the [DRAC Nextflow documentation](https://docs.alliancecan.ca/wiki/Nextflow) for more information on running Nextflow workflows on Alliance clusters.
 
-First, install nf-core tools (this step is slow but only needs to be done once). Here I am installing the tools in the `scratch` directory:
+First, load some modules and install [nf-core tools](https://nf-co.re/tools) using pip (this step is slow but only needs to be done once). The nf-core tools package can be used to download nf-core pipelines and dependencies:
 
 ```bash
-cd ~/scratch
+cd ~
 module purge
 module load python/3.8
 module load postgresql/15.3
@@ -4433,44 +4433,50 @@ python -m pip install nf_core==2.6
 In the future you can activate the environment using:
 
 ```bash
-cd ~/scratch
+cd ~
 source nf-core-env/bin/activate
 ```
 
-Set some environment variables:
+To view a list of available nf-core pipelines use the following:
+
+```bash
+nf-core list
+```
+
+Set environment variables to store the name of the pipeline we are going to run and its version:
 
 ```bash
 export NFCORE_PL=sarek
 export PL_VERSION=3.2.0
 ```
 
-`NFCORE_PL` is the name of the pipeline, and `PL_VERSION` is the version of the pipeline to use. You can find the latest version using the [nf-core/sarek documentation](https://nf-co.re/sarek).
+`sarek` is the name of the pipeline, and `3.2.0` is the version. The `export` command allows you to set environment variables that will be available to any commands you run in the current shell session, including jobs submitted to the cluster.
 
-You don't necessarily need to use the latest version, particularly if you are using a specific version for a publication. The `export` command allows you to set environment variables that will be available to any commands you run in the current shell session, including jobs submitted to the cluster.
+If you log out of the cluster you will need to set these variables again for some of the commands below to work.
 
-If you log out of the cluster you will need to set these variables again.
-
-To view other pipelines available:
+Create a folder to hold Apptainer/Singularity containers. Apptainer/Singularity is a containerization platform like Docker. These containers will provide the programs that the pipeline will execute as it runs (e.g. `bwa` and `samtools`):
 
 ```bash
-nf-core list
+mkdir -p ~/scratch/singularity
 ```
 
-Of visit the [nf-core website](https://nf-co.re/).
-
-Create a folder to hold the Apptainer/Singularity containers (Apptainer/Singularity is a containerization platform like Docker). We will download the containers for the pipeline into this folder (if you have space you can store these elsewhere):
+Set an environment variable to tell nf-core tools and Nextflow where we want the containers stored (both programs use the `$NXF_SINGULARITY_CACHEDIR` environment variable for this purpose):
 
 ```bash
 export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity
-mkdir -p $NXF_SINGULARITY_CACHEDIR
 ```
 
-Download the pipeline and the containers for the pipeline:
+Download the pipeline and the containers it uses:
 
 ```bash
-nf-core download --force --singularity-cache-only --container singularity \
+cd ~/scratch
+nf-core download --singularity-cache-only --container singularity \
 --compress none -r ${PL_VERSION} -p 6 ${NFCORE_PL}
 ```
+
+The pipeline code is downloaded to current directory whereas the containers are downloaded to the folder specified by the `NXF_SINGULARITY_CACHEDIR` environment variable.
+
+With the pipeline and containers downloaded, we can now run the pipeline using a test data set provided by the pipeline developers.
 
 Create a Nextflow configuration file called `nextflow.config` and containing the following, replacing `<my-account>` with your account name:
 
@@ -4538,7 +4544,7 @@ module load apptainer/1.1.6
 
 nextflow run nf-core-${NFCORE_PL}-${PL_VERSION}/workflow/ \
 -c nextflow.config \
--resume -profile test,singularity,cedar --outdir test
+-resume -profile test,singularity,cedar --outdir sarek
 ```
 
 To create in `vim` enter `vim sarek.sbatch` and then in `vim` use `:set paste` to enter paste mode. Right-click to paste the above, enter `:set nopaste` to exit paste mode, and enter `:wq` to save and exit.
@@ -4557,12 +4563,12 @@ To view the status of the job:
 squeue -u <my-username>
 ```
 
-Once the job is complete, examine the `.out` and `.err` files as well as the files in the `test` folder.
+Once the job is complete, examine the `.out` and `.err` files as well as the files in the `sarek` folder.
 
 If you log out of the cluster you will need to set the environment variables again before re-running the pipeline:
 
 ```bash
-cd ~/scratch
+cd ~
 source nf-core-env/bin/activate
 export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity
 export NFCORE_PL=sarek
