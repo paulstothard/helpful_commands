@@ -514,16 +514,6 @@ In this example each file is named after the value in column `1`:
 awk -F $'\t' '{ fname = $1 ".txt"; print >>fname; close(fname) }' input.tab
 ```
 
-### Split a multi-FASTA file into separate files named according to the sequence title
-
-In this example the sequences are written to a directory called `out`:
-
-```bash
-outputdir=out/
-mkdir -p "$outputdir"
-awk '/^>/ {OUT=substr($0,2); split(OUT, a, " "); sub(/[^A-Za-z_0-9\.\-]/, "", a[1]); OUT = "'"$outputdir"'" a[1] ".fa"}; OUT {print >>OUT; close(OUT)}' input.fasta
-```
-
 ### Print only specific columns, identified by name in the first row
 
 In this example the columns named `Affy SNP ID` and `Flank` are printed:
@@ -1226,6 +1216,113 @@ docker container rm $(docker ps -a -q)
 docker system prune --all
 ```
 
+## FASTA files
+
+### Split a multi-FASTA file into separate files named according to the sequence title
+
+In this example the sequences are written to a directory called `out`:
+
+```bash
+outputdir=out/
+mkdir -p "$outputdir"
+awk '/^>/ {OUT=substr($0,2); split(OUT, a, " "); sub(/[^A-Za-z_0-9\.\-]/, "", a[1]); OUT = "'"$outputdir"'" a[1] ".fa"}; OUT {print >>OUT; close(OUT)}' input.fasta
+```
+
+### Download a reference genome FASTA file from Ensembl
+
+To obtain a list of files available for a particular species:
+
+```bash
+rsync --list-only rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/
+```
+
+To download one of the files:
+
+```bash
+rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/Oncorhynchus_mykiss.USDA_OmykA_1.1.dna.toplevel.fa.gz .
+```
+
+### Combine FASTA files into a single file replacing each FASTA record name with the name of the input file
+
+```bash
+for file in *.fasta
+do
+   echo ">$file" >> out.fasta
+   tail -n +2 "$file" >> out.fasta
+done
+```
+
+Or:
+
+```bash
+for file in *.fasta
+do
+   {
+     echo ">$file"
+     tail -n +2 "$file"
+   } >> out.fasta
+done
+```
+
+### Obtain the flanking sequence of a site of interest from a FASTA file
+
+In this example `samtools` is used to obtain the upstream and downstream `100` bases of flanking sequence of a SNP at position `42234774` on sequence `Y` from the FASTA file `ARS-UCD1.2_Btau5.0.1Y.fa`:
+
+```bash
+flank=100
+pos=42234774
+sequence=Y
+fasta=ARS-UCD1.2_Btau5.0.1Y.fa
+ustart=$(expr $pos - $flank)
+uend=$(expr $pos - 1)
+dstart=$(expr $pos + 1)
+dend=$(expr $pos + $flank)
+echo "Upstream flank:" && \
+samtools faidx "$fasta" "$sequence":$ustart-$uend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
+echo "SNP site" && \
+samtools faidx "$fasta" "$sequence":$pos-$pos | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
+echo "Downstream flank:" && \
+samtools faidx "$fasta" "$sequence":$dstart-$dend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm'
+```
+
+The `perl` command is used to remove spaces within the sequence.
+
+Sample output:
+
+```text
+Upstream flank:
+>Y:42234674-42234773
+GGTGTTCAGGTTTGGGAACATGTGTACACCATGGCAGATTCATGTTGATGTATGGCAAAAGCAATACAATATTGTAAAGTAATTAACCTCCAATTAAAAT
+SNP site
+>Y:42234774-42234774
+A
+Downstream flank:
+>Y:42234775-42234874
+AATAAATTTATATTAAAAATGCATCAATTCTTTGGCACTCAGCTTTCTTCACATTCCAATACTCACATCCATACATGACTACTGGAAAATCATAGCCTTG
+```
+
+### Convert a FASTA file to a CSV file with column names
+
+```bash
+cat input.fasta | perl -n -0777 -e 'BEGIN{print "SNP_Name,Sequence\n"}' -e 'while ($_ =~ m/^>([^\n]+)\n([^>]+)/gm) {$name = $1; $seq = $2; $seq =~s/\s//g; print $name . "," . $seq . "\n"}' > output.csv
+```
+
+### Extract FASTA sequences from a file based on a file of sequence names of interest
+
+In this example the sequence names of interest are in the file `names.txt` and the FASTA sequences are in the file `input.fasta`:
+
+```bash
+cat names.txt | xargs -I{} perl -w -076 -e '$count = 0; open(SEQ, "<" . $ARGV[0]); while (<SEQ>) {if ($_ =~ m/\Q$ARGV[1]\E/) {$record = $_; $record =~ s/[\s>]+$//g; print ">$record\n"; $count = $count + 1;}} if ($count == 0) {print STDERR "No matches found for $ARGV[1]\n"} elsif ($count > 1) {print STDERR "Multiple matches found for $ARGV[1]\n"} close(SEQ);' input.fasta {} > output.fasta
+```
+
+### Add a FASTA title to the start of a sequence in RAW format
+
+In this example the title `>KL1` is added to the beginning of the sequence in `KL1sequence.txt`:
+
+```bash
+perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
+```
+
 ## File conversion
 
 ### Convert CSV to TSV
@@ -1648,20 +1745,6 @@ The accessions are in a file named `SRR_Acc_List.txt` and are passed to Kingfish
 
 ```bash
 cat SRR_Acc_List.txt | parallel --resume --joblog log.txt --verbose --progress -j 1 'kingfisher get -r {} -m ena-ascp aws-http prefetch'
-```
-
-### Download a reference genome FASTA file from Ensembl
-
-To obtain a list of files available for a particular species:
-
-```bash
-rsync --list-only rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/
-```
-
-To download one of the files:
-
-```bash
-rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/Oncorhynchus_mykiss.USDA_OmykA_1.1.dna.toplevel.fa.gz .
 ```
 
 ### Download a reference genome GTF file from Ensembl
@@ -2960,65 +3043,6 @@ kill -9 1963
 
 Use [LibreOffice](https://www.libreoffice.org).
 
-### Combine FASTA files into a single file replacing each FASTA record name with the name of the input file
-
-```bash
-for file in *.fasta
-do
-   echo ">$file" >> out.fasta
-   tail -n +2 "$file" >> out.fasta
-done
-```
-
-Or:
-
-```bash
-for file in *.fasta
-do
-   {
-     echo ">$file"
-     tail -n +2 "$file"
-   } >> out.fasta
-done
-```
-
-### Obtain the flanking sequence of a site of interest from a FASTA file
-
-In this example `samtools` is used to obtain the upstream and downstream `100` bases of flanking sequence of a SNP at position `42234774` on sequence `Y` from the FASTA file `ARS-UCD1.2_Btau5.0.1Y.fa`:
-
-```bash
-flank=100
-pos=42234774
-sequence=Y
-fasta=ARS-UCD1.2_Btau5.0.1Y.fa
-ustart=$(expr $pos - $flank)
-uend=$(expr $pos - 1)
-dstart=$(expr $pos + 1)
-dend=$(expr $pos + $flank)
-echo "Upstream flank:" && \
-samtools faidx "$fasta" "$sequence":$ustart-$uend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
-echo "SNP site" && \
-samtools faidx "$fasta" "$sequence":$pos-$pos | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
-echo "Downstream flank:" && \
-samtools faidx "$fasta" "$sequence":$dstart-$dend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm'
-```
-
-The `perl` command is used to remove spaces within the sequence.
-
-Sample output:
-
-```text
-Upstream flank:
->Y:42234674-42234773
-GGTGTTCAGGTTTGGGAACATGTGTACACCATGGCAGATTCATGTTGATGTATGGCAAAAGCAATACAATATTGTAAAGTAATTAACCTCCAATTAAAAT
-SNP site
->Y:42234774-42234774
-A
-Downstream flank:
->Y:42234775-42234874
-AATAAATTTATATTAAAAATGCATCAATTCTTTGGCACTCAGCTTTCTTCACATTCCAATACTCACATCCATACATGACTACTGGAAAATCATAGCCTTG
-```
-
 ### Merge compressed fastq files
 
 In the following example the `sequences` folder contains paired-end data, in files like `S00EC-0001_S30_1.fastq.gz` and `S00EC-0001_S30_2.fastq.gz`. The goal is to merge all the forward reads into one file and all the reverse reads into another file.
@@ -3199,32 +3223,10 @@ In this example a random sample of 20 lines is obtained:
 tail -n +2 input.txt | perl -MList::Util -e 'print List::Util::shuffle <>' | head -n 20 > output.txt
 ```
 
-### Convert a FASTA file to a CSV file with column names
-
-```bash
-cat input.fasta | perl -n -0777 -e 'BEGIN{print "SNP_Name,Sequence\n"}' -e 'while ($_ =~ m/^>([^\n]+)\n([^>]+)/gm) {$name = $1; $seq = $2; $seq =~s/\s//g; print $name . "," . $seq . "\n"}' > output.csv
-```
-
 ### Count the number of lines that match a regular expression
 
 ```bash
 perl -lne '$a++ if /\tyes\t/; END {print $a+0}' < input.txt
-```
-
-### Extract FASTA sequences from a file based on a file of sequence names of interest
-
-In this example the sequence names of interest are in the file `names.txt` and the FASTA sequences are in the file `input.fasta`:
-
-```bash
-cat names.txt | xargs -I{} perl -w -076 -e '$count = 0; open(SEQ, "<" . $ARGV[0]); while (<SEQ>) {if ($_ =~ m/\Q$ARGV[1]\E/) {$record = $_; $record =~ s/[\s>]+$//g; print ">$record\n"; $count = $count + 1;}} if ($count == 0) {print STDERR "No matches found for $ARGV[1]\n"} elsif ($count > 1) {print STDERR "Multiple matches found for $ARGV[1]\n"} close(SEQ);' input.fasta {} > output.fasta
-```
-
-### Add a FASTA title to the start of a sequence in RAW format
-
-In this example the title `>KL1` is added to the beginning of the sequence in `KL1sequence.txt`:
-
-```bash
-perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
 ```
 
 ### Remove commas located within quoted fields in a CSV file and create a tab-delimited file
