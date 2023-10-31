@@ -4596,6 +4596,8 @@ export NFCORE_PL=sarek; export PL_VERSION=3.2.0
 
 Running an nf-core pipeline on a full data set requires preparing the necessary input files and providing more information to the pipeline using command-line parameters. See the [nf-core/sarek documentation](https://nf-co.re/sarek) for more information on how to do this with the sarek pipeline. You will also want to increase the time requested in the `sarek.sbatch` file.
 
+It isn't unusual for some jobs to fail when running a pipeline on a full data set. These failures can be due to a variety of reasons, including insufficient resources requested, or a problem with the input data. The error messages in the `.out` file serve as a starting point when trying to overcome these problems. The `-resume` option helps to minimize the impact of these failures by allowing the pipeline to resume from the point of failure.
+
 Note that the scratch folder is regularly cleaned out by administrators. If you want to keep the pipeline results, move them to your `project` or `home` folder, or download them to your local computer.
 
 ### View statistics related to the efficiency of resource usage of a completed job
