@@ -4329,7 +4329,7 @@ resources:
     runtime = 30
 ```
 
-Rules that run commands that require few resources to run (e.g. downloading a small file) can be marked as `localrules`, which causes Snakemake to run them directly on the head node instead of submitting them to the job queue for execution on a compute node:
+Rules that run commands that require few resources to run (e.g. downloading a small file) can be marked as `localrules`, which causes Snakemake to run them directly on the login instead of submitting them to the job queue for execution on a compute node:
 
 ```python
 localrules: gc_content, some_other_rule
@@ -4382,7 +4382,9 @@ module load python
 pip install snakemake --user
 ```
 
-To run the workflow, use the `snakemake` command with the `--cluster` parameter (replace `someuser` with your username):
+Once installed, the `snakemake` command can be used to run the workflow. You don't need to reinstall Snakemake each time you want to run a workflow. The `--user` option used above installs Snakemake in your home directory.
+
+To run the workflow, use the `snakemake` command with the `--cluster` parameter:
 
 ```bash
 sbc="sbatch -N 1 -c {resources.cores}\
@@ -4391,6 +4393,8 @@ sbc="sbatch -N 1 -c {resources.cores}\
  --account=def-someuser"
 snakemake --cluster "$sbc" --printshellcmds -j 10
 ```
+
+When the above command is run, Snakemake will display progress to the screen as it submits jobs. Typically you would use `tmux` or `screen` to run Snakemake in a terminal session that you can disconnect from and reconnect to later, however this workflow is simple enough that it should complete in a few minutes.
 
 Note that a `--dry-run` option can be added to a `snakemake` command to see what jobs will be run but without actually executing them.
 
@@ -4404,10 +4408,16 @@ echo "NC_005831.2: $GC" > gc/NC_005831.2_gc.txt
 
 Using the `-j` flag to limit the number of currently submitted or running jobs can help prevent reductions in your account's [priority on the cluster](https://docs.alliancecan.ca/wiki/Job_scheduling_policies). This option is especially important when running a workflow that has the potential of submitted hundreds of jobs simultaneously.
 
-Once the jobs are submitted their status can be checked as before (replace `username` with your username):
+Once the jobs are submitted their status can be checked:
 
 ```bash
-squeue -u username
+squeue -u $USER
+```
+
+Once the workflow has completed, the results can be viewed:
+
+```bash
+more result/gc_table.txt
 ```
 
 ### Run an nf-core Nextflow workflow
@@ -4418,36 +4428,38 @@ In the following example the [nf-core/sarek](https://nf-co.re/sarek) pipeline fo
 
 See the [DRAC Nextflow documentation](https://docs.alliancecan.ca/wiki/Nextflow) for more information on running Nextflow workflows on Alliance clusters.
 
-First, load some modules and install [nf-core tools](https://nf-co.re/tools) using pip (this step is slow but only needs to be done once). The nf-core tools package can be used to download nf-core pipelines and dependencies:
+First, load some modules and install [nf-core tools](https://nf-co.re/tools) using a [Python virtual environment](https://docs.python.org/3/library/venv.html) and pip (this step is slow but only needs to be done once). The nf-core tools package can be used to download nf-core pipelines and dependencies:
 
 ```bash
-cd ~
-module purge
-module load python/3.8
-module load postgresql/15.3
-python -m venv nf-core-env
-source nf-core-env/bin/activate
-python -m pip install nf_core==2.6
+module purge && module load python/3.8 && module load postgresql/15.3
+python -m venv $HOME/nf-core-env # create a virtual environment
+source $HOME/nf-core-env/bin/activate # activate the environment
+python -m pip install nf_core==2.6 # install nf-core tools in the environment
 ```
 
 In the future you can activate the environment using:
 
 ```bash
-cd ~
-source nf-core-env/bin/activate
+source $HOME/nf-core-env/bin/activate
+```
+
+To deactivate the environment use:
+
+```bash
+deactivate
 ```
 
 To view a list of available nf-core pipelines use the following:
 
 ```bash
+source $HOME/nf-core-env/bin/activate
 nf-core list
 ```
 
 Set environment variables to store the name of the pipeline we are going to run and its version:
 
 ```bash
-export NFCORE_PL=sarek
-export PL_VERSION=3.2.0
+export NFCORE_PL=sarek; export PL_VERSION=3.2.0
 ```
 
 `sarek` is the name of the pipeline, and `3.2.0` is the version. The `export` command allows you to set environment variables that will be available to any commands you run in the current shell session, including jobs submitted to the cluster.
@@ -4474,11 +4486,11 @@ nf-core download --singularity-cache-only --container singularity \
 --compress none -r ${PL_VERSION} -p 6 ${NFCORE_PL}
 ```
 
-The pipeline code is downloaded to current directory whereas the containers are downloaded to the folder specified by the `NXF_SINGULARITY_CACHEDIR` environment variable.
+The pipeline code is downloaded to a folder in the `hpc-data/nextflow` directory whereas the containers are downloaded to the folder specified by the `NXF_SINGULARITY_CACHEDIR` environment variable.
 
 With the pipeline and containers downloaded, we can now run the pipeline using a test data set provided by the pipeline developers.
 
-Create a Nextflow configuration file called `nextflow.config` and containing the following, replacing `<my-account>` with your account name:
+Create a Nextflow configuration file called `nextflow.config` containing the following:
 
 ```bash
 singularity{
@@ -4488,7 +4500,6 @@ singularity{
 process {
   executor = 'slurm' 
   pollInterval = '60 sec'
-  clusterOptions = '--account=<my-account>'
   submitRateLimit = '60/1min'
   queueSize = 100 
   errorStrategy = 'retry'
@@ -4520,17 +4531,10 @@ profiles {
 
 To create this file using `vim` enter `vim nextflow.config` and then in `vim` use `:set paste` to enter paste mode. Next, right-click to paste the above, then enter `:set nopaste` to exit paste mode, and enter `:wq` to save and exit.
 
-Nextflow itself uses too many resources to be run on the login node, so we will run it as a job. Create a batch script called `sarek.sbatch` with the following contents, replacing `<my-email>` with your email address and `<my-account>` with your account name:
+Nextflow itself uses too many resources to be run on the login node, so we will run it as a job. Create a batch script called `sarek.sbatch` with the following contents:
 
 ```bash
 #!/bin/bash
-#SBATCH --mail-user=<my-email>
-#SBATCH --mail-type=BEGIN
-#SBATCH --mail-type=END
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-type=REQUEUE
-#SBATCH --mail-type=ALL
-#SBATCH --account=<my-account>
 #SBATCH --job-name=sarek
 #SBATCH --output=sarek_%j.out
 #SBATCH --error=sarek_%j.err
@@ -4543,39 +4547,54 @@ module load nextflow/22.10.6
 module load apptainer/1.1.6
 
 nextflow run nf-core-${NFCORE_PL}-${PL_VERSION}/workflow/ \
+--clusterOptions "--account=def-${USER}" \
 -c nextflow.config \
--resume -profile test,singularity,cedar --outdir sarek
+-profile test,singularity,cedar \
+--outdir sarek_output
 ```
 
 To create in `vim` enter `vim sarek.sbatch` and then in `vim` use `:set paste` to enter paste mode. Right-click to paste the above, enter `:set nopaste` to exit paste mode, and enter `:wq` to save and exit.
 
-The above batch script will run the pipeline using the `cedar` profile, which is suitable for the Cedar cluster. If you are using a different cluster, change the profile as appropriate, or add a new profile to the `nextflow.config` file. The `test,singularity` options are used to run the pipeline using the test data set and the Singularity containers we downloaded earlier.
+The script loads two modules that are needed to run Nextflow and the Apptainer/Singularity containers. The `nextflow run` command is used to run the pipeline. The `nf-core-${NFCORE_PL}-${PL_VERSION}/workflow/` part of the command is used to specify the location of the pipeline code, which we downloaded earlier.
+
+The `--clusterOptions` option is used to pass options to the Slurm job scheduler. In this case we are requesting that the job be run using the default allocation for the user.
+
+A `nextflow.conf` file included in `hpc-data/nextflow` provides information to help Nextflow run jobs on the cluster. This configuration file is passed to Nextflow using the `-c` option.
+
+The `--profile` option is used to specify that test data will be used, that Apptainer/Singularity containers will be used, and that the pipeline will be run using information provided in the `cedar` section of the `nextflow.config` file.
+
+The `--outdir` option specifies the folder where the pipeline results will be written.
 
 Submit the batch job:
 
 ```bash
-sbatch sarek.sbatch
+$ sbatch --account=def-${USER} sarek.sbatch
 ```
 
 To view the status of the job:
 
 ```bash
-squeue -u <my-username>
+$ squeue --format="%i %u %j %t" -u $USER | column -t
 ```
 
-Once the job is complete, examine the `.out` and `.err` files as well as the files in the `sarek` folder.
+Once this job is running, Nextflow will start submitting its own jobs, for the various steps of the pipeline. These jobs will be included in the output of the `squeue` command.
+
+Once all the jobs are complete, examine the `.out` and `.err` files as well as the files in the `sarek_output` folder.
+
+The `work` folder that is created by Nextflow contains the results of each step of the pipeline and allows work to be resumed if the pipeline is interrupted, by adding the `--resume` option to the `nextflow run` command.
 
 If you log out of the cluster you will need to set the environment variables again before re-running the pipeline:
 
 ```bash
-cd ~
-source nf-core-env/bin/activate
-export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity
-export NFCORE_PL=sarek
-export PL_VERSION=3.2.0
+$ cd ~/scratch
+$ source $HOME/nf-core-env/bin/activate
+$ export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity; \
+export NFCORE_PL=sarek; export PL_VERSION=3.2.0
 ```
 
-Running an nf-core pipeline on a full data set requires providing more information to the pipeline using command-line parameters. See the [nf-core/sarek documentation](https://nf-co.re/sarek) for more information on how to do this with the sarek pipeline. You will also want to increase the time requested in the `sarek.sbatch` file.
+Running an nf-core pipeline on a full data set requires preparing the necessary input files and providing more information to the pipeline using command-line parameters. See the [nf-core/sarek documentation](https://nf-co.re/sarek) for more information on how to do this with the sarek pipeline. You will also want to increase the time requested in the `sarek.sbatch` file.
+
+Note that the scratch folder is regularly cleaned out by administrators. If you want to keep the pipeline results, move them to your `project` or `home` folder, or download them to your local computer.
 
 ### View statistics related to the efficiency of resource usage of a completed job
 
