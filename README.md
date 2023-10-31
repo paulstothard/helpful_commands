@@ -4482,6 +4482,8 @@ Download the pipeline and the containers it uses:
 
 ```bash
 cd ~/scratch
+module load nextflow/22.10.6
+module load apptainer/1.1.6
 nf-core download --singularity-cache-only --container singularity \
 --compress none -r ${PL_VERSION} -p 6 ${NFCORE_PL}
 ```
