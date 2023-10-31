@@ -4488,7 +4488,7 @@ nf-core download --singularity-cache-only --container singularity \
 --compress none -r ${PL_VERSION} -p 6 ${NFCORE_PL}
 ```
 
-The pipeline code is downloaded to a folder in the `hpc-data/nextflow` directory whereas the containers are downloaded to the folder specified by the `NXF_SINGULARITY_CACHEDIR` environment variable.
+The pipeline code is downloaded to the working directory whereas the containers are downloaded to the folder specified by the `NXF_SINGULARITY_CACHEDIR` environment variable.
 
 With the pipeline and containers downloaded, we can now run the pipeline using a test data set provided by the pipeline developers.
 
@@ -4551,17 +4551,23 @@ module load apptainer/1.1.6
 nextflow run nf-core-${NFCORE_PL}-${PL_VERSION}/workflow/ \
 --clusterOptions "--account=def-${USER}" \
 -c nextflow.config \
--profile test,singularity,cedar \
---outdir sarek_output
+-ansi-log false -resume \
+-profile test,singularity,cedar --outdir sarek_output
 ```
 
 To create in `vim` enter `vim sarek.sbatch` and then in `vim` use `:set paste` to enter paste mode. Right-click to paste the above, enter `:set nopaste` to exit paste mode, and enter `:wq` to save and exit.
 
-The script loads two modules that are needed to run Nextflow and the Apptainer/Singularity containers. The `nextflow run` command is used to run the pipeline. The `nf-core-${NFCORE_PL}-${PL_VERSION}/workflow/` part of the command is used to specify the location of the pipeline code, which we downloaded earlier.
+The script loads two modules that are needed to run Nextflow and the Apptainer/Singularity containers.
 
-The `--clusterOptions` option is used to pass options to the Slurm job scheduler. In this case we are requesting that the job be run using the default allocation for the user.
+The `nextflow run` command is used to run the workflow we downloaded earlier.
 
-A `nextflow.conf` file included in `hpc-data/nextflow` provides information to help Nextflow run jobs on the cluster. This configuration file is passed to Nextflow using the `-c` option.
+The `--clusterOptions` option is used to pass options to the Slurm job scheduler. In this case we are requesting that the job be run using our default allocation.
+
+A `nextflow.conf` file provides information to help Nextflow run jobs on the cluster. This configuration file is passed to Nextflow using the `-c` option and can be reused for other Nextflow workflows.
+
+The `-ansi-log false` option is used to disable the use of ANSI escape codes in the log file. This is useful when viewing the log file in a text editor.
+
+The `-resume` option is used to tell Nextflow to resume a previous run if it was interrupted. This option is useful when running a workflow that takes a long time to complete, since any intermediate results that were generated will be used instead of being regenerated.
 
 The `--profile` option is used to specify that test data will be used, that Apptainer/Singularity containers will be used, and that the pipeline will be run using information provided in the `cedar` section of the `nextflow.config` file.
 
@@ -4579,13 +4585,17 @@ To view the status of the job:
 squeue --format="%i %u %j %t" -u $USER | column -t
 ```
 
-Once this job is running, Nextflow will start submitting its own jobs, for the various steps of the pipeline. These jobs will be included in the output of the `squeue` command.
+Once this job is running, Nextflow will start submitting its own jobs, for the various steps of the pipeline. These jobs will be included in the output of the `squeue` command. You can log out of the cluster and the pipeline will continue to run.
 
 Once all the jobs are complete, examine the `.out` and `.err` files as well as the files in the `sarek_output` folder.
 
-The `work` folder that is created by Nextflow contains the results of each step of the pipeline and allows work to be resumed if the pipeline is interrupted, by adding the `--resume` option to the `nextflow run` command.
+The `.out` file will contain progress and error messages and will indicate whether the pipeline completed successfully. The `.err` file may contain error messages depending on the types of errors encountered.
 
-If you log out of the cluster you will need to set the environment variables again before re-running the pipeline:
+The `work` folder that is created by Nextflow contains the output of each step of the pipeline. The contents of this folder can be used to resume a pipeline run if it is interrupted.
+
+If the pipeline doesn't complete within the requested time (3 hours) you can re-run it using the same command as before, and it will continue from where it left off. You can also double the time requested by adding `--time=6:00:00` to the `sbatch` command.
+
+Note that if you log out of the cluster you will need to set the environment variables again before re-running the pipeline:
 
 ```bash
 cd ~/scratch
