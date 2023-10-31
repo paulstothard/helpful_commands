@@ -4568,13 +4568,13 @@ The `--outdir` option specifies the folder where the pipeline results will be wr
 Submit the batch job:
 
 ```bash
-$ sbatch --account=def-${USER} sarek.sbatch
+sbatch --account=def-${USER} sarek.sbatch
 ```
 
 To view the status of the job:
 
 ```bash
-$ squeue --format="%i %u %j %t" -u $USER | column -t
+squeue --format="%i %u %j %t" -u $USER | column -t
 ```
 
 Once this job is running, Nextflow will start submitting its own jobs, for the various steps of the pipeline. These jobs will be included in the output of the `squeue` command.
@@ -4586,9 +4586,9 @@ The `work` folder that is created by Nextflow contains the results of each step 
 If you log out of the cluster you will need to set the environment variables again before re-running the pipeline:
 
 ```bash
-$ cd ~/scratch
-$ source $HOME/nf-core-env/bin/activate
-$ export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity; \
+cd ~/scratch
+source $HOME/nf-core-env/bin/activate
+export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity; \
 export NFCORE_PL=sarek; export PL_VERSION=3.2.0
 ```
 
