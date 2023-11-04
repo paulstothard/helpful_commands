@@ -1165,8 +1165,6 @@ docker run --rm -it --entrypoint bash nidhaloff/igel
 Use the `--entrypoint` option to override the entrypoint. In this example the entrypoint is revised to `/opt/conda/bin/bakta_db` and the `list` option is passed to the `bakta_db` command:
 
 ```bash
-
-```bash
 docker run --rm --entrypoint='/opt/conda/bin/bakta_db' oschwengers/bakta list
 ```
 
