@@ -396,12 +396,59 @@ Command-line tools, commands, and code snippets for performing routine data proc
 awk 'BEGIN{print "my header text"}1' input.txt
 ```
 
+### Add up the values in a column
+
+In this example values in column `5` are summed in a file with columns separated by one or more blank spaces:
+
+```bash
+awk -F' {1,}' '{sum+=$5} END {print sum}' input.txt
+```
+
 ### Convert a CSV file to a FASTA file
 
 In this example column `1` contains the sequence title and column `3` contains the sequence:
 
 ```bash
 awk -F, '{print ">"$1"\n"$3"\n"}' input.csv
+```
+
+### Create a new column from two existing columns
+
+In this example the values in columns `3` and `4` are added to create a new column:
+
+```bash
+awk -F, '{print $0,$3+$4}' input.txt
+```
+
+### Extract sequences from a multi-FASTA file based on title
+
+In this example the sequence titles to extract (`X` and `Y`) are listed in the file `ids.txt`:
+
+```text
+X
+Y
+```
+
+The sequences are extracted from the file `ARS-UCD1.2_Btau5.0.1Y.fa`:
+
+```bash
+awk -F'>' 'NR==FNR{ids[$0]; next} NF>1{f=($2 in ids)} f' ids.txt ARS-UCD1.2_Btau5.0.1Y.fa
+```
+
+### For each category in one column, add up the values in another column
+
+In this example values in column `2` are summed up for each category in column `1`:
+
+```bash
+awk -F, '{a[$1]+=$2}END{for(i in a) print i,a[i]}' input.csv
+```
+
+### Print column names and numbers
+
+In this example the first row of the input file contains the column names:
+
+```bash
+awk -F $'\t' 'NR>1{exit};{for (i = 1; i <= NF; i++) print "column " i,"is " $i}' input.tab
 ```
 
 ### Print lines in file when a certain column contains a specific value
@@ -424,44 +471,58 @@ Print the first line and lines when the value in column `1` equals `9913`:
 awk -F, 'NR==1; NR > 1 {if ($1 == 9913) print $0}' input.csv
 ```
 
-### Replace certain values in specific columns
+### Print lines where certain fields contain values of interest
 
-In this example `1` and `-1` in column `23` are replaced with `forward` and `reverse`, respectively:
+In this example the value in column `2` is printed when column `1` contains text that matches `comp`:
 
 ```bash
-awk -F\\t 'BEGIN {OFS = "\t"} {sub(/^1/, "forward", $23); sub(/^-1/, "reverse", $23); print}' input.tab
+awk -F, '$1 ~ /comp/ { print $2 }' input.csv
 ```
 
-### Add up the values in a column
-
-In this example values in column `5` are summed in a file with columns separated by one or more blank spaces:
+In this example lines where column `2` equals `7` and column `3` is between `60240145` and `60255062` are printed:
 
 ```bash
-awk -F' {1,}' '{sum+=$5} END {print sum}' input.txt
+awk -F, '{ if ($2 == 7 && $3 >= 60240145 && $3 <= 60255062) print $0 }' input.csv
 ```
 
-### Create a new column from two existing columns
-
-In this example the values in columns `3` and `4` are added to create a new column:
+In this example the header line is printed, followed by lines where column `2` starts with `MT-` and column `3` starts with `MT-`:
 
 ```bash
-awk -F, '{print $0,$3+$4}' input.txt
+awk -F $'\t' 'NR==1{print; next} $1~/^MT-/ && $2~/^MT-/' input.tab
 ```
 
-### For each category in one column, add up the values in another column
+### Print only specific columns, identified by name in the first row
 
-In this example values in column `2` are summed up for each category in column `1`:
+In this example the columns named `Affy SNP ID` and `Flank` are printed:
 
 ```bash
-awk -F, '{a[$1]+=$2}END{for(i in a) print i,a[i]}' input.csv
+awk -F, 'NR==1 { for (i=1; i<=NF; i++) { ix[$i] = i } } NR>1 { print $ix["Affy SNP ID"]","$ix["Flank"] }' input.csv
 ```
 
-### Print column names and numbers
-
-In this example the first row of the input file contains the column names:
+### Print only the first non-commented line
 
 ```bash
-awk -F $'\t' 'NR>1{exit};{for (i = 1; i <= NF; i++) print "column " i,"is " $i}' input.tab
+awk '/^[^#]/ { print $0;exit; }' input.txt
+```
+
+### Print only the lines coming after a certain starting line and before a certain ending line
+
+In this example the lines coming after a line starting with `IlmnID` and before a line starting with `[Controls]` are printed:
+
+```bash
+awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv
+```
+
+### Print the average read length for a FASTQ file
+
+```bash
+awk 'NR%4==2{sum+=length($0)}END{print sum/(NR/4)}' input.fastq
+```
+
+### Print the number of lines exhibiting each distinct number of fields
+
+```bash
+awk -F $'\t' '{count[NF]++}END{for(j in count) print "line length " j,"("count[j]" counts)"}' input.tab
 ```
 
 ### Print the values observed in a specific column, along with the number of times each value is observed
@@ -484,80 +545,18 @@ In this example the counts for each distinct pair of values in column `1` and co
 awk -F $'\t' '{count[$1"\t"$2]++}END{for(j in count) print j"\t"count[j]}' input.tab
 ```
 
-### Print the number of lines exhibiting each distinct number of fields
+### Replace certain values in specific columns
+
+In this example `1` and `-1` in column `23` are replaced with `forward` and `reverse`, respectively:
 
 ```bash
-awk -F $'\t' '{count[NF]++}END{for(j in count) print "line length " j,"("count[j]" counts)"}' input.tab
+awk -F\\t 'BEGIN {OFS = "\t"} {sub(/^1/, "forward", $23); sub(/^-1/, "reverse", $23); print}' input.tab
 ```
 
-### Print lines where certain fields contain values of interest
-
-In this example the value in column `2` is printed when column `1` contains text that matches `comp`:
+### Reverse the order of lines in a file using awk
 
 ```bash
-awk -F, '$1 ~ /comp/ { print $2 }' input.csv
-```
-
-In this example lines where column `2` equals `7` and column `3` is between `60240145` and `60255062` are printed:
-
-```bash
-awk -F, '{ if ($2 == 7 && $3 >= 60240145 && $3 <= 60255062) print $0 }' input.csv
-```
-
-In this example the header line is printed, followed by lines where column `2` starts with `MT-` and column `3` starts with `MT-`:
-
-```bash
-awk -F $'\t' 'NR==1{print; next} $1~/^MT-/ && $2~/^MT-/' input.tab
-```
-
-### Write each row to a separate file named after the value in a specific column
-
-In this example each file is named after the value in column `1`:
-
-```bash
-awk -F $'\t' '{ fname = $1 ".txt"; print >>fname; close(fname) }' input.tab
-```
-
-### Print only specific columns, identified by name in the first row
-
-In this example the columns named `Affy SNP ID` and `Flank` are printed:
-
-```bash
-awk -F, 'NR==1 { for (i=1; i<=NF; i++) { ix[$i] = i } } NR>1 { print $ix["Affy SNP ID"]","$ix["Flank"] }' input.csv
-```
-
-### Print only the lines coming after a certain starting line and before a certain ending line
-
-In this example the lines coming after a line starting with `IlmnID` and before a line starting with `[Controls]` are printed:
-
-```bash
-awk -F, '/^IlmnID/{flag=1;print;next}/^\[Controls\]/{flag=0}flag' input.csv
-```
-
-### Print only the first non-commented line
-
-```bash
-awk '/^[^#]/ { print $0;exit; }' input.txt
-```
-
-### Print the average read length for a FASTQ file
-
-```bash
-awk 'NR%4==2{sum+=length($0)}END{print sum/(NR/4)}' input.fastq
-```
-
-### Sort lines based on order of IDs in another file
-
-In this example the records in `file_to_sort.csv` have an identifier in column `1` that is present in `sorted_ids.txt`, which has a single column:
-
-```bash
-awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' file_to_sort.csv sorted_ids.txt
-```
-
-If both files have a single header line the following can be used to generate the sorted output with the restored header line:
-
-```bash
-(head -n 1 file_to_sort.csv && awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' <(tail -n +2 file_to_sort.csv) <(tail -n +2 sorted_ids.txt)) > sorted.csv
+awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' input.txt
 ```
 
 ### Skip footer lines
@@ -582,40 +581,29 @@ The following skips the first `5` lines:
 awk 'FNR > 5 { print $0 }' input.txt
 ```
 
-### Extract sequences from a multi-FASTA file based on title
+### Sort lines based on order of IDs in another file
 
-In this example the sequence titles to extract (`X` and `Y`) are listed in the file `ids.txt`:
-
-```text
-X
-Y
-```
-
-The sequences are extracted from the file `ARS-UCD1.2_Btau5.0.1Y.fa`:
+In this example the records in `file_to_sort.csv` have an identifier in column `1` that is present in `sorted_ids.txt`, which has a single column:
 
 ```bash
-awk -F'>' 'NR==FNR{ids[$0]; next} NF>1{f=($2 in ids)} f' ids.txt ARS-UCD1.2_Btau5.0.1Y.fa
+awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' file_to_sort.csv sorted_ids.txt
 ```
 
-### Reverse the order of lines in a file using awk
+If both files have a single header line the following can be used to generate the sorted output with the restored header line:
 
 ```bash
-awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' input.txt
+(head -n 1 file_to_sort.csv && awk -F, 'NR==FNR {a[$1]=$0; next} ($0 in a) {print a[$0]}' <(tail -n +2 file_to_sort.csv) <(tail -n +2 sorted_ids.txt)) > sorted.csv
+```
+
+### Write each row to a separate file named after the value in a specific column
+
+In this example each file is named after the value in column `1`:
+
+```bash
+awk -F $'\t' '{ fname = $1 ".txt"; print >>fname; close(fname) }' input.tab
 ```
 
 ## Bash
-
-### View STDOUT and append it to a file
-
-```bash
-some_command | tee -a output.txt
-```
-
-### Redirect STDERR to STDOUT and view both and append both to a file
-
-```bash
-some_command 2>&1 | tee -a log
-```
 
 ### Change Bash prompt temporarily
 
@@ -656,6 +644,42 @@ extract() {
     echo "'$1' is not a valid file"
   fi
 }
+```
+
+### Extract part of filename
+
+In this example the filename `NS.2035.002.IDT_i7_9---IDT_i5_9.2032929-45-1_R1.fastq.gz` contains the sample name `9.2032929-45-1`.
+
+To obtain the sample name:
+
+```bash
+file=NS.2035.002.IDT_i7_9---IDT_i5_9.2032929-45-1_R1.fastq.gz
+
+# remove from the start up to and including the first i5_
+without_upstream=${file#*i5_}
+
+# remove from the end up to and including the first _
+without_upstream_and_downstream=${without_upstream%_*}
+
+# check the result
+# 9.2032929-45-1
+echo $without_upstream_and_downstream
+```
+
+### Perform a calculation on the command line
+
+Use Bash arithmetic expansion:
+
+```bash
+n=6
+echo "$(( n - 1 * 2 ))"
+answer="$(( n - 1 * 2 ))"
+```
+
+### Redirect STDERR to STDOUT and view both and append both to a file
+
+```bash
+some_command 2>&1 | tee -a log
 ```
 
 ### Save the output of a command in a variable
@@ -720,57 +744,13 @@ done
 
 A simpler approach is to use [parallel](#parallel).
 
-### Perform a calculation on the command line
-
-Use Bash arithmetic expansion:
+### View STDOUT and append it to a file
 
 ```bash
-n=6
-echo "$(( n - 1 * 2 ))"
-answer="$(( n - 1 * 2 ))"
-```
-
-### Extract part of filename
-
-In this example the filename `NS.2035.002.IDT_i7_9---IDT_i5_9.2032929-45-1_R1.fastq.gz` contains the sample name `9.2032929-45-1`.
-
-To obtain the sample name:
-
-```bash
-file=NS.2035.002.IDT_i7_9---IDT_i5_9.2032929-45-1_R1.fastq.gz
-
-# remove from the start up to and including the first i5_
-without_upstream=${file#*i5_}
-
-# remove from the end up to and including the first _
-without_upstream_and_downstream=${without_upstream%_*}
-
-# check the result
-# 9.2032929-45-1
-echo $without_upstream_and_downstream
+some_command | tee -a output.txt
 ```
 
 ## brew
-
-### List installed packages
-
-```bash
-brew list
-```
-
-### View available packages
-
-To view packages available from the core tap via the Homebrew package manager for macOS:
-
-- [https://formulae.brew.sh/formula/](https://formulae.brew.sh/formula/)
-
-### Install a package
-
-In this example `parallel`:
-
-```bash
-brew install parallel
-```
 
 ### Add a third-party repository
 
@@ -778,6 +758,22 @@ In this example `brewsci/bio` for bioinformatics software:
 
 ```bash
 brew tap brewsci/bio
+```
+
+### Install a graphical application
+
+In this example the Firefox browser:
+
+```bash
+brew install firefox --cask
+```
+
+### Install a package
+
+In this example `parallel`:
+
+```bash
+brew install parallel
 ```
 
 ### Install directly from a third-party repository
@@ -788,14 +784,16 @@ In this example `clustal-w` from `brewsci/bio`:
 brew install brewsci/bio/clustal-w
 ```
 
-### View packages available from brewsci/bio
-
-- [https://github.com/brewsci/homebrew-bio/tree/develop/Formula](https://github.com/brewsci/homebrew-bio/tree/develop/Formula)
-
 ### List installed graphical applications
 
 ```bash
 brew list --cask
+```
+
+### List installed packages
+
+```bash
+brew list
 ```
 
 ### View available graphical applications
@@ -804,28 +802,36 @@ To view graphical applications available from the cask tap via the Homebrew pack
 
 - [https://formulae.brew.sh/cask/](https://formulae.brew.sh/cask/)
 
-### Install a graphical application
+### View available packages
 
-In this example the Firefox browser:
+To view packages available from the core tap via the Homebrew package manager for macOS:
 
-```bash
-brew install firefox --cask
-```
+- [https://formulae.brew.sh/formula/](https://formulae.brew.sh/formula/)
+
+### View packages available from brewsci/bio
+
+- [https://github.com/brewsci/homebrew-bio/tree/develop/Formula](https://github.com/brewsci/homebrew-bio/tree/develop/Formula)
 
 ## Conda
 
-### Install Miniconda
+### Activate an environment
 
 ```bash
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-bash Miniconda3-latest-Linux-x86_64.sh -b
-source ~/miniconda3/bin/activate
-conda init
-source ~/.bashrc
-conda update -y -n base -c defaults conda
+conda activate ngs
 ```
 
-To install Conda with included support for [Mamba](#mamba), use [Miniforge](https://github.com/conda-forge/miniforge).
+### Add additional packages to an environment
+
+```bash
+conda activate ngs
+conda install -y -c bioconda -c conda-forge picard
+```
+
+### Create a conda environment from a yaml file
+
+```bash
+conda env create --file env-environment.yaml
+```
 
 ### Create an environment and install some packages
 
@@ -843,29 +849,31 @@ conda install -y -c bioconda -c conda-forge multiqc fastqc trimmomatic bowtie2 s
 conda deactivate
 ```
 
-### Activate an environment
+### Export an environment to a yaml file
+
+Use the `export` command while the environment is active:
 
 ```bash
-conda activate ngs
+conda env export > env-environment.yaml
 ```
+
+### Install Miniconda
+
+```bash
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -b
+source ~/miniconda3/bin/activate
+conda init
+source ~/.bashrc
+conda update -y -n base -c defaults conda
+```
+
+To install Conda with included support for [Mamba](#mamba), use [Miniforge](https://github.com/conda-forge/miniforge).
 
 ### List available packages
 
 ```bash
 conda search -c bioconda -c conda-forge
-```
-
-### Search for a specific package
-
-```bash
-conda search -c bioconda -c conda-forge blast
-```
-
-### Add additional packages to an environment
-
-```bash
-conda activate ngs
-conda install -y -c bioconda -c conda-forge picard
 ```
 
 ### List environments
@@ -889,18 +897,10 @@ conda deactivate
 conda env remove --name my-env
 ```
 
-### Export an environment to a yaml file
-
-Use the `export` command while the environment is active:
+### Search for a specific package
 
 ```bash
-conda env export > env-environment.yaml
-```
-
-### Create a conda environment from a yaml file
-
-```bash
-conda env create --file env-environment.yaml
+conda search -c bioconda -c conda-forge blast
 ```
 
 ## csvkit
@@ -919,22 +919,10 @@ in2csv data.xls > data.csv
 in2csv data.json > data.csv
 ```
 
-### Print column names
+### Convert to JSON
 
 ```bash
-csvcut -n data.csv
-```
-
-### Select a subset of columns
-
-```bash
-csvcut -c column_a,column_c data.csv > new.csv
-```
-
-### Reorder columns
-
-```bash
-csvcut -c column_c,column_a data.csv > new.csv
+csvjson data.csv > data.json
 ```
 
 ### Find rows with matching cells
@@ -943,22 +931,10 @@ csvcut -c column_c,column_a data.csv > new.csv
 csvgrep -c phone_number -r "555-555-\d{4}" data.csv > new.csv
 ```
 
-### Convert to JSON
-
-```bash
-csvjson data.csv > data.json
-```
-
 ### Generate summary statistics
 
 ```bash
 csvstat data.csv
-```
-
-### Query with SQL
-
-```bash
-csvsql --query "select name from data where age > 30" data.csv > new.csv
 ```
 
 ### Merge CSV files on a specified column or columns
@@ -969,39 +945,31 @@ csvjoin -c ID file1.csv file2.csv > inner_join_on_ID.csv
 
 By default `csvjoin` performs an inner join. Other joins can be performed using `--outer`, `--left`, and `--right`.
 
+### Print column names
+
+```bash
+csvcut -n data.csv
+```
+
+### Query with SQL
+
+```bash
+csvsql --query "select name from data where age > 30" data.csv > new.csv
+```
+
+### Reorder columns
+
+```bash
+csvcut -c column_c,column_a data.csv > new.csv
+```
+
+### Select a subset of columns
+
+```bash
+csvcut -c column_a,column_c data.csv > new.csv
+```
+
 ## cut
-
-### Extract columns of interest
-
-In this example columns `1` and `2` are extracted from a from a CSV file:
-
-```bash
-cut -d, -f 1,2 sequenced_samples.csv
-```
-
-### Extract a range of columns
-
-In this example columns `3`, `10`, `11`, and `12` are extracted from a tab-delimited file:
-
-```bash
-cut -d $'\t' -f 3,10-12 bovine_genotypes.vcf
-```
-
-### Extract everything except one column
-
-In this example all columns except column `1` are returned (the `-f 2-` is used to mean "from field 2 to the end"):
-
-```bash
-cut -d $'\t' -f 2- bovine_genotypes.vcf
-```
-
-### Extract characters
-
-Here `cut` is used to extract the first three characters from each line:
-
-```bash
-cut -c 1-3 sequenced_samples.csv
-```
 
 ### Change field separators
 
@@ -1031,6 +999,38 @@ while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",?
 | ([^,]+),? | ,}gx; push( @new, undef )
 if substr( $text, -1, 1 ) eq '\'','\'';
 for(@new){s/,/ /g} print join "\t", @new' sequenced_samples.csv
+```
+
+### Extract a range of columns
+
+In this example columns `3`, `10`, `11`, and `12` are extracted from a tab-delimited file:
+
+```bash
+cut -d $'\t' -f 3,10-12 bovine_genotypes.vcf
+```
+
+### Extract characters
+
+Here `cut` is used to extract the first three characters from each line:
+
+```bash
+cut -c 1-3 sequenced_samples.csv
+```
+
+### Extract columns of interest
+
+In this example columns `1` and `2` are extracted from a from a CSV file:
+
+```bash
+cut -d, -f 1,2 sequenced_samples.csv
+```
+
+### Extract everything except one column
+
+In this example all columns except column `1` are returned (the `-f 2-` is used to mean "from field 2 to the end"):
+
+```bash
+cut -d $'\t' -f 2- bovine_genotypes.vcf
 ```
 
 ## datamash
@@ -1069,6 +1069,115 @@ datamash -H -t, transpose < example.csv
 
 ## Docker
 
+### Annotate a bacterial genome using Bakta
+
+Download a Bakta Docker image:
+
+```bash
+docker pull oschwengers/bakta
+```
+
+Prepare the Bakta database (the `--type` argument can be `light` or `full`):
+
+```bash
+docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir -e PATH=/opt/conda/bin/ --entrypoint=/opt/conda/bin/bakta_db oschwengers/bakta download --output my_database --type light
+```
+
+Annotate the genome. In this example the genome sequence to be annotated is in a file called `UAMS_ABS94.fna`, located in the current directory:
+
+```bash
+docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir oschwengers/bakta --db my_database/db-light --output UAMS_ABS94 UAMS_ABS94.fna
+```
+
+### Annotate a bacterial genome using Prokka
+
+Download a Prokka Docker image:
+
+```bash
+docker pull staphb/prokka:latest
+```
+
+Create a container from the image and run `prokka` to annotate the sequence. In this example the genome sequence to be annotated is in a file called `sequence.fasta`, located in the current directory, and four CPUs are used:
+
+```bash
+docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir staphb/prokka:latest prokka sequence.fasta --cpus 4
+```
+
+### Compare sequence reads to a bacterial genome to find SNPs using Snippy
+
+Download a Snippy Docker image:
+
+```bash
+docker pull quay.io/biocontainers/snippy:4.6.0--hdfd78af_1
+```
+
+Create a container from the image and run `snippy` to find SNPs. In this example the reference sequence is in a file called `sequence.gbk`, and the reads are in `J10_S210_R1_001.fastq` and `J10_S210_R2_001.fastq`:
+
+```bash
+docker run -it --rm \
+-u "$(id -u)":"$(id -g)" \
+-v "$(pwd)":/directory \
+-w /directory \
+quay.io/biocontainers/snippy:4.6.0--hdfd78af_1 \
+snippy --cpus 4 --outdir output --reference sequence.gbk --R1 J10_S210_R1_001.fastq --R2 J10_S210_R2_001.fastq
+```
+
+### Delete all containers that are not running
+
+```bash
+docker container rm $(docker ps -a -q)
+```
+
+### Delete all images
+
+```bash
+docker system prune --all
+```
+
+### Get an interactive bash shell in a Docker container
+
+```bash
+docker run -it quay.io/biocontainers/snippy:4.6.0--hdfd78af_1 /bin/bash
+```
+
+Or
+
+```bash
+docker run --rm -it --entrypoint bash nidhaloff/igel
+```
+
+### Kill all running containers
+
+```bash
+docker container kill $(docker ps -q)
+```
+
+Or to continually kill containers:
+
+```bash
+while true; do docker container kill $(docker ps -q); sleep 2; done
+```
+
+### List images
+
+```bash
+docker image ls
+```
+
+### List running containers
+
+```bash
+docker container ls
+```
+
+### Override the entrypoint
+
+Use the `--entrypoint` option to override the entrypoint. In this example the entrypoint is revised to `/opt/conda/bin/bakta_db` and the `list` option is passed to the `bakta_db` command:
+
+```bash
+docker run --rm --entrypoint='/opt/conda/bin/bakta_db' oschwengers/bakta list
+```
+
 ### Perform a sequence comparison using legacy BLAST
 
 Download a legacy BLAST Docker image:
@@ -1095,79 +1204,6 @@ To perform a blastn search using the formatted database and a query called `quer
 docker run -it --rm -v "$(pwd)":/directory/database -v "${HOME}":/directory/query -u "$(id -u)":"$(id -g)" -w /directory quay.io/biocontainers/blast-legacy:2.2.26--2 blastall -p blastn -d database/database.fasta -i query/query.fasta
 ```
 
-### Annotate a bacterial genome using Prokka
-
-Download a Prokka Docker image:
-
-```bash
-docker pull staphb/prokka:latest
-```
-
-Create a container from the image and run `prokka` to annotate the sequence. In this example the genome sequence to be annotated is in a file called `sequence.fasta`, located in the current directory, and four CPUs are used:
-
-```bash
-docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir staphb/prokka:latest prokka sequence.fasta --cpus 4
-```
-
-### Annotate a bacterial genome using Bakta
-
-Download a Bakta Docker image:
-
-```bash
-docker pull oschwengers/bakta
-```
-
-Prepare the Bakta database (the `--type` argument can be `light` or `full`):
-
-```bash
-docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir -e PATH=/opt/conda/bin/ --entrypoint=/opt/conda/bin/bakta_db oschwengers/bakta download --output my_database --type light
-```
-
-Annotate the genome. In this example the genome sequence to be annotated is in a file called `UAMS_ABS94.fna`, located in the current directory:
-
-```bash
-docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir oschwengers/bakta --db my_database/db-light --output UAMS_ABS94 UAMS_ABS94.fna
-```
-
-### Compare sequence reads to a bacterial genome to find SNPs using Snippy
-
-Download a Snippy Docker image:
-
-```bash
-docker pull quay.io/biocontainers/snippy:4.6.0--hdfd78af_1
-```
-
-Create a container from the image and run `snippy` to find SNPs. In this example the reference sequence is in a file called `sequence.gbk`, and the reads are in `J10_S210_R1_001.fastq` and `J10_S210_R2_001.fastq`:
-
-```bash
-docker run -it --rm \
--u "$(id -u)":"$(id -g)" \
--v "$(pwd)":/directory \
--w /directory \
-quay.io/biocontainers/snippy:4.6.0--hdfd78af_1 \
-snippy --cpus 4 --outdir output --reference sequence.gbk --R1 J10_S210_R1_001.fastq --R2 J10_S210_R2_001.fastq
-```
-
-### Get an interactive bash shell in a Docker container
-
-```bash
-docker run -it quay.io/biocontainers/snippy:4.6.0--hdfd78af_1 /bin/bash
-```
-
-Or
-
-```bash
-docker run --rm -it --entrypoint bash nidhaloff/igel
-```
-
-### Override the entrypoint
-
-Use the `--entrypoint` option to override the entrypoint. In this example the entrypoint is revised to `/opt/conda/bin/bakta_db` and the `list` option is passed to the `bakta_db` command:
-
-```bash
-docker run --rm --entrypoint='/opt/conda/bin/bakta_db' oschwengers/bakta list
-```
-
 ### Set an environment variable inside a Docker container
 
 Use the `-e` option to set an environment variable. In this example the `PATH` environment variable is set to `/opt/conda/bin/`:
@@ -1176,91 +1212,21 @@ Use the `-e` option to set an environment variable. In this example the `PATH` e
 docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir -e PATH=/opt/conda/bin/ --entrypoint=/opt/conda/bin/bakta_db oschwengers/bakta download --output my_database --type light
 ```
 
-### List images
-
-```bash
-docker image ls
-```
-
-### List running containers
-
-```bash
-docker container ls
-```
-
 ### Stop a container
 
 ```bash
 docker container stop some_container
 ```
 
-### Kill all running containers
-
-```bash
-docker container kill $(docker ps -q)
-```
-
-Or to continually kill containers:
-
-```bash
-while true; do docker container kill $(docker ps -q); sleep 2; done
-```
-
-### Delete all containers that are not running
-
-```bash
-docker container rm $(docker ps -a -q)
-```
-
-### Delete all images
-
-```bash
-docker system prune --all
-```
-
 ## FASTA and FASTQ files
 
-### Split a multi-FASTA file into separate files named according to the sequence title
+### Add a FASTA title to the start of a sequence in RAW format
 
-In this example the sequences are written to a directory called `out`:
-
-```bash
-outputdir=out/
-mkdir -p "$outputdir"
-awk '/^>/ {OUT=substr($0,2); split(OUT, a, " "); sub(/[^A-Za-z_0-9\.\-]/, "", a[1]); OUT = "'"$outputdir"'" a[1] ".fa"}; OUT {print >>OUT; close(OUT)}' input.fasta
-```
-
-### Download a reference genome FASTA file from Ensembl
-
-To obtain a list of files available for a particular species:
+In this example the title `>KL1` is added to the beginning of the sequence in `KL1sequence.txt`:
 
 ```bash
-rsync --list-only rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/
+perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
 ```
-
-To download one of the files:
-
-```bash
-rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/Oncorhynchus_mykiss.USDA_OmykA_1.1.dna.toplevel.fa.gz .
-```
-
-### Download reference genome FASTA file and related files from NCBI
-
-Use the [NCBI Datasets command-line tools](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/).
-
-The following downloads the mouse reference genome sequence:
-
-```bash
-datasets download genome taxon mouse --reference --include genome
-```
-
-To download the mouse reference genome and associated amino acid sequences, nucleotide coding sequences, gff3 file, and gtf file:
-
-```bash
-datasets download genome taxon mouse --reference --include genome,protein,cds,gff3,gtf
-```
-
-For more commands and options see the [how-to guides](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/how-tos/).
 
 ### Combine FASTA files into a single file replacing each FASTA record name with the name of the input file
 
@@ -1284,258 +1250,11 @@ do
 done
 ```
 
-### Obtain the flanking sequence of a site of interest from a FASTA file
-
-In this example `samtools` is used to obtain the upstream and downstream `100` bases of flanking sequence of a SNP at position `42234774` on sequence `Y` from the FASTA file `ARS-UCD1.2_Btau5.0.1Y.fa`:
-
-```bash
-flank=100
-pos=42234774
-sequence=Y
-fasta=ARS-UCD1.2_Btau5.0.1Y.fa
-ustart=$(expr $pos - $flank)
-uend=$(expr $pos - 1)
-dstart=$(expr $pos + 1)
-dend=$(expr $pos + $flank)
-echo "Upstream flank:" && \
-samtools faidx "$fasta" "$sequence":$ustart-$uend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
-echo "SNP site" && \
-samtools faidx "$fasta" "$sequence":$pos-$pos | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
-echo "Downstream flank:" && \
-samtools faidx "$fasta" "$sequence":$dstart-$dend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm'
-```
-
-The `perl` command is used to remove spaces within the sequence.
-
-Sample output:
-
-```text
-Upstream flank:
->Y:42234674-42234773
-GGTGTTCAGGTTTGGGAACATGTGTACACCATGGCAGATTCATGTTGATGTATGGCAAAAGCAATACAATATTGTAAAGTAATTAACCTCCAATTAAAAT
-SNP site
->Y:42234774-42234774
-A
-Downstream flank:
->Y:42234775-42234874
-AATAAATTTATATTAAAAATGCATCAATTCTTTGGCACTCAGCTTTCTTCACATTCCAATACTCACATCCATACATGACTACTGGAAAATCATAGCCTTG
-```
-
 ### Convert a FASTA file to a CSV file with column names
 
 ```bash
 cat input.fasta | perl -n -0777 -e 'BEGIN{print "SNP_Name,Sequence\n"}' -e 'while ($_ =~ m/^>([^\n]+)\n([^>]+)/gm) {$name = $1; $seq = $2; $seq =~s/\s//g; print $name . "," . $seq . "\n"}' > output.csv
 ```
-
-### Extract FASTA sequences from a file based on a file of sequence names of interest
-
-In this example the sequence names of interest are in the file `names.txt` and the FASTA sequences are in the file `input.fasta`:
-
-```bash
-cat names.txt | xargs -I{} perl -w -076 -e '$count = 0; open(SEQ, "<" . $ARGV[0]); while (<SEQ>) {if ($_ =~ m/\Q$ARGV[1]\E/) {$record = $_; $record =~ s/[\s>]+$//g; print ">$record\n"; $count = $count + 1;}} if ($count == 0) {print STDERR "No matches found for $ARGV[1]\n"} elsif ($count > 1) {print STDERR "Multiple matches found for $ARGV[1]\n"} close(SEQ);' input.fasta {} > output.fasta
-```
-
-### Add a FASTA title to the start of a sequence in RAW format
-
-In this example the title `>KL1` is added to the beginning of the sequence in `KL1sequence.txt`:
-
-```bash
-perl -pi -e 'print ">KL1\n" if $. == 1' KL1sequence.txt
-```
-
-### Reorder the sequences in a FASTA file based on a VCF file header
-
-Here the VCF used for reordering is `input.vcf.gz` and the FASTA file to be reordered is `reference.fa`. The new file is called `reference.reordered.fa`.
-
-`bcftools`, `tabix` and `samtools` are used:
-
-```bash
-# create index files for the VCF and FASTA files incase they don't already exist
-tabix -p vcf input.vcf.gz
-samtools faidx reference.fa
-
-# extract the sequence names from the VCF header
-bcftools view -h input.vcf.gz | grep "##contig" > sequence.dict
-
-# reorder the FASTA file
-SEQUENCES=$(cat sequence.dict | sed 's/.*ID=//' | sed 's/,.*//')
-for SEQ in $SEQUENCES; do
-  samtools faidx reference.fa "$SEQ" >> reference.reordered.fa
-done
-```
-
-Check the output:
-
-```bash
-grep ">" reference.reordered.fa
-```
-
-### Download FASTQ files based on a list of SRA accessions using the SRA Toolkit
-
-The following uses the [SRA Toolkit](https://github.com/ncbi/sra-tools).
-
-Paired-end data:
-
-```bash
-cat SRR_Acc_List.txt | xargs -I{} fastq-dump -I --split-files --gzip {}
-```
-
-Single-end data:
-
-```bash
-cat SRR_Acc_List.txt | xargs -I{} fastq-dump --gzip {}
-```
-
-For better performance use `fasterq-dump` (the following works for single-end and paired-end data):
-
-```bash
-cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
-gzip *.fastq
-```
-
-Note that `fasterq-dump` will generate large cache files in `~/ncbi/public/sra`. If this directory does not have sufficient storage create a symbolic link to another directory that does, for example `/scratch`:
-
-```bash
-mv ~/ncbi/public/sra /scratch/
-ln -s /scratch/sra ~/ncbi/public/sra
-```
-
-[SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions and returns a selectable list of ENA download URLs and sequencing run metadata.
-
-### Download FASTQ files based on a list of SRA accessions using Kingfisher
-
-The following example uses [Kingfisher](https://github.com/wwood/kingfisher-download), which can download data from the ENA, NCBI, AWS, and GCP.
-
-The accessions are in a file named `SRR_Acc_List.txt` and are passed to Kingfisher using `parallel`. The `--resume` and `--joblog` options allows the command to be re-run without repeating previously completed jobs.
-
-```bash
-cat SRR_Acc_List.txt | parallel --resume --joblog log.txt --verbose --progress -j 1 'kingfisher get -r {} -m ena-ascp aws-http prefetch'
-```
-
-### Process FASTQ files in pairs
-
-High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
-
-```text
-6613_S82_L001_R1_001.fastq.gz
-6613_S82_L001_R2_001.fastq.gz
-70532_S37_L001_R1_001.fastq.gz
-70532_S37_L001_R2_001.fastq.gz
-k2712_S5_L001_R1_001.fastq.gz
-k2712_S5_L001_R2_001.fastq.gz
-```
-
-To analyze data from multiple samples, the following `while` loop code can be used. It iterates through the `R1` files and from each filename constructs the matching `R2` filename. Two useful variables called `fnx` and `fn` are also created for each file, storing the filename without the path to the file, and the filename without the path and without the file extension, respectively:
-
-```bash
-find . \( -name "*_R1_*" -name "*.fastq.gz" \) -type f \
-| while IFS= read -r file; do
-  fnx=$(basename -- "$file")
-  fn="${fnx%%.*}"
-  
-  # Construct name of other file
-  file2="${file/_R1_/_R2_}"
-  fnx2=$(basename -- "$file2")
-  fn2="${fnx2%%.*}"
-  
-  # $file: ./6613_S82_L001_R1_001.fastq.gz
-  # $fnx: 6613_S82_L001_R1_001.fastq.gz
-  # $fn: 6613_S82_L001_R1_001
-  
-  # $file2: ./6613_S82_L001_R2_001.fastq.gz
-  # $fnx2: 6613_S82_L001_R2_001.fastq.gz
-  # $fn2: 6613_S82_L001_R2_001
-  
-  echo "Processing file '$fnx' and '$fnx2'"
-  
-  # place commands here that work on file pairs
-  lines_R1=$(zcat < "$file" | wc -l)
-  lines_R2=$(zcat < "$file2" | wc -l)
-  
-  if [ "$lines_R1" == "$lines_R2" ] ; then
-    echo "Both files contain $lines_R1 lines"
-  else
-    echo "WARNING:"
-    echo "$fnx contains $lines_R1 lines"
-    echo "$fnx2 contains $lines_R2 lines"
-  fi
-done
-```
-
-Another option is to use [parallel](#parallel).
-
-### Count the bases in a FASTQ file
-
-```bash
-zcat < SRR13388732_1.fastq.gz | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
-```
-
-Or:
-
-```bash
-cat SRR13388732_1.fastq | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
-```
-
-### Count the reads in a FASTQ file
-
-```bash
-file=SRR13388732_1.fastq
-READS=$(expr $(cat $file | wc -l) / 4)
-echo $READS
-```
-
-```bash
-file=SRR13388732_1.fastq.gz
-READS=$(expr $(zcat < $file | wc -l) / 4)
-echo $READS
-```
-
-### Merge compressed FASTQ files
-
-In the following example the `sequences` folder contains paired-end data, in files like `S00EC-0001_S30_1.fastq.gz` and `S00EC-0001_S30_2.fastq.gz`. The goal is to merge all the forward reads into one file and all the reverse reads into another file.
-
-```bash
-cd sequences
-rm -f merged_1.fastq.gz
-rm -f merged_2.fastq.gz
-
-find . \( -name "*_1.*" -name "*.fastq.gz" \) -type f \
-| while IFS= read -r file1; do
-
-  # forward and reverse filename examples:
-  # S00EC-0001_S30_1.fastq.gz
-  # S00EC-0001_S30_2.fastq.gz
-  # construct name of other file
-  file2="${file1/_1./_2.}"
-  
-  echo "Processing file '$file1' and '$file2'"
-  
-  # check that number of lines match
-  lines_R1=$(zcat < "$file1" | wc -l)
-  lines_R2=$(zcat < "$file2" | wc -l)
-  
-  if [ "$lines_R1" == "$lines_R2" ] ; then
-    echo "Both files contain $lines_R1 lines, proceeding with merge"
-    cat $file1 >> merged_1.fastq.gz
-    cat $file2 >> merged_2.fastq.gz
-  else
-    echo "WARNING:"
-    echo "$file1 contains $lines_R1 lines"
-    echo "$file2 contains $lines_R2 lines"
-    exit 1
-  fi
-done
-```
-
-### Process FASTQ files in pairs using parallel
-
-In the following example paired-end reads with names like `sampleA_1.fastq.gz` and `sampleA_2.fastq.gz` in a directory called `data` are mapped to a reference called `ref` using `bowtie2`:
-
-```bash
-parallel -j2 "bowtie2 --threads 4 -x ref -k1 -q -1 {1} -2 {2} -S {1/.}.sam >& {1/.}.log" ::: data/*_1.fastq.gz :::+ data/*_2.fastq.gz
-```
-
-The `{1/.}` removes the path and the extension from the first filename, leaving the sample name.
 
 ### Count reads in compressed FASTQ files using Slurm and parallel
 
@@ -1613,6 +1332,277 @@ Once the jobs are complete the output files can be analyzed, e.g.:
 cat *R1.fastq.gz.out | sort > R1.reads
 cat *R2.fastq.gz.out | sort > R2.reads
 paste R1.reads R2.reads
+```
+
+### Count the bases in a FASTQ file
+
+```bash
+zcat < SRR13388732_1.fastq.gz | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
+```
+
+Or:
+
+```bash
+cat SRR13388732_1.fastq | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
+```
+
+### Count the reads in a FASTQ file
+
+```bash
+file=SRR13388732_1.fastq
+READS=$(expr $(cat $file | wc -l) / 4)
+echo $READS
+```
+
+```bash
+file=SRR13388732_1.fastq.gz
+READS=$(expr $(zcat < $file | wc -l) / 4)
+echo $READS
+```
+
+### Download a reference genome FASTA file from Ensembl
+
+To obtain a list of files available for a particular species:
+
+```bash
+rsync --list-only rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/
+```
+
+To download one of the files:
+
+```bash
+rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_fasta/oncorhynchus_mykiss/dna/Oncorhynchus_mykiss.USDA_OmykA_1.1.dna.toplevel.fa.gz .
+```
+
+### Download FASTQ files based on a list of SRA accessions using Kingfisher
+
+The following example uses [Kingfisher](https://github.com/wwood/kingfisher-download), which can download data from the ENA, NCBI, AWS, and GCP.
+
+The accessions are in a file named `SRR_Acc_List.txt` and are passed to Kingfisher using `parallel`. The `--resume` and `--joblog` options allows the command to be re-run without repeating previously completed jobs.
+
+```bash
+cat SRR_Acc_List.txt | parallel --resume --joblog log.txt --verbose --progress -j 1 'kingfisher get -r {} -m ena-ascp aws-http prefetch'
+```
+
+### Download FASTQ files based on a list of SRA accessions using the SRA Toolkit
+
+The following uses the [SRA Toolkit](https://github.com/ncbi/sra-tools).
+
+Paired-end data:
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fastq-dump -I --split-files --gzip {}
+```
+
+Single-end data:
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fastq-dump --gzip {}
+```
+
+For better performance use `fasterq-dump` (the following works for single-end and paired-end data):
+
+```bash
+cat SRR_Acc_List.txt | xargs -I{} fasterq-dump {}
+gzip *.fastq
+```
+
+Note that `fasterq-dump` will generate large cache files in `~/ncbi/public/sra`. If this directory does not have sufficient storage create a symbolic link to another directory that does, for example `/scratch`:
+
+```bash
+mv ~/ncbi/public/sra /scratch/
+ln -s /scratch/sra ~/ncbi/public/sra
+```
+
+[SRA Explorer](https://sra-explorer.info/#) is an online resource that takes a list of accessions and returns a selectable list of ENA download URLs and sequencing run metadata.
+
+### Download reference genome FASTA file and related files from NCBI
+
+Use the [NCBI Datasets command-line tools](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/).
+
+The following downloads the mouse reference genome sequence:
+
+```bash
+datasets download genome taxon mouse --reference --include genome
+```
+
+To download the mouse reference genome and associated amino acid sequences, nucleotide coding sequences, gff3 file, and gtf file:
+
+```bash
+datasets download genome taxon mouse --reference --include genome,protein,cds,gff3,gtf
+```
+
+For more commands and options see the [how-to guides](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/how-tos/).
+
+### Extract FASTA sequences from a file based on a file of sequence names of interest
+
+In this example the sequence names of interest are in the file `names.txt` and the FASTA sequences are in the file `input.fasta`:
+
+```bash
+cat names.txt | xargs -I{} perl -w -076 -e '$count = 0; open(SEQ, "<" . $ARGV[0]); while (<SEQ>) {if ($_ =~ m/\Q$ARGV[1]\E/) {$record = $_; $record =~ s/[\s>]+$//g; print ">$record\n"; $count = $count + 1;}} if ($count == 0) {print STDERR "No matches found for $ARGV[1]\n"} elsif ($count > 1) {print STDERR "Multiple matches found for $ARGV[1]\n"} close(SEQ);' input.fasta {} > output.fasta
+```
+
+### Merge compressed FASTQ files
+
+In the following example the `sequences` folder contains paired-end data, in files like `S00EC-0001_S30_1.fastq.gz` and `S00EC-0001_S30_2.fastq.gz`. The goal is to merge all the forward reads into one file and all the reverse reads into another file.
+
+```bash
+cd sequences
+rm -f merged_1.fastq.gz
+rm -f merged_2.fastq.gz
+
+find . \( -name "*_1.*" -name "*.fastq.gz" \) -type f \
+| while IFS= read -r file1; do
+
+  # forward and reverse filename examples:
+  # S00EC-0001_S30_1.fastq.gz
+  # S00EC-0001_S30_2.fastq.gz
+  # construct name of other file
+  file2="${file1/_1./_2.}"
+  
+  echo "Processing file '$file1' and '$file2'"
+  
+  # check that number of lines match
+  lines_R1=$(zcat < "$file1" | wc -l)
+  lines_R2=$(zcat < "$file2" | wc -l)
+  
+  if [ "$lines_R1" == "$lines_R2" ] ; then
+    echo "Both files contain $lines_R1 lines, proceeding with merge"
+    cat $file1 >> merged_1.fastq.gz
+    cat $file2 >> merged_2.fastq.gz
+  else
+    echo "WARNING:"
+    echo "$file1 contains $lines_R1 lines"
+    echo "$file2 contains $lines_R2 lines"
+    exit 1
+  fi
+done
+```
+
+### Obtain the flanking sequence of a site of interest from a FASTA file
+
+In this example `samtools` is used to obtain the upstream and downstream `100` bases of flanking sequence of a SNP at position `42234774` on sequence `Y` from the FASTA file `ARS-UCD1.2_Btau5.0.1Y.fa`:
+
+```bash
+flank=100
+pos=42234774
+sequence=Y
+fasta=ARS-UCD1.2_Btau5.0.1Y.fa
+ustart=$(expr $pos - $flank)
+uend=$(expr $pos - 1)
+dstart=$(expr $pos + 1)
+dend=$(expr $pos + $flank)
+echo "Upstream flank:" && \
+samtools faidx "$fasta" "$sequence":$ustart-$uend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
+echo "SNP site" && \
+samtools faidx "$fasta" "$sequence":$pos-$pos | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
+echo "Downstream flank:" && \
+samtools faidx "$fasta" "$sequence":$dstart-$dend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm'
+```
+
+The `perl` command is used to remove spaces within the sequence.
+
+Sample output:
+
+```text
+Upstream flank:
+>Y:42234674-42234773
+GGTGTTCAGGTTTGGGAACATGTGTACACCATGGCAGATTCATGTTGATGTATGGCAAAAGCAATACAATATTGTAAAGTAATTAACCTCCAATTAAAAT
+SNP site
+>Y:42234774-42234774
+A
+Downstream flank:
+>Y:42234775-42234874
+AATAAATTTATATTAAAAATGCATCAATTCTTTGGCACTCAGCTTTCTTCACATTCCAATACTCACATCCATACATGACTACTGGAAAATCATAGCCTTG
+```
+
+### Process FASTQ files in pairs
+
+High-throughput sequencing data is often distributed as pairs of files corresponding to the two different read sets generated for each sample, e.g.:
+
+```text
+6613_S82_L001_R1_001.fastq.gz
+6613_S82_L001_R2_001.fastq.gz
+70532_S37_L001_R1_001.fastq.gz
+70532_S37_L001_R2_001.fastq.gz
+k2712_S5_L001_R1_001.fastq.gz
+k2712_S5_L001_R2_001.fastq.gz
+```
+
+To analyze data from multiple samples, the following `while` loop code can be used. It iterates through the `R1` files and from each filename constructs the matching `R2` filename. Two useful variables called `fnx` and `fn` are also created for each file, storing the filename without the path to the file, and the filename without the path and without the file extension, respectively:
+
+```bash
+find . \( -name "*_R1_*" -name "*.fastq.gz" \) -type f \
+| while IFS= read -r file; do
+  fnx=$(basename -- "$file")
+  fn="${fnx%%.*}"
+  
+  # Construct name of other file
+  file2="${file/_R1_/_R2_}"
+  fnx2=$(basename -- "$file2")
+  fn2="${fnx2%%.*}"
+  
+  # $file: ./6613_S82_L001_R1_001.fastq.gz
+  # $fnx: 6613_S82_L001_R1_001.fastq.gz
+  # $fn: 6613_S82_L001_R1_001
+  
+  # $file2: ./6613_S82_L001_R2_001.fastq.gz
+  # $fnx2: 6613_S82_L001_R2_001.fastq.gz
+  # $fn2: 6613_S82_L001_R2_001
+  
+  echo "Processing file '$fnx' and '$fnx2'"
+  
+  # place commands here that work on file pairs
+  lines_R1=$(zcat < "$file" | wc -l)
+  lines_R2=$(zcat < "$file2" | wc -l)
+  
+  if [ "$lines_R1" == "$lines_R2" ] ; then
+    echo "Both files contain $lines_R1 lines"
+  else
+    echo "WARNING:"
+    echo "$fnx contains $lines_R1 lines"
+    echo "$fnx2 contains $lines_R2 lines"
+  fi
+done
+```
+
+Another option is to use [parallel](#parallel).
+
+### Process FASTQ files in pairs using parallel
+
+In the following example paired-end reads with names like `sampleA_1.fastq.gz` and `sampleA_2.fastq.gz` in a directory called `data` are mapped to a reference called `ref` using `bowtie2`:
+
+```bash
+parallel -j2 "bowtie2 --threads 4 -x ref -k1 -q -1 {1} -2 {2} -S {1/.}.sam >& {1/.}.log" ::: data/*_1.fastq.gz :::+ data/*_2.fastq.gz
+```
+
+The `{1/.}` removes the path and the extension from the first filename, leaving the sample name.
+
+### Reorder the sequences in a FASTA file based on a VCF file header
+
+Here the VCF used for reordering is `input.vcf.gz` and the FASTA file to be reordered is `reference.fa`. The new file is called `reference.reordered.fa`.
+
+`bcftools`, `tabix` and `samtools` are used:
+
+```bash
+# create index files for the VCF and FASTA files incase they don't already exist
+tabix -p vcf input.vcf.gz
+samtools faidx reference.fa
+
+# extract the sequence names from the VCF header
+bcftools view -h input.vcf.gz | grep "##contig" > sequence.dict
+
+# reorder the FASTA file
+SEQUENCES=$(cat sequence.dict | sed 's/.*ID=//' | sed 's/,.*//')
+for SEQ in $SEQUENCES; do
+  samtools faidx reference.fa "$SEQ" >> reference.reordered.fa
+done
+```
+
+Check the output:
+
+```bash
+grep ">" reference.reordered.fa
 ```
 
 ### Run FastQC on compressed FASTQ files using Slurm and a job array
@@ -1730,151 +1720,17 @@ sbatch --array=3,5 --time=1:00:00 \
 fastqc.sbatch R1.list
 ```
 
+### Split a multi-FASTA file into separate files named according to the sequence title
+
+In this example the sequences are written to a directory called `out`:
+
+```bash
+outputdir=out/
+mkdir -p "$outputdir"
+awk '/^>/ {OUT=substr($0,2); split(OUT, a, " "); sub(/[^A-Za-z_0-9\.\-]/, "", a[1]); OUT = "'"$outputdir"'" a[1] ".fa"}; OUT {print >>OUT; close(OUT)}' input.fasta
+```
+
 ## File conversion
-
-### Convert CSV to TSV
-
-```bash
-perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
-```
-
-Or use [VisiData](https://github.com/saulpw/visidata):
-
-```bash
-vd input.csv -b -o output.tab
-```
-
-### Convert TSV to CSV
-
-```bash
-awk 'BEGIN { FS="\t"; OFS="," } {
-  rebuilt=0
-  for(i=1; i<=NF; ++i) {
-    if ($i ~ /,/ && $i !~ /^".*"$/) {
-      gsub("\"", "\"\"", $i)
-      $i = "\"" $i "\""
-      rebuilt=1
-    }
-  }
-  if (!rebuilt) { $1=$1 }
-  print
-}' input.tsv > output.csv
-```
-
-Or use [VisiData](https://github.com/saulpw/visidata):
-
-```bash
-vd input.tsv -b -o output.tab
-```
-
-### Convert CSV to Markdown
-
-The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used to change missing values to `.`:
-
-```bash
-awk 'BEGIN { FS = OFS = "," } { for(i=1; i<=NF; i++) if($i ~ /^ *$/) $i = "." }; 1' input.csv > temp.csv
-csv2md -p < temp.csv | sed 's/_/\\_/g' > output.md
-```
-
-Or use [VisiData](https://github.com/saulpw/visidata):
-
-```bash
-vd input.csv -b -o output.md
-```
-
-### Convert CSV to HTML
-
-Use [VisiData](https://github.com/saulpw/visidata):
-
-```bash
-vd input.csv -b -o output.html
-```
-
-### Convert PDF to PNG
-
-The following uses `find` and the `pdftoppm` command from the [poppler](https://poppler.freedesktop.org) package to generate a PNG image of the first page of every PDF file in the working directory:
-
-```bash
-find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png -r 600 {} {} \;
-```
-
-The `-r 600` option sets the resolution to 600 dpi. The `-f 1` and `-l 1` options specify the first and last pages to convert. The `{}` is used to specify the input and output file names (they are passed twice to `pdftoppm` from `find`). `pdftoppm` automatically appends the page number to the output file name.
-
-### Convert SVG to PNG
-
-The following uses [svgexport](https://github.com/shakiba/svgexport):
-
-```bash
-SVGEXPORT_TIMEOUT=60 svgexport input.svg output.png 4000:
-```
-
-The `SVGEXPORT_TIMEOUT=60` option sets the timeout to 60 seconds. The `4000:` option sets the width to 4000 pixels and the height is automatically calculated to maintain the aspect ratio.
-
-### Convert PNG to PDF
-
-The following uses [ImageMagick](https://imagemagick.org):
-
-```bash
-convert *.png output.pdf
-```
-
-### Convert DOCX to PDF
-
-The following uses [LibreOffice](https://www.libreoffice.org):
-
-```bash
-soffice --headless --convert-to pdf --outdir . word_file.docx
-```
-
-The following uses [pandoc](https://pandoc.org) and on macOS also requires [basictex](https://www.tug.org/mactex/morepackages.html):
-
-```bash
-pandoc word_file.docx --output word_file.pdf
-```
-
-### Convert Excel to CSV using csvkit
-
-The following uses [csvkit](https://github.com/wireservice/csvkit):
-
-```bash
-in2csv data.xls > data.csv
-```
-
-Or use [VisiData](https://github.com/saulpw/visidata). Change `Sheet1` in the command below to match the name of the sheet to be converted:
-
-```bash
-vd input.xls +:Sheet1:1:1 -b -o output.csv
-```
-
-### Convert CSV to Excel
-
-The following uses `ssconvert`, which is distributed with [Gnumeric](http://gnumeric.org):
-
-```bash
-ssconvert input.csv output.xlsx
-```
-
-Or use [VisiData](https://github.com/saulpw/visidata):
-
-```bash
-vd input.csv -b -o output.xlsx
-```
-
-### Convert TSV to Excel
-
-Use [VisiData](https://github.com/saulpw/visidata):
-
-```bash
-vd input.tsv -b -o output.xlsx
-```
-
-### Convert HTML to PDF
-
-The following uses [wkhtmltopdf](https://wkhtmltopdf.org):
-
-```bash
-wkhtmltopdf http://google.com google.pdf
-```
 
 ### Convert a website to PDF
 
@@ -1887,73 +1743,9 @@ while read i; do wkhtmltopdf "$i" "$(echo "$i" | sed -e 's/https\?:\/\///' -e 's
 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged-output.pdf $(ls -lrt -1 *.pdf)
 ```
 
-### Convert HTML to PNG
+### Convert between audiovisual file formats
 
-The following uses [wkhtmltoimage](https://wkhtmltopdf.org):
-
-```bash
-wkhtmltoimage -f png http://google.com google.png
-```
-
-Another approach, which may work better for complex web sites, is to use [pageres-cli](https://github.com/sindresorhus/pageres-cli). The following creates an image that is 4485 pixels wide (5 * 897):
-
-```bash
-pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
-```
-
-### Convert Markdown to PDF
-
-The command below uses [pandoc](https://pandoc.org) and the [eisvogel.tex template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex).
-
-The `head.tex` file consists of the following:
-
-```tex
-\definecolor{bgcolor}{HTML}{E0E0E0}
-\let\oldtexttt\texttt
-
-\renewcommand{\texttt}[1]{
-  \colorbox{bgcolor}{\oldtexttt{#1}}
-}
-```
-
-```bash
-pandoc input.md -o output.pdf --pdf-engine=xelatex --from markdown --template=eisvogel.tex --highlight-style zenburn -H head.tex
-```
-
-### Convert Markdown to HTML
-
-The command below uses [pandoc](https://pandoc.org) and the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
-
-```bash
-pandoc -f markdown -t html -o output.html input.md --css=pandoc.css --self-contained
-```
-
-### Convert Markdown to PPTX
-
-The command below uses [pandoc](https://pandoc.org). See the [pandoc documentation on slide shows](https://pandoc.org/MANUAL.html#slide-shows).
-
-The `--reference-doc` parameter is optional and can be used to supply a [PowerPoint template](https://support.microsoft.com/en-us/office/create-and-save-a-powerpoint-template-ee4429ad-2a74-4100-82f7-50f8169c8aca).
-
-```bash
-pandoc input.md -o output.pptx --reference-doc template.potx
-```
-
-### Convert PPTX to PDF
-
-The following uses [LibreOffice](https://www.libreoffice.org):
-
-```bash
-soffice --headless --convert-to pdf input.pptx
-```
-
-### Convert PPTX to PNG
-
-The following uses [LibreOffice](https://www.libreoffice.org) and [ImageMagick](https://imagemagick.org) to create a separate file for each slide (e.g. `slide_1.png`, `slide_2.png`, etc.):
-
-```bash
-soffice --headless --convert-to pdf input.pptx
-convert -density 400 -resize 3000^ -scene 1 input.pdf slide_%d.png
-```
+See [ffmprovisr](https://amiaopensource.github.io/ffmprovisr/) for commands to modify and covert audiovisual files.
 
 ### Convert between sequence file formats
 
@@ -1992,16 +1784,285 @@ bio define exon
 bio define food vacuole
 ```
 
-### Convert between audiovisual file formats
+### Convert CSV to Excel
 
-See [ffmprovisr](https://amiaopensource.github.io/ffmprovisr/) for commands to modify and covert audiovisual files.
+The following uses `ssconvert`, which is distributed with [Gnumeric](http://gnumeric.org):
+
+```bash
+ssconvert input.csv output.xlsx
+```
+
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd input.csv -b -o output.xlsx
+```
+
+### Convert CSV to HTML
+
+Use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd input.csv -b -o output.html
+```
+
+### Convert CSV to Markdown
+
+The following uses [csv2md](https://github.com/pstaender/csv2md). The `awk` command can be used to change missing values to `.`:
+
+```bash
+awk 'BEGIN { FS = OFS = "," } { for(i=1; i<=NF; i++) if($i ~ /^ *$/) $i = "." }; 1' input.csv > temp.csv
+csv2md -p < temp.csv | sed 's/_/\\_/g' > output.md
+```
+
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd input.csv -b -o output.md
+```
+
+### Convert CSV to TSV
+
+```bash
+perl -nle  'my @new  = (); push( @new, $+ ) while $_ =~ m{"([^\"\\]*(?:\\.[^\"\\]*)*)",? | ([^,]+),? | ,}gx; push( @new, undef ) if substr( $text, -1, 1 ) eq '\'','\''; for(@new){s/,/ /g} print join "\t", @new' input.csv > output.tab
+```
+
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd input.csv -b -o output.tab
+```
+
+### Convert DOCX to PDF
+
+The following uses [LibreOffice](https://www.libreoffice.org):
+
+```bash
+soffice --headless --convert-to pdf --outdir . word_file.docx
+```
+
+The following uses [pandoc](https://pandoc.org) and on macOS also requires [basictex](https://www.tug.org/mactex/morepackages.html):
+
+```bash
+pandoc word_file.docx --output word_file.pdf
+```
+
+### Convert Excel to CSV using csvkit
+
+The following uses [csvkit](https://github.com/wireservice/csvkit):
+
+```bash
+in2csv data.xls > data.csv
+```
+
+Or use [VisiData](https://github.com/saulpw/visidata). Change `Sheet1` in the command below to match the name of the sheet to be converted:
+
+```bash
+vd input.xls +:Sheet1:1:1 -b -o output.csv
+```
+
+### Convert HTML to PDF
+
+The following uses [wkhtmltopdf](https://wkhtmltopdf.org):
+
+```bash
+wkhtmltopdf http://google.com google.pdf
+```
+
+### Convert HTML to PNG
+
+The following uses [wkhtmltoimage](https://wkhtmltopdf.org):
+
+```bash
+wkhtmltoimage -f png http://google.com google.png
+```
+
+Another approach, which may work better for complex web sites, is to use [pageres-cli](https://github.com/sindresorhus/pageres-cli). The following creates an image that is 4485 pixels wide (5 * 897):
+
+```bash
+pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
+```
+
+### Convert Markdown to HTML
+
+The command below uses [pandoc](https://pandoc.org) and the `pandoc.css` file available [here](https://gist.github.com/killercup/5917178).
+
+```bash
+pandoc -f markdown -t html -o output.html input.md --css=pandoc.css --self-contained
+```
+
+### Convert Markdown to PDF
+
+The command below uses [pandoc](https://pandoc.org) and the [eisvogel.tex template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex).
+
+The `head.tex` file consists of the following:
+
+```tex
+\definecolor{bgcolor}{HTML}{E0E0E0}
+\let\oldtexttt\texttt
+
+\renewcommand{\texttt}[1]{
+  \colorbox{bgcolor}{\oldtexttt{#1}}
+}
+```
+
+```bash
+pandoc input.md -o output.pdf --pdf-engine=xelatex --from markdown --template=eisvogel.tex --highlight-style zenburn -H head.tex
+```
+
+### Convert Markdown to PPTX
+
+The command below uses [pandoc](https://pandoc.org). See the [pandoc documentation on slide shows](https://pandoc.org/MANUAL.html#slide-shows).
+
+The `--reference-doc` parameter is optional and can be used to supply a [PowerPoint template](https://support.microsoft.com/en-us/office/create-and-save-a-powerpoint-template-ee4429ad-2a74-4100-82f7-50f8169c8aca).
+
+```bash
+pandoc input.md -o output.pptx --reference-doc template.potx
+```
+
+### Convert PDF to PNG
+
+The following uses `find` and the `pdftoppm` command from the [poppler](https://poppler.freedesktop.org) package to generate a PNG image of the first page of every PDF file in the working directory:
+
+```bash
+find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png -r 600 {} {} \;
+```
+
+The `-r 600` option sets the resolution to 600 dpi. The `-f 1` and `-l 1` options specify the first and last pages to convert. The `{}` is used to specify the input and output file names (they are passed twice to `pdftoppm` from `find`). `pdftoppm` automatically appends the page number to the output file name.
+
+### Convert PNG to PDF
+
+The following uses [ImageMagick](https://imagemagick.org):
+
+```bash
+convert *.png output.pdf
+```
+
+### Convert PPTX to PDF
+
+The following uses [LibreOffice](https://www.libreoffice.org):
+
+```bash
+soffice --headless --convert-to pdf input.pptx
+```
+
+### Convert PPTX to PNG
+
+The following uses [LibreOffice](https://www.libreoffice.org) and [ImageMagick](https://imagemagick.org) to create a separate file for each slide (e.g. `slide_1.png`, `slide_2.png`, etc.):
+
+```bash
+soffice --headless --convert-to pdf input.pptx
+convert -density 400 -resize 3000^ -scene 1 input.pdf slide_%d.png
+```
+
+### Convert SVG to PNG
+
+The following uses [svgexport](https://github.com/shakiba/svgexport):
+
+```bash
+SVGEXPORT_TIMEOUT=60 svgexport input.svg output.png 4000:
+```
+
+The `SVGEXPORT_TIMEOUT=60` option sets the timeout to 60 seconds. The `4000:` option sets the width to 4000 pixels and the height is automatically calculated to maintain the aspect ratio.
+
+### Convert TSV to CSV
+
+```bash
+awk 'BEGIN { FS="\t"; OFS="," } {
+  rebuilt=0
+  for(i=1; i<=NF; ++i) {
+    if ($i ~ /,/ && $i !~ /^".*"$/) {
+      gsub("\"", "\"\"", $i)
+      $i = "\"" $i "\""
+      rebuilt=1
+    }
+  }
+  if (!rebuilt) { $1=$1 }
+  print
+}' input.tsv > output.csv
+```
+
+Or use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd input.tsv -b -o output.tab
+```
+
+### Convert TSV to Excel
+
+Use [VisiData](https://github.com/saulpw/visidata):
+
+```bash
+vd input.tsv -b -o output.xlsx
+```
 
 ## File downloads
+
+### Download a GenBank file with bio
+
+See the [bio repository](https://github.com/ialbert/bio) and [examples](https://github.com/ialbert/bio/blob/master/biorun/data/usage.sh).
+
+To download two GenBank files and save as a single file:
+
+```bash
+bio fetch NC_045512 MN996532 > genomes.gb
+```
+
+### Download a GenBank file with curl
+
+The command below downloads a GenBank file from the Nucleotide database at NCBI:
+
+```bash
+i=NC_045512.2
+curl -s  "https://eutils.ncbi.nlm.nih.gov\
+/entrez/eutils/efetch.fcgi?db=nucleotide\
+&id=${i}&rettype=gbwithparts&retmode=txt" \
+> $i.gbk
+```
+
+### Download a reference genome GTF file from Ensembl
+
+To obtain a list of files available for a particular species:
+
+```bash
+rsync --list-only rsync://ftp.ensembl.org/ensembl/pub/current_gtf/oncorhynchus_mykiss/
+```
+
+To download one of the files:
+
+```bash
+rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_gtf/oncorhynchus_mykiss/Oncorhynchus_mykiss.USDA_OmykA_1.1.106.gtf.gz .
+```
 
 ### Download an entire website
 
 ```bash
 wget --mirror --convert-links --page-requisites --no-parent https://www.somesite.com/course/material/
+```
+
+### Download files from a Globus endpoint using Globus CLI
+
+Note that the destination must be another Globus endpoint.
+
+Install Globus CLI with pip and log into your Globus account
+
+```bash
+pip install globus-cli
+globus login
+```
+
+Access the Globus Web App and note the UUIDs for the source and destination endpoints on the respective overview pages.
+
+To transfer a single file:
+
+```bash
+globus transfer {source UUID}:/path/to/source/file {dest UUID}:/path/to/dest/file
+```
+
+To transfer all files in a directory:
+
+```bash
+globus transfer {source UUID}:/path/to/source/dir/ {dest UUID}:/path/to/dest/dir/ --recursive
 ```
 
 ### Download from an FTP server
@@ -2046,27 +2107,23 @@ rclone copy -P my_google_drive:some_directory ./some_directory
 
 Alternatively, use [Transmit](https://panic.com/transmit/) or [Google Drive for desktop](https://www.google.com/drive/download/).
 
-### Download a GenBank file with bio
+### Download reference genomes and related files from NCBI
 
-See the [bio repository](https://github.com/ialbert/bio) and [examples](https://github.com/ialbert/bio/blob/master/biorun/data/usage.sh).
+Use the [NCBI Datasets command-line tools](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/).
 
-To download two GenBank files and save as a single file:
-
-```bash
-bio fetch NC_045512 MN996532 > genomes.gb
-```
-
-### Download a GenBank file with curl
-
-The command below downloads a GenBank file from the Nucleotide database at NCBI:
+The following downloads the mouse reference genome sequence:
 
 ```bash
-i=NC_045512.2
-curl -s  "https://eutils.ncbi.nlm.nih.gov\
-/entrez/eutils/efetch.fcgi?db=nucleotide\
-&id=${i}&rettype=gbwithparts&retmode=txt" \
-> $i.gbk
+datasets download genome taxon mouse --reference --include genome
 ```
+
+To download the mouse reference genome and associated amino acid sequences, nucleotide coding sequences, gff3 file, and gtf file:
+
+```bash
+datasets download genome taxon mouse --reference --include genome,protein,cds,gff3,gtf
+```
+
+For more commands and options see the [how-to guides](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/how-tos/).
 
 ### Download sequences from the NCBI Assembly database
 
@@ -2094,64 +2151,46 @@ esearch -db assembly -query '"Psychrobacter"[Organism] AND "latest refseq"[filte
 | xargs -0 bash -c
 ```
 
-### Download reference genomes and related files from NCBI
-
-Use the [NCBI Datasets command-line tools](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/).
-
-The following downloads the mouse reference genome sequence:
-
-```bash
-datasets download genome taxon mouse --reference --include genome
-```
-
-To download the mouse reference genome and associated amino acid sequences, nucleotide coding sequences, gff3 file, and gtf file:
-
-```bash
-datasets download genome taxon mouse --reference --include genome,protein,cds,gff3,gtf
-```
-
-For more commands and options see the [how-to guides](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/how-tos/).
-
-### Download a reference genome GTF file from Ensembl
-
-To obtain a list of files available for a particular species:
-
-```bash
-rsync --list-only rsync://ftp.ensembl.org/ensembl/pub/current_gtf/oncorhynchus_mykiss/
-```
-
-To download one of the files:
-
-```bash
-rsync -av --progress rsync://ftp.ensembl.org/ensembl/pub/current_gtf/oncorhynchus_mykiss/Oncorhynchus_mykiss.USDA_OmykA_1.1.106.gtf.gz .
-```
-
-### Download files from a Globus endpoint using Globus CLI
-
-Note that the destination must be another Globus endpoint.
-
-Install Globus CLI with pip and log into your Globus account
-
-```bash
-pip install globus-cli
-globus login
-```
-
-Access the Globus Web App and note the UUIDs for the source and destination endpoints on the respective overview pages.
-
-To transfer a single file:
-
-```bash
-globus transfer {source UUID}:/path/to/source/file {dest UUID}:/path/to/dest/file
-```
-
-To transfer all files in a directory:
-
-```bash
-globus transfer {source UUID}:/path/to/source/dir/ {dest UUID}:/path/to/dest/dir/ --recursive
-```
-
 ## find
+
+### Copy the files returned by find
+
+The following finds files in the directory `output` ending in `.vcf.gz` or `.vcf.gz.tbi` and copies them to the `vcfs` directory:
+
+```bash
+mkdir vcfs
+find output -type f \( -name "*.vcf.gz" -o -name "*.vcf.gz.tbi" \) -exec cp {} vcfs \;
+```
+
+### Copy the files returned by find, naming the copies after a directory in the path
+
+The command below finds files named `star-fusion.fusion_candidates.preliminary` and parses the sample name from a directory name in the path to the file. The sample name is then used to construct a name for the copy. For example, `./231_S12_R1_001/star-fusion.fusion_candidates.preliminary` is copied to `./fusion-candidates/231_S12_R1_001.fusion_candidates.preliminary`.
+
+```bash
+find . -name star-fusion.fusion_candidates.preliminary -exec sh -c $'sample=$(perl -e \'if($ARGV[0] =~ m/^\.\/([^\/]+)/){print "$1\n"}\' $1); cp "$1" "./fusion-candidates/${sample}.fusion_candidates.preliminary"' -- {} \;
+```
+
+### Determine the total size of certain files using find
+
+The command below reports the total size of files ending with `.bam` (ignoring case). If more than one invocation of `du` is required because the file list is very long, multiple totals will be reported and need to be summed.
+
+```bash
+find . -type f -iname '*.bam' -exec du -ch {} + | grep total$
+```
+
+The following will work on fewer platforms but will provide a single total:
+
+```bash
+find . -iname '*.bam' -exec du -cb {} + | grep -e "total$" | cut -f1 | paste -sd+ - | bc | numfmt --to=iec --suffix=B --round=towards-zero
+```
+
+### Find large files
+
+The following reports the 10 largest files in the current directory or its subdirectories, sorted by size:
+
+```bash
+find . -type f -print0 | xargs -0 du -h | sort -hr | head -10
+```
 
 ### Perform a series of commands on files returned by find
 
@@ -2211,108 +2250,6 @@ To remove the `.bak` files:
 find . -name "*.bak" -type f -exec rm -rf {} \;
 ```
 
-### Sort files by name before processing
-
-The following used `find` to generate a list of `.vcf.gz` files, which is then sorted based on sample number using `sort`.
-
-The files in this example are named `DNA-1.vcf.gz`, `DNA-2.vcf.gz`, etc. and the `sort` is used to sort based on the number appearing after the first `-` in the filename.
-
-```bash
-find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | \
-while IFS="" read -r -d "" file; do
-  fnx=$(basename -- "$file")
-  echo "'$fnx' contains these samples:"
-  bcftools query -l $file
-done
-```
-
-### Sort the files by creation time before processing
-
-Use `ls` as in the following example:
-
-```bash
-find . -name "*.png" -type f -exec ls -rt "{}" + | while read file; do
-  echo "$file"
-done
-```
-
-### Use files as the argument list for a command
-
-The following finds files ending with `.vcf.gz`, sorts the files based on the number appearing after the first `-` in the filename, and prints the filenames separated by spaces by supplying all to `echo`:
-
-```bash
-find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | xargs -r0 echo
-```
-
-To print the filenames on separate lines, use:
-
-```bash
-find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | xargs -r0 -L 1 echo
-```
-
-### Copy the files returned by find
-
-The following finds files in the directory `output` ending in `.vcf.gz` or `.vcf.gz.tbi` and copies them to the `vcfs` directory:
-
-```bash
-mkdir vcfs
-find output -type f \( -name "*.vcf.gz" -o -name "*.vcf.gz.tbi" \) -exec cp {} vcfs \;
-```
-
-### Copy the files returned by find, naming the copies after a directory in the path
-
-The command below finds files named `star-fusion.fusion_candidates.preliminary` and parses the sample name from a directory name in the path to the file. The sample name is then used to construct a name for the copy. For example, `./231_S12_R1_001/star-fusion.fusion_candidates.preliminary` is copied to `./fusion-candidates/231_S12_R1_001.fusion_candidates.preliminary`.
-
-```bash
-find . -name star-fusion.fusion_candidates.preliminary -exec sh -c $'sample=$(perl -e \'if($ARGV[0] =~ m/^\.\/([^\/]+)/){print "$1\n"}\' $1); cp "$1" "./fusion-candidates/${sample}.fusion_candidates.preliminary"' -- {} \;
-```
-
-### Switch to the directory containing each file and execute a command
-
-The -execdir option instructs `find` to switch to the directory containing each matching file before executing the specified command.
-
-In this example the command creates a `.zip` file for each `.vcf` file that is found:
-
-```bash
-find . -name "*.vcf" -type f -execdir zip '{}.zip' '{}' \;
-```
-
-In this example the command reads MD5 sums from `MD5.txt` files, checks the MD5 sums, and writes the results to a file named `checksum-results`:
-
-```bash
-find . -name "MD5.txt" -type f -execdir md5sum --check '{}' \; 2>&1 | tee -a checksum-results
-```
-
-### Find large files
-
-The following reports the 10 largest files in the current directory or its subdirectories, sorted by size:
-
-```bash
-find . -type f -print0 | xargs -0 du -h | sort -hr | head -10
-```
-
-### Determine the total size of certain files using find
-
-The command below reports the total size of files ending with `.bam` (ignoring case). If more than one invocation of `du` is required because the file list is very long, multiple totals will be reported and need to be summed.
-
-```bash
-find . -type f -iname '*.bam' -exec du -ch {} + | grep total$
-```
-
-The following will work on fewer platforms but will provide a single total:
-
-```bash
-find . -iname '*.bam' -exec du -cb {} + | grep -e "total$" | cut -f1 | paste -sd+ - | bc | numfmt --to=iec --suffix=B --round=towards-zero
-```
-
-### Remove files using find
-
-The following removes files with a `bam` extension:
-
-```bash
-find . -type f -name '*.bam' -exec rm {} \;
-```
-
 ### Redirect output to one file
 
 Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
@@ -2353,6 +2290,14 @@ Or:
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} sh -c 'wc -l "$1" > "$1.output.txt"' -- {}
 ```
 
+### Remove files using find
+
+The following removes files with a `bam` extension:
+
+```bash
+find . -type f -name '*.bam' -exec rm {} \;
+```
+
 ### Run a command on multiple files at once
 
 Use `+` instead of `\;` to run a command on multiple files at once. The following runs `cat` on all `.csv` and `.tab` files in or below the current directory:
@@ -2361,22 +2306,89 @@ Use `+` instead of `\;` to run a command on multiple files at once. The followin
 find . -type f \( -name "*.csv" -o -name "*.tab" \) -exec cat {} +
 ```
 
+### Sort files by name before processing
+
+The following used `find` to generate a list of `.vcf.gz` files, which is then sorted based on sample number using `sort`.
+
+The files in this example are named `DNA-1.vcf.gz`, `DNA-2.vcf.gz`, etc. and the `sort` is used to sort based on the number appearing after the first `-` in the filename.
+
+```bash
+find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | \
+while IFS="" read -r -d "" file; do
+  fnx=$(basename -- "$file")
+  echo "'$fnx' contains these samples:"
+  bcftools query -l $file
+done
+```
+
+### Sort the files by creation time before processing
+
+Use `ls` as in the following example:
+
+```bash
+find . -name "*.png" -type f -exec ls -rt "{}" + | while read file; do
+  echo "$file"
+done
+```
+
+### Switch to the directory containing each file and execute a command
+
+The -execdir option instructs `find` to switch to the directory containing each matching file before executing the specified command.
+
+In this example the command creates a `.zip` file for each `.vcf` file that is found:
+
+```bash
+find . -name "*.vcf" -type f -execdir zip '{}.zip' '{}' \;
+```
+
+In this example the command reads MD5 sums from `MD5.txt` files, checks the MD5 sums, and writes the results to a file named `checksum-results`:
+
+```bash
+find . -name "MD5.txt" -type f -execdir md5sum --check '{}' \; 2>&1 | tee -a checksum-results
+```
+
+### Use files as the argument list for a command
+
+The following finds files ending with `.vcf.gz`, sorts the files based on the number appearing after the first `-` in the filename, and prints the filenames separated by spaces by supplying all to `echo`:
+
+```bash
+find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | xargs -r0 echo
+```
+
+To print the filenames on separate lines, use:
+
+```bash
+find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | xargs -r0 -L 1 echo
+```
+
 ## Git
 
 See [GitHub's Git documentation](https://help.github.com/en) for more information
 
-### Create a new Git repository
+### Add or edit a remote repository
+
+To add a new remote:
 
 ```bash
-git init
+git remote add origin <repo-url>
 ```
 
-### Sync a repository to your local machine
-
-First, copy the clone URL on the GitHub repository page by clicking `Clone or Download`. Then, enter the following command in a terminal window. The helpful\_commands repository is used as an example:
+To edit an existing remote:
 
 ```bash
-git clone https://github.com/stothard-group/helpful_commands.git
+git remote set-url origin <new-repo-url>
+```
+
+To verify that the remote URL has changed:
+
+```bash
+git remote -v
+```
+
+### Check the status of a working directory
+
+```bash
+git status
 ```
 
 ### Clone all your repositories
@@ -2416,128 +2428,10 @@ gh repo list "$org_or_username" --limit 1000 | while read -r repo _; do
 done
 ```
 
-### Mark changed files to be included in the next commit
-
-To add one or more files:
+### Create a new Git repository
 
 ```bash
-git add <filename1> <filename2>
-```
-
-To add all current modifications in your project (including deletions and new files):
-
-```bash
-git add --all
-```
-
-### Undo a Git add before a commit
-
-To undo a list of files:
-
-```bash
-git reset <filename1>
-```
-
-To undo all changes:
-
-```bash
-git reset
-```
-
-### Remove files from the repository
-
-Note that the following instructions will remove the file/directory from both the working tree and the index.
-
-To remove one or more files:
-
-```bash
-git rm <filename>
-git commit -m "Remove <filename>"
-```
-
-To remove a directory:
-
-```bash
-git rm -r <directory>
-git commit -m "Remove <directory>"
-```
-
-To remove a file from the index (this untracks the file, it does not delete the file itself):
-
-```bash
-git rm --cached <filename>
-git commit -m "Remove <filename>"
-```
-
-### Move or rename a file or directory
-
-```bash
-git mv <filename-old> <filename-new>
-git commit -m "Move <filename-old> to <filename-new>"
-```
-
-### Save the marked files to the local Git repository
-
-The commit should include a message using the -m option:
-
-```bash
-git commit -m "A concise description of the changes, e.g. 'Add tests for input file parsing'"
-```
-
-The following changes can be made to commits that have **not** been pushed to a remote repository. To rewrite the very last commit, with any currently staged changes:
-
-```bash
-git commit --amend -m "An updated message"
-```
-
-To commit any currently staged changes without rewriting the commit (this essentially adds the staged changes to the previous commit):
-
-```bash
-git commit --amend --no-edit
-```
-
-### Push a commit on your local branch to a remote repository
-
-```bash
-git push <remote> <branch>
-```
-
-For example, to push to the main branch:
-
-```bash
-git push -u origin main
-```
-
-### Pull a change from a remote repository to your local branch
-
-```bash
-git pull <remote> <branch>
-```
-
-For example, to pull from the main branch:
-
-```bash
-git pull origin main
-```
-
-### Add or edit a remote repository
-
-To add a new remote:
-
-```bash
-git remote add origin <repo-url>
-```
-
-To edit an existing remote:
-
-```bash
-git remote set-url origin <new-repo-url>
-```
-
-To verify that the remote URL has changed:
-
-```bash
-git remote -v
+git init
 ```
 
 ### Create and merge Git branches
@@ -2577,6 +2471,96 @@ git push -u origin main
 
 Git merge conflicts can arise easily. For information on resolving a merge conflict, see [Resolving a merged conflict using the command line](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line).
 
+### Mark changed files to be included in the next commit
+
+To add one or more files:
+
+```bash
+git add <filename1> <filename2>
+```
+
+To add all current modifications in your project (including deletions and new files):
+
+```bash
+git add --all
+```
+
+### Move or rename a file or directory
+
+```bash
+git mv <filename-old> <filename-new>
+git commit -m "Move <filename-old> to <filename-new>"
+```
+
+### Pull a change from a remote repository to your local branch
+
+```bash
+git pull <remote> <branch>
+```
+
+For example, to pull from the main branch:
+
+```bash
+git pull origin main
+```
+
+### Push a commit on your local branch to a remote repository
+
+```bash
+git push <remote> <branch>
+```
+
+For example, to push to the main branch:
+
+```bash
+git push -u origin main
+```
+
+### Remove files from the repository
+
+Note that the following instructions will remove the file/directory from both the working tree and the index.
+
+To remove one or more files:
+
+```bash
+git rm <filename>
+git commit -m "Remove <filename>"
+```
+
+To remove a directory:
+
+```bash
+git rm -r <directory>
+git commit -m "Remove <directory>"
+```
+
+To remove a file from the index (this untracks the file, it does not delete the file itself):
+
+```bash
+git rm --cached <filename>
+git commit -m "Remove <filename>"
+```
+
+### Save the marked files to the local Git repository
+
+The commit should include a message using the -m option:
+
+```bash
+git commit -m "A concise description of the changes, e.g. 'Add tests for input file parsing'"
+```
+
+The following changes can be made to commits that have **not** been pushed to a remote repository. To rewrite the very last commit, with any currently staged changes:
+
+```bash
+git commit --amend -m "An updated message"
+```
+
+To commit any currently staged changes without rewriting the commit (this essentially adds the staged changes to the previous commit):
+
+```bash
+git commit --amend --no-edit
+```
+
 ### Specify files to ignore
 
 Create a `.gitignore` file:
@@ -2599,10 +2583,12 @@ In this example, the following files will no longer be tracked: `sensitive_data.
 
 Note that adding a `.gitignore` file will not remove tracked files; this must be done with `git rm`. See [Remove files from the repository](#remove-files-from-the-repository).
 
-### Check the status of a working directory
+### Sync a repository to your local machine
+
+First, copy the clone URL on the GitHub repository page by clicking `Clone or Download`. Then, enter the following command in a terminal window. The helpful\_commands repository is used as an example:
 
 ```bash
-git status
+git clone https://github.com/stothard-group/helpful_commands.git
 ```
 
 ### Tag a release
@@ -2615,6 +2601,20 @@ git push origin v2.0.0
 ```
 
 Information on how to choose version numbers if available [here](https://semver.org).
+
+### Undo a Git add before a commit
+
+To undo a list of files:
+
+```bash
+git reset <filename1>
+```
+
+To undo all changes:
+
+```bash
+git reset
+```
 
 ## grep
 
@@ -2634,6 +2634,14 @@ In this example the line numbers of lines with a match to `234829` are reported:
 grep -n "234829" input.txt
 ```
 
+### Print non-matching lines
+
+Keep everything except lines starting with `#`:
+
+```bash
+grep -v '^#' input.txt
+```
+
 ### Remove files that contain a match
 
 In this example `.fasta` files are removed that contain the text `complete genome` on a single line:
@@ -2648,14 +2656,6 @@ In this example `.fasta` files are removed that do not contain the text `complet
 
 ```bash
 grep -L "complete genome" *.fasta | xargs -I{} rm -f {}
-```
-
-### Print non-matching lines
-
-Keep everything except lines starting with `#`:
-
-```bash
-grep -v '^#' input.txt
 ```
 
 ### Search using patterns from a file
@@ -2679,12 +2679,50 @@ grep -f ensembl_ids.txt annotated_variants.vcf >> annotated_variants.candidates.
 
 ## Image files
 
+### Create an animated GIF from a YouTube video
+
+The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl), [mplayer](https://mplayerhq.hu/), [ImageMagick](https://imagemagick.org), and [gifsicle](https://www.lcdf.org/gifsicle/):
+
+```bash
+mkdir gif; cd gif
+url=https://youtu.be/_YUAu0aP4DA
+start=00:37; length=10
+youtube-dl -f mp4 -o video_for_gif.mp4 $url
+mplayer video_for_gif.mp4 -ao null -ss $start -endpos $length -vo png -vf scale=400:225
+mogrify -format gif *.png
+gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > animation.gif
+```
+
 ### Crop an image and add a white border
 
 The following uses [ImageMagick](https://imagemagick.org) to removes any edges that are exactly the same color as the corner pixels. A 30-pixel white border is then added to the sides and the top and bottom:
 
 ```bash
 convert input.png -trim -bordercolor White -border 30x30 output.png
+```
+
+### Record your screen to an animated GIF
+
+Use [LICEcap](https://www.cockos.com/licecap/).
+
+### Record your terminal to an animated GIF
+
+Use [Terminalizer](https://github.com/faressoft/terminalizer) to record a session. The following creates a file called `session.yml`:
+
+```bash
+terminalizer record session
+```
+
+To convert the session to an animated GIF:
+
+```bash
+terminalizer render session
+```
+
+For more control over rendering options create an editable configuration file at `~/.terminalizer/config.yml`:
+
+```bash
+terminalizer init
 ```
 
 ### Resize an image
@@ -2714,45 +2752,15 @@ To save a high-DPI full-page webpage screenshot use `:screenshot --dpr 4 --fullp
 
 To delay the screenshot, to capture a menu for example, use `:screenshot --dpr 4 --fullpage --delay 5`.
 
-### Record your terminal to an animated GIF
-
-Use [Terminalizer](https://github.com/faressoft/terminalizer) to record a session. The following creates a file called `session.yml`:
-
-```bash
-terminalizer record session
-```
-
-To convert the session to an animated GIF:
-
-```bash
-terminalizer render session
-```
-
-For more control over rendering options create an editable configuration file at `~/.terminalizer/config.yml`:
-
-```bash
-terminalizer init
-```
-
-### Record your screen to an animated GIF
-
-Use [LICEcap](https://www.cockos.com/licecap/).
-
-### Create an animated GIF from a YouTube video
-
-The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl), [mplayer](https://mplayerhq.hu/), [ImageMagick](https://imagemagick.org), and [gifsicle](https://www.lcdf.org/gifsicle/):
-
-```bash
-mkdir gif; cd gif
-url=https://youtu.be/_YUAu0aP4DA
-start=00:37; length=10
-youtube-dl -f mp4 -o video_for_gif.mp4 $url
-mplayer video_for_gif.mp4 -ao null -ss $start -endpos $length -vo png -vf scale=400:225
-mogrify -format gif *.png
-gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > animation.gif
-```
-
 ## join
+
+### Combine rows and print a subset of columns using join
+
+The following combines rows from two files based on shared identifiers and prints select columns from each file (using the `-o` option). `awk` is used to add column names to the output file:
+
+```bash
+join -t, -1 1 -2 1 -o 2.2,1.2,2.2,1.4,1.5,1.6 <(sort -t, -k1 file1.csv) <(sort -t, -k1 file2.csv) | awk -F, 'BEGIN{print "patient,status,sample,lane,fastq_1,fastq_2"}{print}' OFS=, > final_samplesheet.csv
+```
 
 ### Combine rows based on shared keys with join
 
@@ -2829,25 +2837,22 @@ gene f  .                   0
 
 Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-columns) from [csvkit](#csvkit).
 
-### Combine rows and print a subset of columns using join
-
-The following combines rows from two files based on shared identifiers and prints select columns from each file (using the `-o` option). `awk` is used to add column names to the output file:
-
-```bash
-join -t, -1 1 -2 1 -o 2.2,1.2,2.2,1.4,1.5,1.6 <(sort -t, -k1 file1.csv) <(sort -t, -k1 file2.csv) | awk -F, 'BEGIN{print "patient,status,sample,lane,fastq_1,fastq_2"}{print}' OFS=, > final_samplesheet.csv
-```
-
 ## Mamba
 
 [Mamba](https://github.com/mamba-org/mamba) is a reimplementation of the conda package manager in C++.
 
-### Install Mamba
+### Activate an environment with mamba
 
 ```bash
-conda install mamba -n base -c conda-forge
+mamba activate ngs
 ```
 
-To install Conda with included support for [Mamba](#mamba), use [Miniforge](https://github.com/conda-forge/miniforge).
+### Add additional packages to an environment with mamba
+
+```bash
+mamba activate ngs
+mamba install -y -c bioconda -c conda-forge picard
+```
 
 ### Create an environment and install some packages with mamba
 
@@ -2859,35 +2864,38 @@ mamba activate ngs
 mamba install -y -c bioconda -c conda-forge multiqc fastqc trimmomatic bowtie2 subread samtools
 ```
 
+### Create an environment from a yaml file with mamba
+
+```bash
+mamba env create --file env-environment.yaml
+```
+
 ### Deactivate an environment with mamba
 
 ```bash
 mamba deactivate
 ```
 
-### Activate an environment with mamba
+### Export an environment to a yaml file with mamba
+
+Use the `export` command while the environment is active:
 
 ```bash
-mamba activate ngs
+mamba env export > env-environment.yaml
 ```
+
+### Install Mamba
+
+```bash
+conda install mamba -n base -c conda-forge
+```
+
+To install Conda with included support for [Mamba](#mamba), use [Miniforge](https://github.com/conda-forge/miniforge).
 
 ### List available packages with mamba
 
 ```bash
 mamba search -c bioconda -c conda-forge
-```
-
-### Search for a specific package with mamba
-
-```bash
-mamba search -c bioconda -c conda-forge blast
-```
-
-### Add additional packages to an environment with mamba
-
-```bash
-mamba activate ngs
-mamba install -y -c bioconda -c conda-forge picard
 ```
 
 ### List environments with mamba
@@ -2911,18 +2919,10 @@ mamba deactivate
 mamba env remove --name my-env
 ```
 
-### Export an environment to a yaml file with mamba
-
-Use the `export` command while the environment is active:
+### Search for a specific package with mamba
 
 ```bash
-mamba env export > env-environment.yaml
-```
-
-### Create an environment from a yaml file with mamba
-
-```bash
-mamba env create --file env-environment.yaml
+mamba search -c bioconda -c conda-forge blast
 ```
 
 ## md5sum
@@ -2942,6 +2942,62 @@ md5sum --check md5sum.txt
 ## Miller
 
 [Miller](https://github.com/johnkerl/miller) can be used to work with CSV, TSV, and JSON files.
+
+### Combine actions
+
+Perform multiple actions sequentially using `then`:
+
+```bash
+mlr --csv put '$New_coverage = ($Coverage / 100)' then sort -f Breed -nr Coverage then cut -f InterbullID,New_coverage example.csv
+```
+
+### Convert formats
+
+From CSV to JSON:
+
+```bash
+mlr --icsv --ojson cat example.csv
+```
+
+From CSV to TSV:
+
+```bash
+mlr --icsv --otsv cat example.csv
+```
+
+### Edit columns
+
+To view the `put` documentation:
+
+```bash
+mlr put --help
+```
+
+The following converts `Breed` to uppercase and divides `Coverage` by 100:
+
+```bash
+mlr --csv put '$Breed = toupper($Breed); $Coverage = ($Coverage / 100)' example.csv
+```
+
+New columns can be created:
+
+```bash
+mlr --csv put '$New_coverage = ($Coverage / 100)' example.csv
+```
+
+### Extract columns
+
+To view the `cut` documentation:
+
+```bash
+mlr cut --help
+```
+
+The following extracts the `Breed` and `Coverage` columns:
+
+```bash
+mlr --csv cut -f Breed,Coverage example.csv
+```
 
 ### Extract the first 10 records of a CSV file
 
@@ -2983,18 +3039,42 @@ Print each field with the column name in the form `column=field`:
 mlr --icsv --odkvp tail -n 10 example.csv
 ```
 
-### Convert formats
+### Filter records
 
-From CSV to JSON:
+To view the `filter` documentation:
 
 ```bash
-mlr --icsv --ojson cat example.csv
+mlr filter --help
 ```
 
-From CSV to TSV:
+The following filters records based on `Breed`, `Dataset`, and `Coverage`:
 
 ```bash
-mlr --icsv --otsv cat example.csv
+mlr --csv filter '$Breed == "Charolais" && $Dataset == "A" && $Coverage > 6' example.csv
+```
+
+### Other actions
+
+To view a complete list of Miller verbs use the following:
+
+```bash
+mlr -l
+```
+
+To view documentation for a particular verb use `mlr _verb_ --help`.
+
+### Sort records
+
+To view the `sort` documentation:
+
+```bash
+mlr sort --help
+```
+
+The following first sorts alphabetically by `Breed` and then numerically by `Coverage` (from largest to smallest):
+
+```bash
+mlr --icsv --opprint sort -f Breed -nr Coverage example.csv
 ```
 
 ### View stats
@@ -3012,107 +3092,7 @@ To view several stats for the `Coverage` column:
 mlr --icsv --opprint stats1 -a sum,count,min,max,mean,mode -f Coverage example.csv
 ```
 
-### Filter records
-
-To view the `filter` documentation:
-
-```bash
-mlr filter --help
-```
-
-The following filters records based on `Breed`, `Dataset`, and `Coverage`:
-
-```bash
-mlr --csv filter '$Breed == "Charolais" && $Dataset == "A" && $Coverage > 6' example.csv
-```
-
-### Sort records
-
-To view the `sort` documentation:
-
-```bash
-mlr sort --help
-```
-
-The following first sorts alphabetically by `Breed` and then numerically by `Coverage` (from largest to smallest):
-
-```bash
-mlr --icsv --opprint sort -f Breed -nr Coverage example.csv
-```
-
-### Extract columns
-
-To view the `cut` documentation:
-
-```bash
-mlr cut --help
-```
-
-The following extracts the `Breed` and `Coverage` columns:
-
-```bash
-mlr --csv cut -f Breed,Coverage example.csv
-```
-
-### Edit columns
-
-To view the `put` documentation:
-
-```bash
-mlr put --help
-```
-
-The following converts `Breed` to uppercase and divides `Coverage` by 100:
-
-```bash
-mlr --csv put '$Breed = toupper($Breed); $Coverage = ($Coverage / 100)' example.csv
-```
-
-New columns can be created:
-
-```bash
-mlr --csv put '$New_coverage = ($Coverage / 100)' example.csv
-```
-
-### Other actions
-
-To view a complete list of Miller verbs use the following:
-
-```bash
-mlr -l
-```
-
-To view documentation for a particular verb use `mlr _verb_ --help`.
-
-### Combine actions
-
-Perform multiple actions sequentially using `then`:
-
-```bash
-mlr --csv put '$New_coverage = ($Coverage / 100)' then sort -f Breed -nr Coverage then cut -f InterbullID,New_coverage example.csv
-```
-
 ## Other
-
-### Obtain your public IP address and network information
-
-```bash
-curl ifconfig.me/all
-```
-
-### Copy an ssh public key to another system
-
-Generate the key pair:
-
-```bash
-ssh-keygen
-```
-
-Copy the public key to the `.ssh/authorized_keys` file on the other system using `ssh-copy-id`:
-
-```bash
-ssh-copy-id -i ~/.ssh/id_rsa.pub user@remote-host.com
-```
 
 ### Add a header to all files with a certain extension, getting the header from another file
 
@@ -3126,6 +3106,38 @@ To replace the `.tab` files the `.new` files:
 
 ```bash
 for f in *.new; do new=`echo $f | sed 's/\(.*\)\.new/\1/'`; mv "$f" "$new"; done
+```
+
+### Add text or a header to the beginning of all files with a particular file extension
+
+Add `my header text` to the start of all `.csv` files in the current directory (works on macOS):
+
+```bash
+find . -name "*.csv" -exec sed -i '.bak' '1s/^/my header text\'$'\n/g' {} \;
+```
+
+Add `my header text` to the start of all `.csv` files in the current directory (works on Linux):
+
+```bash
+find . -name "*.csv" -exec sed -i '1s/^/my header text\n/' {} \;
+```
+
+### Add text to the beginning of a file
+
+```bash
+echo 'new header line' | cat - file.txt > temp && mv temp file.txt
+```
+
+### Browse, search, and edit a large CSV file
+
+Use [DB Browser for SQLite (DB4S)](https://github.com/sqlitebrowser/sqlitebrowser).
+
+### Calculate coverage statistics for a BAM file
+
+Use [mosdepth](https://github.com/brentp/mosdepth). The following generates a variety of useful output files prefixed with `20079`:
+
+```bash
+mosdepth 20079 20079.markdup.sorted.bam
 ```
 
 ### Change the extension of multiple files
@@ -3150,25 +3162,32 @@ Or this, depending on which `rename` is installed:
 rename .gbff .gbk *.gbff
 ```
 
-### Add text to the beginning of a file
+### Copy an ssh public key to another system
+
+Generate the key pair:
 
 ```bash
-echo 'new header line' | cat - file.txt > temp && mv temp file.txt
+ssh-keygen
 ```
 
-### Add text or a header to the beginning of all files with a particular file extension
-
-Add `my header text` to the start of all `.csv` files in the current directory (works on macOS):
+Copy the public key to the `.ssh/authorized_keys` file on the other system using `ssh-copy-id`:
 
 ```bash
-find . -name "*.csv" -exec sed -i '.bak' '1s/^/my header text\'$'\n/g' {} \;
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@remote-host.com
 ```
 
-Add `my header text` to the start of all `.csv` files in the current directory (works on Linux):
+### Create a collection of MP3 files from a YouTube playlist
+
+The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl) and [ffmpeg](https://ffmpeg.org/):
 
 ```bash
-find . -name "*.csv" -exec sed -i '1s/^/my header text\n/' {} \;
+playlist_URL=https://www.youtube.com/playlist?list=PL92319EECC1754042
+youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass --rm-cache-dir --continue "$playlist_URL"
 ```
+
+### Edit a PDF file
+
+Use [LibreOffice](https://www.libreoffice.org).
 
 ### Find common lines between files
 
@@ -3199,6 +3218,78 @@ The [Prettier](https://prettier.io) program supports many languages. The followi
 
 ```bash
 prettier --write "*html"
+```
+
+### Obtain your public IP address and network information
+
+```bash
+curl ifconfig.me/all
+```
+
+### Perform a calculation using bc
+
+```bash
+echo "2*(42+42)" | bc
+```
+
+### Perform a calculation using expr
+
+```bash
+expr 6 + 2 \* 5
+```
+
+### Perform a remote BLAST search
+
+The following uses [BLAST+](https://www.ncbi.nlm.nih.gov/books/NBK279690/) to compare a protein sequence query against the `nr` database:
+
+```bash
+in=ILFGCMKP_01075.faa
+out=ILFGCMKP_01075_nr.tab
+blastp -query "$in" -remote -db nr -out "$out" -outfmt '7 qseqid stitle sstart send qcovs qcovhsp pident evalue' -evalue 1e-10
+```
+
+### Perform a calculation using qalc
+
+[qalc](https://github.com/Qalculate/libqalculate) is a calculator with support for units. The following uses qalc to convert 1.5 hours to minutes:
+
+```bash
+qalc "1.5 hours to minutes"
+```
+
+See the [qalc documentation](https://qalculate.github.io/manual/qalc.html) for more examples.
+
+### Prevent a command from stopping when you log out or exit the shell
+
+Use `nohup`:
+
+```bash
+nohup mycommand &
+```
+
+When using `&` the bash job ID is shown in brackets and the PID (process ID), e.g.:
+
+```text
+[1] 1963
+```
+
+The output of the command can be found in `nohup.out`.
+
+The command can be stopped using `kill` and the PID, e.g.:
+
+```bash
+kill -9 1963
+```
+
+### Reverse the order of lines in a file
+
+```bash
+tail -r input.txt > output.txt
+```
+
+Or:
+
+```bash
+tac input.txt > output.txt
 ```
 
 ### Run commands at scheduled times using cron
@@ -3249,47 +3340,6 @@ Alternatively, use the following to run the script once per hour between 8 am an
 
 To display the crontab use `crontab -l`.
 
-### Create a collection of MP3 files from a YouTube playlist
-
-The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl) and [ffmpeg](https://ffmpeg.org/):
-
-```bash
-playlist_URL=https://www.youtube.com/playlist?list=PL92319EECC1754042
-youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass --rm-cache-dir --continue "$playlist_URL"
-```
-
-### Perform a calculation using bc
-
-```bash
-echo "2*(42+42)" | bc
-```
-
-### Perform a calculation using expr
-
-```bash
-expr 6 + 2 \* 5
-```
-
-### Performa a calculation using qalc
-
-[qalc](https://github.com/Qalculate/libqalculate) is a calculator with support for units. The following uses qalc to convert 1.5 hours to minutes:
-
-```bash
-qalc "1.5 hours to minutes"
-```
-
-See the [qalc documentation](https://qalculate.github.io/manual/qalc.html) for more examples.
-
-### Perform a remote BLAST search
-
-The following uses [BLAST+](https://www.ncbi.nlm.nih.gov/books/NBK279690/) to compare a protein sequence query against the `nr` database:
-
-```bash
-in=ILFGCMKP_01075.faa
-out=ILFGCMKP_01075_nr.tab
-blastp -query "$in" -remote -db nr -out "$out" -outfmt '7 qseqid stitle sstart send qcovs qcovhsp pident evalue' -evalue 1e-10
-```
-
 ### Use SQL-like queries to work with a CSV or TSV file
 
 The following uses [q](https://github.com/harelba/q) to count distinct values in the column named `SNP`:
@@ -3300,57 +3350,25 @@ q -H -d, "SELECT COUNT(DISTINCT(SNP)) FROM ./input.csv"
 
 Another option is to use [csvsql](#query-with-sql) from [csvkit](#csvkit).
 
-### Browse, search, and edit a large CSV file
-
-Use [DB Browser for SQLite (DB4S)](https://github.com/sqlitebrowser/sqlitebrowser).
-
-### Prevent a command from stopping when you log out or exit the shell
-
-Use `nohup`:
-
-```bash
-nohup mycommand &
-```
-
-When using `&` the bash job ID is shown in brackets and the PID (process ID), e.g.:
-
-```text
-[1] 1963
-```
-
-The output of the command can be found in `nohup.out`.
-
-The command can be stopped using `kill` and the PID, e.g.:
-
-```bash
-kill -9 1963
-```
-
-### Edit a PDF file
-
-Use [LibreOffice](https://www.libreoffice.org).
-
-### Calculate coverage statistics for a BAM file
-
-Use [mosdepth](https://github.com/brentp/mosdepth). The following generates a variety of useful output files prefixed with `20079`:
-
-```bash
-mosdepth 20079 20079.markdup.sorted.bam
-```
-
-### Reverse the order of lines in a file
-
-```bash
-tail -r input.txt > output.txt
-```
-
-Or:
-
-```bash
-tac input.txt > output.txt
-```
-
 ## parallel
+
+### Compress files in parallel
+
+In the following example 5 jobs are run at the same time:
+
+```bash
+parallel -j5 "gzip {}" ::: *.csv
+```
+
+### Download sequence files and resume without repeating completed jobs using parallel
+
+The following example uses [Kingfisher](https://github.com/wwood/kingfisher-download), which can download data from the ENA, NCBI, AWS, and GCP.
+
+The accessions are in a file named `SRR_Acc_List.txt` and are passed to Kingfisher using `parallel`. The `--resume` and `--joblog` options allows the command to be re-run without repeating previously completed jobs.
+
+```bash
+cat SRR_Acc_List.txt | parallel --resume --joblog log.txt --verbose --progress -j 1 'kingfisher get -r {} -m ena-ascp aws-http prefetch'
+```
 
 ### Extract files in parallel
 
@@ -3366,12 +3384,21 @@ Or:
 parallel 'gunzip {}' ::: *.gz
 ```
 
-### Compress files in parallel
+### Perform a separate BLAST search for each query and database using parallel
 
-In the following example 5 jobs are run at the same time:
+In the following example there are protein sequence files ending with `.faa` in a directory called `queries` and BLAST databases ending with `.faa` in a directory called `databases`.
+
+The `parallel` command with `--dryrun` is used to display the `blastp` commands that will be run. The second `parallel` command executes the commands.
+
+The output from each BLAST search is written to a directory called `output` and is named after the query and database files (the `{1/.}` and `{2/.}` remove the path and extension from the query and database filenames, respectively, when constructing the output filename).
 
 ```bash
-parallel -j5 "gzip {}" ::: *.csv
+querydir=queries
+databasedir=databases
+outdir=output
+mkdir "$outdir"
+parallel --dryrun -j 1 "blastp -evalue 0.0001 -query {1} -db {2} -out $outdir/{1/.}_{2/.}.tab" ::: "$querydir"/*.faa ::: "$databasedir"/*.faa
+parallel --verbose -j 1 "blastp -evalue 0.0001 -query {1} -db {2} -out $outdir/{1/.}_{2/.}.tab" ::: "$querydir"/*.faa ::: "$databasedir"/*.faa
 ```
 
 ### Perform BLAST in parallel
@@ -3394,33 +3421,6 @@ In this example each line of `queries.csv` consists of a gene name followed by a
 
 ```bash
 cat queries.csv | parallel -k -j 1 --colsep ',' 'esearch -db protein -query "{2}[ACCESSION]" | efetch -format fasta > "{1}.faa"'
-```
-
-### Perform a separate BLAST search for each query and database using parallel
-
-In the following example there are protein sequence files ending with `.faa` in a directory called `queries` and BLAST databases ending with `.faa` in a directory called `databases`.
-
-The `parallel` command with `--dryrun` is used to display the `blastp` commands that will be run. The second `parallel` command executes the commands.
-
-The output from each BLAST search is written to a directory called `output` and is named after the query and database files (the `{1/.}` and `{2/.}` remove the path and extension from the query and database filenames, respectively, when constructing the output filename).
-
-```bash
-querydir=queries
-databasedir=databases
-outdir=output
-mkdir "$outdir"
-parallel --dryrun -j 1 "blastp -evalue 0.0001 -query {1} -db {2} -out $outdir/{1/.}_{2/.}.tab" ::: "$querydir"/*.faa ::: "$databasedir"/*.faa
-parallel --verbose -j 1 "blastp -evalue 0.0001 -query {1} -db {2} -out $outdir/{1/.}_{2/.}.tab" ::: "$querydir"/*.faa ::: "$databasedir"/*.faa
-```
-
-### Download sequence files and resume without repeating completed jobs using parallel
-
-The following example uses [Kingfisher](https://github.com/wwood/kingfisher-download), which can download data from the ENA, NCBI, AWS, and GCP.
-
-The accessions are in a file named `SRR_Acc_List.txt` and are passed to Kingfisher using `parallel`. The `--resume` and `--joblog` options allows the command to be re-run without repeating previously completed jobs.
-
-```bash
-cat SRR_Acc_List.txt | parallel --resume --joblog log.txt --verbose --progress -j 1 'kingfisher get -r {} -m ena-ascp aws-http prefetch'
 ```
 
 ## paste
@@ -3455,6 +3455,20 @@ paste -d "," genotype_conversion.csv \
 
 ## Perl
 
+### Count the number of lines that match a regular expression
+
+```bash
+perl -lne '$a++ if /\tyes\t/; END {print $a+0}' < input.txt
+```
+
+### Format Perl code
+
+The following uses `perltidy` to reformat the code in `testfile.pl` and will create a file called `testfile.pl.tdy`.
+
+```bash
+perltidy testfile.pl
+```
+
 ### Get a random sample of lines from a text file while excluding the header line
 
 In this example a random sample of 20 lines is obtained:
@@ -3463,10 +3477,22 @@ In this example a random sample of 20 lines is obtained:
 tail -n +2 input.txt | perl -MList::Util -e 'print List::Util::shuffle <>' | head -n 20 > output.txt
 ```
 
-### Count the number of lines that match a regular expression
+### Print lines that match a pattern
 
 ```bash
-perl -lne '$a++ if /\tyes\t/; END {print $a+0}' < input.txt
+perl -ne '/ENSBTAG00000028061/ && print' input.txt
+```
+
+### Print matches after additional editing
+
+```bash
+perl -0777 -ne 'while (m/^\s+\/translation="([^"]+)"/gm) {$out = $1; $out =~ s/\s//g; print "$out\n"}' NM_001271626.3.gbk
+```
+
+### Print matches that may span multiple lines
+
+```bash
+perl -0777 -ne 'while (m/^\s+\/translation="([^"]+)"/gm) {print "$1\n"}' NM_001271626.3.gbk
 ```
 
 ### Remove commas located within quoted fields in a CSV file and create a tab-delimited file
@@ -3483,6 +3509,12 @@ In this example, lines from `input.txt` are written to `output.txt` unless they 
 perl -n -e 'print unless m/^some_text/' input.txt > output.txt
 ```
 
+### Replace ^M
+
+```bash
+perl -p -i -e 's/\r\n$/\n/g' file.txt
+```
+
 ### Replace commas with tabs
 
 ```bash
@@ -3493,12 +3525,6 @@ perl -p -e 's/,/\t/g;' input.csv > output.tab
 
 ```bash
 perl -p -e 's/\t/,/g;' -e 's/"//g;' input.tab > output.csv
-```
-
-### Sort sections in a Markdown file based on headings
-
-```bash
-perl -0777 -ne '(undef,@paragraphs) = split /^#(?=[^#])/m; print map {"#$_"} sort { "\U$a" cmp "\U$b" } @paragraphs;' input.md
 ```
 
 ### Search and replace text on each line
@@ -3519,28 +3545,10 @@ The above command produces the following:
 test,pattern
 ```
 
-### Replace ^M
+### Sort sections in a Markdown file based on headings
 
 ```bash
-perl -p -i -e 's/\r\n$/\n/g' file.txt
-```
-
-### Print lines that match a pattern
-
-```bash
-perl -ne '/ENSBTAG00000028061/ && print' input.txt
-```
-
-### Print matches that may span multiple lines
-
-```bash
-perl -0777 -ne 'while (m/^\s+\/translation="([^"]+)"/gm) {print "$1\n"}' NM_001271626.3.gbk
-```
-
-### Print matches after additional editing
-
-```bash
-perl -0777 -ne 'while (m/^\s+\/translation="([^"]+)"/gm) {$out = $1; $out =~ s/\s//g; print "$out\n"}' NM_001271626.3.gbk
+perl -0777 -ne '(undef,@paragraphs) = split /^#(?=[^#])/m; print map {"#$_"} sort { "\U$a" cmp "\U$b" } @paragraphs;' input.md
 ```
 
 ### Split a Markdown file into separate files based on a heading
@@ -3575,261 +3583,35 @@ some answer
 perl -ne 'BEGIN {$section_name=shift; $output_file_prefix=shift; undef $/;} $section_count = 1; $file = $ARGV; while (m/(\Q$section_name\E.*?)((?=\Q$section_name\E)|$)/sg) {open(w, ">", "$output_file_prefix-$section_count.md"); print w "$1"; $section_count++; close(w)}' "# Answer" "output" input.md
 ```
 
-### Format Perl code
-
-The following uses `perltidy` to reformat the code in `testfile.pl` and will create a file called `testfile.pl.tdy`.
-
-```bash
-perltidy testfile.pl
-```
-
 ## R
 
-### Compare two data sets to find differences
-
-In this example SNP location information assigned by two different algorithms is compared using the `compareDF` package.
-
-The two data sets (position information) generated by the differing algorithms are read from files. SNP name is used to match rows across the data sets, and then the 'chromosome' and 'position' are compared.
-
-SNP records for which 'chromosome' or 'position' differ between the data sets are written to an Excel file.
-
-```r
-library(compareDF)
-
-algorithm1_results <- read.csv2("algorithm1_results.csv", comment.char = "#", sep = ",", header = TRUE)
-algorithm1_results_snp_positions <- data.frame(algorithm1_results$marker_name, algorithm1_results$chromosome, algorithm1_results$position)
-colnames(algorithm1_results_snp_positions) <- c('SNP_name', 'chromosome', 'position')
-
-algorithm2_results <- read.csv2("algorithm2_results.csv", comment.char = "#", sep = ",", header = TRUE)
-algorithm2_results_snp_positions <- data.frame(algorithm2_results$SNP_name, algorithm2_results$chromosome, algorithm2_results$position)
-colnames(algorithm2_results_snp_positions) <- c('SNP_name', 'chromosome', 'position')
-
-#compare positions between data sets, matching based on SNP_name
-ctable = compare_df(algorithm1_results_snp_positions, algorithm2_results_snp_positions, c('SNP_name'))
-output_file <- paste("positions", "algorithm1_results", "vs", paste("algorithm2_results", ".xlsx", sep=""), sep="_")
-create_output_table(ctable, output_type="xlsx", file_name=output_file, limit=1000000)
-```
-
-### Visualize the degree of overlap among gene sets
-
-In this example, an UpSet plot is used to visualize the overlap among all combinations of gene lists in the `gene_lists` directory. In this directory each list is given as a separate `.txt` file, with a single header row and one gene name or ID per row, for example:
-
-```text
-Gene name or identifier
-ENSG00000264954.2
-ENSG00000224383.8
-CCDS54157.1.1
-```
-
-The UpSet plot is generated using the `UpSetR` package:
-
-```r
-library(UpSetR)
-
-setwd('/path/to/gene_lists')
-filenames <- list.files(pattern = "*.txt", full.names = FALSE)
-
-# create list of character vectors, each named after the source filename
-# assumes each file has single header line (skip = 1)
-gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
-
-# remove underscores from vector names
-names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
-
-# remove file extension from vector names
-names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
-
-upset(fromList(gl), nsets = length(gl), order.by = "freq")
-```
-
-The resulting plot displays the number of items shared among all possible combinations of overlapping sets in an easy-to-interpret and parse manner (unlike a traditional Venn diagram).
-
-### Cluster gene lists based on overlap and identify shared genes
-
-In this example a heatmap is used to visualize gene presence and absence for all gene lists in the `gene_lists` directory. In this directory each list is given as a separate `.txt` file, with a single header row and one gene name or ID per row, for example:
-
-```text
-Gene name or identifier
-ENSG00000264954.2
-ENSG00000224383.8
-CCDS54157.1.1
-```
-
-The following uses the `purrr` and `RVenn` packages:
+### Add columns from one tibble to another
 
 ```r
 library(purrr)
-library(RVenn)
+library(tibble)
 
-setwd('/path/to/gene_lists')
-filenames <- list.files(pattern = "*.txt", full.names = FALSE)
-
-# create list of character vectors, each named after the source filename
-# assumes each file has single header line (skip = 1)
-gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
-
-# remove underscores from vector names
-names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
-
-# remove file extension from vector names
-names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
-
-venn = Venn(gl)
-setmap(venn, element_fontsize = 4, set_fontsize = 4)
-```
-
-The resulting heatmap displays genes and gene lists as rows and columns, respectively. The columns and rows are arranged so that genes and gene lists with similar presence / absence patterns are grouped together.
-
-### Transpose a data frame
-
-To convert this:
-
-```text
-snp                 sample1  sample2
-ABCA12              AA       AA
-APAF1               CC       CC
-ARS-BFGL-BAC-10172  GG       AG
-ARS-BFGL-BAC-1020   AA       GG
-```
-
-To this:
-
-```text
-snp      ABCA12  APAF1  ARS-BFGL-BAC-10172  ARS-BFGL-BAC-1020
-sample1  AA      CC     GG                  AA
-sample2  AA      CC     AG                  GG
-```
-
-Use this:
-
-```r
-library(dplyr)
-library(tidyr)
-library(janitor)
-
-# prepare sample data frame
-snp <- c('ABCA12', 'APAF1', 'ARS-BFGL-BAC-10172', 'ARS-BFGL-BAC-1020')
-sample1 <- c('AA', 'CC', 'GG', 'AA')
-sample2 <- c('AA', 'CC', 'AG', 'GG')
-genotypes <- data.frame(snp, sample1, sample2)
-
-genotypes %>%
-  tibble::rownames_to_column() %>%
-  pivot_longer(-rowname) %>%
-  pivot_wider(names_from=rowname, values_from=value) ->
-  genotypes_transposed
-
-genotypes_transposed %>%
-  row_to_names(row_number = 1) ->
-  genotypes_transposed_with_column_names
-
-write.table(genotypes_transposed_with_column_names, file = "genotypes_transposed_with_column_names.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
-```
-
-Or use this:
-
-```r
-snp <- c('ABCA12', 'APAF1', 'ARS-BFGL-BAC-10172', 'ARS-BFGL-BAC-1020')
-sample1 <- c('AA', 'CC', 'GG', 'AA')
-sample2 <- c('AA', 'CC', 'AG', 'GG')
-genotypes <- data.frame(snp, sample1, sample2)
-
-genotypes_transposed <- data.frame(t(genotypes[-1]))
-colnames(genotypes_transposed) <- genotypes[, 1]
-
-write.table(genotypes_transposed, file = "genotypes_transposed_with_column_names.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
-```
-
-Or use [datamash](#datamash).
-
-### Split two-allele genotypes into two columns
-
-To convert this:
-
-```text
-sample   ABCA12  APAF1  ARS-BFGL-BAC-10172  ARS-BFGL-BAC-1020
-sample1  AA      CC     GG                  AA
-sample2  AA      CC     AG                  GG
-```
-
-To this:
-
-```text
-sample   ABCA12_1  ABCA12_2  APAF1_1  APAF1_2  ARS-BFGL-BAC-10172_1  ARS-BFGL-BAC-10172_2  ARS-BFGL-BAC-1020_1  ARS-BFGL-BAC-1020_2
-sample1  A         A         C        C        G                     G                     A                    A
-sample2  A         A         C        C        A                     G                     G                    G
-```
-
-Use this:
-
-```r
-library(dplyr)
-library(tidyr)
-
-# prepare sample data frame
-sample <- c('sample1', 'sample2')
-ABCA12 <- c('AA', 'AA')
-APAF1 <- c('CC', 'CC')
-`ARS-BFGL-BAC-10172` <- c('GG', 'AG')
-`ARS-BFGL-BAC-1020` <- c('AA', 'GG')
-genotypes <- tibble(sample, ABCA12, APAF1, `ARS-BFGL-BAC-10172`, `ARS-BFGL-BAC-1020`)
-
-# [-1] prevents first column from being split
-for(column_name in names(genotypes)[-1]){
-  genotypes %>%
-    separate(column_name, c(paste(column_name, "1", sep = "_"), paste(column_name, "2", sep = "_")), sep = 1) ->
-    genotypes
+# vcf and genotypes are tibbles
+# add columns from genotypes to vcf
+for (column in names(genotypes)) {
+  vcf %>%
+    add_column(!!(column) := genotypes[[column]]) ->
+    vcf
 }
-
-write.table(genotypes, file = "genotypes_split.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
 ```
 
-### Split multi-locus genotype strings into multiple columns and decode genotypes
-
-To convert this:
-
-```text
-sample          alleles
-HOCANF12689774  1000112112
-HOCANF12689787  2011112012
-HOCANF12689790  1011002122
-```
-
-To this:
-
-```text
-sample          Hapmap43437-BTA-101873  ARS-BFGL-NGS-16466  Hapmap34944-BES1_Contig627_1906  ARS-BFGL-NGS-98142  Hapmap53946-rs29015852  ARS-BFGL-NGS-114208  ARS-BFGL-NGS-66449  ARS-BFGL-BAC-32770  ARS-BFGL-NGS-65067  ARS-BFGL-BAC-32722
-HOCANF12689774  AB                      BB                  BB                               BB                  AB                      AB                   AA                  AB                  AB                  AA
-HOCANF12689787  AA                      BB                  AB                               AB                  AB                      AB                   AA                  BB                  AB                  AA
-HOCANF12689790  AB                      BB                  AB                               AB                  BB                      BB                   AA                  AB                  AA                  AA
-```
-
-Use this:
+### Add comment lines to output
 
 ```r
 library(dplyr)
-library(tidyr)
 
-# prepare sample data frame
-sample <- c('HOCANF12689774', 'HOCANF12689787', 'HOCANF12689790')
-alleles <- c('1000112112', '2011112012', '1011002122')
-genotypes <- data.frame(sample, alleles)
+# vcf is a tibble
+# add comment character to start of first column name
+vcf <- rename(vcf, `#CHROM` = CHROM)
 
-# vector of snp names
-snps <- c('Hapmap43437-BTA-101873', 'ARS-BFGL-NGS-16466', 'Hapmap34944-BES1_Contig627_1906', 'ARS-BFGL-NGS-98142', 'Hapmap53946-rs29015852', 'ARS-BFGL-NGS-114208', 'ARS-BFGL-NGS-66449', 'ARS-BFGL-BAC-32770', 'ARS-BFGL-NGS-65067', 'ARS-BFGL-BAC-32722')
-
-# create a new column for each digit in alleles
-genotypes_one_column_per_snp <- separate(genotypes, col = alleles, sep = "(?<=\\d)", into = snps)
-
-# convert each digit to textual representation
-genotypes_one_column_per_snp_decoded = reshape2::dcast(
-  dplyr::mutate(
-    reshape2::melt(genotypes_one_column_per_snp, id.var = "sample"),
-    value=plyr::mapvalues(
-      value, c("0", "1", "2"), c("BB", "AB", "AA"))
-  ),sample~variable)
-
-write.table(genotypes_one_column_per_snp_decoded, file = "genotypes_one_column_per_snp_decoded.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+# write out comment line and then column names
+writeLines(c("##fileformat=VCFv4.2", paste(names(vcf), collapse = "\t")), con = "genotypes.vcf")
+write.table(vcf, file = "genotypes.vcf", row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t", append=TRUE)
 ```
 
 ### Change values in a column based on values in another column
@@ -3965,56 +3747,41 @@ print(tb)
 #3 1        12 .         B         T         G
 ```
 
-### Add comment lines to output
+### Cluster gene lists based on overlap and identify shared genes
 
-```r
-library(dplyr)
+In this example a heatmap is used to visualize gene presence and absence for all gene lists in the `gene_lists` directory. In this directory each list is given as a separate `.txt` file, with a single header row and one gene name or ID per row, for example:
 
-# vcf is a tibble
-# add comment character to start of first column name
-vcf <- rename(vcf, `#CHROM` = CHROM)
-
-# write out comment line and then column names
-writeLines(c("##fileformat=VCFv4.2", paste(names(vcf), collapse = "\t")), con = "genotypes.vcf")
-write.table(vcf, file = "genotypes.vcf", row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t", append=TRUE)
+```text
+Gene name or identifier
+ENSG00000264954.2
+ENSG00000224383.8
+CCDS54157.1.1
 ```
 
-### Filter and sort rows
-
-```r
-library(tidyverse)
-
-# vcf is tibble
-# remove rows where POS is NA
-vcf %>% drop_na(POS) ->
-  vcf
-
-# keep rows with single base in REF and ALT
-vcf %>%
-  filter(str_detect(REF, "^[GATCN]$")) %>%
-  filter(str_detect(ALT, "^[GATCN]$")) ->
-  vcf
-
-# sort by chromosome then position
-vcf %>%
-  arrange(CHROM, POS) ->
-  vcf
-```
-
-### Add columns from one tibble to another
+The following uses the `purrr` and `RVenn` packages:
 
 ```r
 library(purrr)
-library(tibble)
+library(RVenn)
 
-# vcf and genotypes are tibbles
-# add columns from genotypes to vcf
-for (column in names(genotypes)) {
-  vcf %>%
-    add_column(!!(column) := genotypes[[column]]) ->
-    vcf
-}
+setwd('/path/to/gene_lists')
+filenames <- list.files(pattern = "*.txt", full.names = FALSE)
+
+# create list of character vectors, each named after the source filename
+# assumes each file has single header line (skip = 1)
+gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
+
+# remove underscores from vector names
+names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
+
+# remove file extension from vector names
+names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
+
+venn = Venn(gl)
+setmap(venn, element_fontsize = 4, set_fontsize = 4)
 ```
+
+The resulting heatmap displays genes and gene lists as rows and columns, respectively. The columns and rows are arranged so that genes and gene lists with similar presence / absence patterns are grouped together.
 
 ### Combine multiple input files
 
@@ -4112,6 +3879,205 @@ write.xlsx(
 )
 ```
 
+### Compare two data sets to find differences
+
+In this example SNP location information assigned by two different algorithms is compared using the `compareDF` package.
+
+The two data sets (position information) generated by the differing algorithms are read from files. SNP name is used to match rows across the data sets, and then the 'chromosome' and 'position' are compared.
+
+SNP records for which 'chromosome' or 'position' differ between the data sets are written to an Excel file.
+
+```r
+library(compareDF)
+
+algorithm1_results <- read.csv2("algorithm1_results.csv", comment.char = "#", sep = ",", header = TRUE)
+algorithm1_results_snp_positions <- data.frame(algorithm1_results$marker_name, algorithm1_results$chromosome, algorithm1_results$position)
+colnames(algorithm1_results_snp_positions) <- c('SNP_name', 'chromosome', 'position')
+
+algorithm2_results <- read.csv2("algorithm2_results.csv", comment.char = "#", sep = ",", header = TRUE)
+algorithm2_results_snp_positions <- data.frame(algorithm2_results$SNP_name, algorithm2_results$chromosome, algorithm2_results$position)
+colnames(algorithm2_results_snp_positions) <- c('SNP_name', 'chromosome', 'position')
+
+#compare positions between data sets, matching based on SNP_name
+ctable = compare_df(algorithm1_results_snp_positions, algorithm2_results_snp_positions, c('SNP_name'))
+output_file <- paste("positions", "algorithm1_results", "vs", paste("algorithm2_results", ".xlsx", sep=""), sep="_")
+create_output_table(ctable, output_type="xlsx", file_name=output_file, limit=1000000)
+```
+
+### Filter and sort rows
+
+```r
+library(tidyverse)
+
+# vcf is tibble
+# remove rows where POS is NA
+vcf %>% drop_na(POS) ->
+  vcf
+
+# keep rows with single base in REF and ALT
+vcf %>%
+  filter(str_detect(REF, "^[GATCN]$")) %>%
+  filter(str_detect(ALT, "^[GATCN]$")) ->
+  vcf
+
+# sort by chromosome then position
+vcf %>%
+  arrange(CHROM, POS) ->
+  vcf
+```
+
+### Split multi-locus genotype strings into multiple columns and decode genotypes
+
+To convert this:
+
+```text
+sample          alleles
+HOCANF12689774  1000112112
+HOCANF12689787  2011112012
+HOCANF12689790  1011002122
+```
+
+To this:
+
+```text
+sample          Hapmap43437-BTA-101873  ARS-BFGL-NGS-16466  Hapmap34944-BES1_Contig627_1906  ARS-BFGL-NGS-98142  Hapmap53946-rs29015852  ARS-BFGL-NGS-114208  ARS-BFGL-NGS-66449  ARS-BFGL-BAC-32770  ARS-BFGL-NGS-65067  ARS-BFGL-BAC-32722
+HOCANF12689774  AB                      BB                  BB                               BB                  AB                      AB                   AA                  AB                  AB                  AA
+HOCANF12689787  AA                      BB                  AB                               AB                  AB                      AB                   AA                  BB                  AB                  AA
+HOCANF12689790  AB                      BB                  AB                               AB                  BB                      BB                   AA                  AB                  AA                  AA
+```
+
+Use this:
+
+```r
+library(dplyr)
+library(tidyr)
+
+# prepare sample data frame
+sample <- c('HOCANF12689774', 'HOCANF12689787', 'HOCANF12689790')
+alleles <- c('1000112112', '2011112012', '1011002122')
+genotypes <- data.frame(sample, alleles)
+
+# vector of snp names
+snps <- c('Hapmap43437-BTA-101873', 'ARS-BFGL-NGS-16466', 'Hapmap34944-BES1_Contig627_1906', 'ARS-BFGL-NGS-98142', 'Hapmap53946-rs29015852', 'ARS-BFGL-NGS-114208', 'ARS-BFGL-NGS-66449', 'ARS-BFGL-BAC-32770', 'ARS-BFGL-NGS-65067', 'ARS-BFGL-BAC-32722')
+
+# create a new column for each digit in alleles
+genotypes_one_column_per_snp <- separate(genotypes, col = alleles, sep = "(?<=\\d)", into = snps)
+
+# convert each digit to textual representation
+genotypes_one_column_per_snp_decoded = reshape2::dcast(
+  dplyr::mutate(
+    reshape2::melt(genotypes_one_column_per_snp, id.var = "sample"),
+    value=plyr::mapvalues(
+      value, c("0", "1", "2"), c("BB", "AB", "AA"))
+  ),sample~variable)
+
+write.table(genotypes_one_column_per_snp_decoded, file = "genotypes_one_column_per_snp_decoded.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+```
+
+### Split two-allele genotypes into two columns
+
+To convert this:
+
+```text
+sample   ABCA12  APAF1  ARS-BFGL-BAC-10172  ARS-BFGL-BAC-1020
+sample1  AA      CC     GG                  AA
+sample2  AA      CC     AG                  GG
+```
+
+To this:
+
+```text
+sample   ABCA12_1  ABCA12_2  APAF1_1  APAF1_2  ARS-BFGL-BAC-10172_1  ARS-BFGL-BAC-10172_2  ARS-BFGL-BAC-1020_1  ARS-BFGL-BAC-1020_2
+sample1  A         A         C        C        G                     G                     A                    A
+sample2  A         A         C        C        A                     G                     G                    G
+```
+
+Use this:
+
+```r
+library(dplyr)
+library(tidyr)
+
+# prepare sample data frame
+sample <- c('sample1', 'sample2')
+ABCA12 <- c('AA', 'AA')
+APAF1 <- c('CC', 'CC')
+`ARS-BFGL-BAC-10172` <- c('GG', 'AG')
+`ARS-BFGL-BAC-1020` <- c('AA', 'GG')
+genotypes <- tibble(sample, ABCA12, APAF1, `ARS-BFGL-BAC-10172`, `ARS-BFGL-BAC-1020`)
+
+# [-1] prevents first column from being split
+for(column_name in names(genotypes)[-1]){
+  genotypes %>%
+    separate(column_name, c(paste(column_name, "1", sep = "_"), paste(column_name, "2", sep = "_")), sep = 1) ->
+    genotypes
+}
+
+write.table(genotypes, file = "genotypes_split.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+```
+
+### Transpose a data frame
+
+To convert this:
+
+```text
+snp                 sample1  sample2
+ABCA12              AA       AA
+APAF1               CC       CC
+ARS-BFGL-BAC-10172  GG       AG
+ARS-BFGL-BAC-1020   AA       GG
+```
+
+To this:
+
+```text
+snp      ABCA12  APAF1  ARS-BFGL-BAC-10172  ARS-BFGL-BAC-1020
+sample1  AA      CC     GG                  AA
+sample2  AA      CC     AG                  GG
+```
+
+Use this:
+
+```r
+library(dplyr)
+library(tidyr)
+library(janitor)
+
+# prepare sample data frame
+snp <- c('ABCA12', 'APAF1', 'ARS-BFGL-BAC-10172', 'ARS-BFGL-BAC-1020')
+sample1 <- c('AA', 'CC', 'GG', 'AA')
+sample2 <- c('AA', 'CC', 'AG', 'GG')
+genotypes <- data.frame(snp, sample1, sample2)
+
+genotypes %>%
+  tibble::rownames_to_column() %>%
+  pivot_longer(-rowname) %>%
+  pivot_wider(names_from=rowname, values_from=value) ->
+  genotypes_transposed
+
+genotypes_transposed %>%
+  row_to_names(row_number = 1) ->
+  genotypes_transposed_with_column_names
+
+write.table(genotypes_transposed_with_column_names, file = "genotypes_transposed_with_column_names.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+```
+
+Or use this:
+
+```r
+snp <- c('ABCA12', 'APAF1', 'ARS-BFGL-BAC-10172', 'ARS-BFGL-BAC-1020')
+sample1 <- c('AA', 'CC', 'GG', 'AA')
+sample2 <- c('AA', 'CC', 'AG', 'GG')
+genotypes <- data.frame(snp, sample1, sample2)
+
+genotypes_transposed <- data.frame(t(genotypes[-1]))
+colnames(genotypes_transposed) <- genotypes[, 1]
+
+write.table(genotypes_transposed, file = "genotypes_transposed_with_column_names.txt", row.names = FALSE, col.names = TRUE, quote = FALSE, sep = " ")
+```
+
+Or use [datamash](#datamash).
+
 ### Understand an object
 
 When working with R, especially in exploratory data analysis or when inheriting someone else's code, you might encounter objects of unknown type or structure. Below are some functions to help you inspect and understand such objects:
@@ -4158,7 +4124,47 @@ is.matrix(object)
 #> Returns TRUE or FALSE
 ```
 
+### Visualize the degree of overlap among gene sets
+
+In this example, an UpSet plot is used to visualize the overlap among all combinations of gene lists in the `gene_lists` directory. In this directory each list is given as a separate `.txt` file, with a single header row and one gene name or ID per row, for example:
+
+```text
+Gene name or identifier
+ENSG00000264954.2
+ENSG00000224383.8
+CCDS54157.1.1
+```
+
+The UpSet plot is generated using the `UpSetR` package:
+
+```r
+library(UpSetR)
+
+setwd('/path/to/gene_lists')
+filenames <- list.files(pattern = "*.txt", full.names = FALSE)
+
+# create list of character vectors, each named after the source filename
+# assumes each file has single header line (skip = 1)
+gl <- sapply(filenames, scan, character(), sep="\n", skip = 1, USE.NAMES = TRUE)
+
+# remove underscores from vector names
+names(gl) <- gsub(x = names(gl), pattern = "_", replacement = " ")
+
+# remove file extension from vector names
+names(gl) <- gsub(x = names(gl), pattern = "\\..+?$", replacement = "")
+
+upset(fromList(gl), nsets = length(gl), order.by = "freq")
+```
+
+The resulting plot displays the number of items shared among all possible combinations of overlapping sets in an easy-to-interpret and parse manner (unlike a traditional Venn diagram).
+
 ## rsync
+
+### Sync a directory from a remote system
+
+```bash
+rsync -avzh user@192.168.0.101:~/source_directory destination
+```
 
 ### Sync a directory on local system
 
@@ -4178,36 +4184,34 @@ rsync -avzh source_directory/ destination_directory
 rsync -avzh source_directory user@192.168.0.101:~/destination
 ```
 
-### Sync a directory from a remote system
-
-```bash
-rsync -avzh user@192.168.0.101:~/source_directory destination
-```
-
-## Singularity
-
-### Create an image from a container stored in Docker Hub
-
-In this example a container that can be downloaded from Docker Hub using `docker pull pstothard/cgview` is used to generate a Singularity container:
-
-```bash
-singularity build cgview.sif docker://pstothard/cgview
-```
-
-To run a command in this container, use something like the following:
-
-```bash
-singularity exec -B /scratch cgview.sif java -jar /usr/bin/cgview.jar --help
-```
-
-The `-B` is used to provide the container with access to directories.
-
 ## sed
 
 ### Add a header line to a file with sed
 
 ```bash
 sed $'1s/^/my header text\\\n&/' input
+```
+
+### Change filenames using a regular expression
+
+In this example `chr30` is replaced with `chrX`:
+
+```bash
+for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
+```
+
+### Delete lines
+
+The following deletes the first line:
+
+```bash
+sed '1d' sequenced_samples.csv
+```
+
+The following deletes from line 500 to the end of the file (represented by `$`):
+
+```bash
+sed '500,$d' sequenced_samples.csv
 ```
 
 ### Edit the header line with sed
@@ -4224,14 +4228,6 @@ In this example line `26404` is printed:
 
 ```bash
 sed -n "26404p" input.txt
-```
-
-### Change filenames using a regular expression
-
-In this example `chr30` is replaced with `chrX`:
-
-```bash
-for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
 ```
 
 ### Search and replace on lines
@@ -4271,20 +4267,6 @@ The different parts of the search part of the command have the following meaning
 - `^` match the start of a line
 - `[a-zA-Z0-9]\{3\}` match three letters or numbers
 
-### Delete lines
-
-The following deletes the first line:
-
-```bash
-sed '1d' sequenced_samples.csv
-```
-
-The following deletes from line 500 to the end of the file (represented by `$`):
-
-```bash
-sed '500,$d' sequenced_samples.csv
-```
-
 ## Share data with project group members
 
 ```bash
@@ -4296,7 +4278,37 @@ chmod g+x shared_dir
 chmod +t shared_dir
 ```
 
+## Singularity
+
+### Create an image from a container stored in Docker Hub
+
+In this example a container that can be downloaded from Docker Hub using `docker pull pstothard/cgview` is used to generate a Singularity container:
+
+```bash
+singularity build cgview.sif docker://pstothard/cgview
+```
+
+To run a command in this container, use something like the following:
+
+```bash
+singularity exec -B /scratch cgview.sif java -jar /usr/bin/cgview.jar --help
+```
+
+The `-B` is used to provide the container with access to directories.
+
 ## Slurm
+
+### Cancel a job
+
+```bash
+scancel <jobid>
+```
+
+### Cancel all jobs
+
+```bash
+scancel -u <username>
+```
 
 ### Run a Snakemake workflow
 
@@ -4610,34 +4622,10 @@ The error messages in the `.out` file serve as a starting point when trying to o
 
 Note that the scratch folder is regularly cleaned out by administrators. If you want to keep the pipeline results, move them to your `project` or `home` folder, or download them to your local computer.
 
-### View statistics related to the efficiency of resource usage of a completed job
+### Start an interactive session
 
 ```bash
-seff <jobid>
-```
-
-### View jobs
-
-```bash
-squeue -u <username>
-```
-
-### View running jobs
-
-```bash
-squeue -u <username> -t RUNNING
-```
-
-### View pending jobs
-
-```bash
-squeue -u <username> -t PENDING
-```
-
-### View detailed information for a specific job
-
-```bash
-scontrol show job -dd <jobid>
+salloc --time=2:0:0 --ntasks=2 --account=def-someuser --mem-per-cpu=8000M --mail-type=ALL --mail-user=your.email@example.com
 ```
 
 ### View accounting information for completed jobs
@@ -4646,22 +4634,34 @@ scontrol show job -dd <jobid>
 sacct -s CD --format=JobID,JobName,MaxRSS,ReqMem,Elapsed,End,State,NodeList
 ```
 
-### Cancel a job
+### View detailed information for a specific job
 
 ```bash
-scancel <jobid>
+scontrol show job -dd <jobid>
 ```
 
-### Cancel all jobs
+### View jobs
 
 ```bash
-scancel -u <username>
+squeue -u <username>
 ```
 
-### Start an interactive session
+### View pending jobs
 
 ```bash
-salloc --time=2:0:0 --ntasks=2 --account=def-someuser --mem-per-cpu=8000M --mail-type=ALL --mail-user=your.email@example.com
+squeue -u <username> -t PENDING
+```
+
+### View running jobs
+
+```bash
+squeue -u <username> -t RUNNING
+```
+
+### View statistics related to the efficiency of resource usage of a completed job
+
+```bash
+seff <jobid>
 ```
 
 ## sort
@@ -4670,33 +4670,6 @@ salloc --time=2:0:0 --ntasks=2 --account=def-someuser --mem-per-cpu=8000M --mail
 
 ```bash
 sort -t, input.csv
-```
-
-### Specify the sort field
-
-The `-k` option of `sort` is used to indicate that certain fields are to be used for sorting (the sorting is still applied to the entire line).
-
-The following sorts only using column 5 (`5,5` means "starting at column 5 and ending at column 5"), numerically, from smallest to largest:
-
-```bash
-(head -n 1 sequenced_samples.csv && \
-tail -n +2 sequenced_samples.csv | sort -t, -k5,5n)
-```
-
-The following sorts using column 2 to the end of line, alphabetically:
-
-```bash
-(head -n 1 sequenced_samples.csv && sort -t, -k2 \
-<(tail -n +2 sequenced_samples.csv))
-```
-
-### Use multiple sort fields
-
-The command below sorts using column 2, breaking ties using the value in column 5 (sorting numerically from largest to smallest). The input file has a single header row, which is excluded from the sort.
-
-```bash
-cat sequenced_samples.csv | awk \
-'NR<2{print $0; next}{print $0| "sort -t, -k2,2 -k5,5nr"}'
 ```
 
 ### Sort a file with a header row
@@ -4757,29 +4730,34 @@ chrY Information
 MT !
 ```
 
+### Specify the sort field
+
+The `-k` option of `sort` is used to indicate that certain fields are to be used for sorting (the sorting is still applied to the entire line).
+
+The following sorts only using column 5 (`5,5` means "starting at column 5 and ending at column 5"), numerically, from smallest to largest:
+
+```bash
+(head -n 1 sequenced_samples.csv && \
+tail -n +2 sequenced_samples.csv | sort -t, -k5,5n)
+```
+
+The following sorts using column 2 to the end of line, alphabetically:
+
+```bash
+(head -n 1 sequenced_samples.csv && sort -t, -k2 \
+<(tail -n +2 sequenced_samples.csv))
+```
+
+### Use multiple sort fields
+
+The command below sorts using column 2, breaking ties using the value in column 5 (sorting numerically from largest to smallest). The input file has a single header row, which is excluded from the sort.
+
+```bash
+cat sequenced_samples.csv | awk \
+'NR<2{print $0; next}{print $0| "sort -t, -k2,2 -k5,5nr"}'
+```
+
 ## tmux
-
-### Start a tmux session
-
-```bash
-tmux new -s session_name
-```
-
-### Detach a tmux session
-
-`Ctrl`-`b` then `d`.
-
-### List tmux sessions
-
-```bash
-tmux ls
-```
-
-### Join a tmux session
-
-```bash
-tmux attach -t session_name
-```
 
 ### Create a multi-pane tmux session
 
@@ -4814,11 +4792,27 @@ split-window -v -p 66 \; \
 split-window -v \;
 ```
 
-### Scroll in tmux
+### Detach a tmux session
 
-`Ctrl`-`b` then `PgUp`. Press `q` to return to normal mode.
+`Ctrl`-`b` then `d`.
 
-Alternatively you can use `Ctrl`-`b` then `[` and then navigation keys like `Up Arrow` or `PgDn`. Press `q` to return to normal mode.
+### Join a tmux session
+
+```bash
+tmux attach -t session_name
+```
+
+### Kill a tmux session
+
+```bash
+tmux kill-session -t session_name
+```
+
+### List tmux sessions
+
+```bash
+tmux ls
+```
 
 ### Navigate between tmux panes
 
@@ -4831,13 +4825,45 @@ The following commands work with [my configuration](https://github.com/paulstoth
 `Ctrl`-`h` moves left.
 `Ctrl`-`l` moves right.
 
-### Kill a tmux session
+### Scroll in tmux
+
+`Ctrl`-`b` then `PgUp`. Press `q` to return to normal mode.
+
+Alternatively you can use `Ctrl`-`b` then `[` and then navigation keys like `Up Arrow` or `PgDn`. Press `q` to return to normal mode.
+
+### Start a tmux session
 
 ```bash
-tmux kill-session -t session_name
+tmux new -s session_name
 ```
 
 ## tr
+
+### Delete characters
+
+Use the `-d` option with `tr` to delete characters.
+
+The following `tr` command deletes all digits:
+
+```bash
+cat sequenced_samples.csv | tr -d "[:digit:]"
+```
+
+To delete everything except for digits using the following `tr` command:
+
+```bash
+cat sequenced_samples.csv | tr -c -d "[:digit:]"
+```
+
+### Squeeze characters
+
+"Squeezing" is used here to mean "removing repeated instances". Typically this would be used to remove duplicated spaces or punctuation.
+
+The following illustrates the removal extra commas by using `tr` with the `-s` option:
+
+```bash
+echo "a,b,,c,,,d" | tr -s ","
+```
 
 ### Translate characters
 
@@ -4869,82 +4895,88 @@ echo "garsxnT" | tr -c "GATCgatc[:space:]" "N"
 
 The above command uses the complement option (`-c`) to convert the first set to everything that isn't in the set.
 
-### Delete characters
-
-Use the `-d` option with `tr` to delete characters.
-
-The following `tr` command deletes all digits:
-
-```bash
-cat sequenced_samples.csv | tr -d "[:digit:]"
-```
-
-To delete everything except for digits using the following `tr` command:
-
-```bash
-cat sequenced_samples.csv | tr -c -d "[:digit:]"
-```
-
-### Squeeze characters
-
-"Squeezing" is used here to mean "removing repeated instances". Typically this would be used to remove duplicated spaces or punctuation.
-
-The following illustrates the removal extra commas by using `tr` with the `-s` option:
-
-```bash
-echo "a,b,,c,,,d" | tr -s ","
-```
-
 ## VCF files
 
-### Extract variants from a region of interest
+### Add all INFO tags
 
-Note that if the VCF file is gzip compressed (i.e. has a `.gz` extension), use `--gzvcf` instead of `--vcf`.
-
-```bash
-vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 --recode --recode-INFO-all
-```
-
-### Extract variants from multiple regions of interest
+To add all tags, e.g. `AC_Hom`, `AC_Het`, etc:
 
 ```bash
-bgzip Chr5.vcf
-tabix -p vcf Chr5.vcf.gz
-bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
+bcftools +fill-tags input.vcf -o output.vcf
 ```
 
-### Extract variants from multiple regions of interest described in a file
+### Add predicted consequences
 
-In this example the regions of interest are stored in a text file called `regions.txt`. Each line describes the chromosome, start, and end of a region:
+Use [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/) to predict variant effects.
 
-```text
-3 62148416 62200719
-4 54643953 54720351
-4 63732381 63795159
-5 10163746 10218801
-5 10784272 10841310
-```
+List available pre-built databases for annotation:
 
 ```bash
-bgzip input.vcf
-tabix -p vcf input.vcf.gz
-tabix --print-header -R regions.txt input.vcf.gz > regions_of_interest.vcf
+java -jar snpEff.jar databases
 ```
 
-### Keep a subset of samples
-
-In this example the samples to keep are in a text file called `sample_list.txt`, one sample per line. The `--min-ac` option is used to remove sites that are monomorphic in the subset of samples:
+Download a database:
 
 ```bash
-bcftools view input.vcf.gz -Oz --samples-file sample_list.txt --min-ac=1 --output-file output.vcf.gz
+java -jar snpEff.jar snpEff download -v CanFam3.1.99
 ```
 
-### Rename samples
-
-In this example the new sample names are in the file `new_sample_names.txt`, one name per line, in the same order as they appear in the VCF file:
+Annotate a VCF file:
 
 ```bash
-bcftools reheader input.vcf.gz --samples new_sample_names.txt --output output.vcf.gz 
+java -jar snpEff.jar -Xmx8g CanFam3.1.99 input.vcf > input.ann.vcf
+```
+
+Alternatively, use Ensembl VEP to predict variant effects. VEP can be used to annotate structural variants.
+
+```bash
+SPECIES=canis_lupus
+ASSEMBLY=CanFam3.1
+INPUT=input.vcf
+VEP_CACHE=vep
+OUTDIR=vep_annotated
+WD="$(pwd)"
+export PERL5LIB="$PERL5LIB:$WD/$VEP_CACHE"
+export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$WD/$VEP_CACHE/htslib"
+
+# create cache directory and output directory
+mkdir -p $OUTDIR
+mkdir -p $VEP_CACHE
+
+# build cache
+vep_install -a cfp -s $SPECIES -y $ASSEMBLY \
+-c $VEP_CACHE \
+-d $VEP_CACHE \
+--PLUGINS all --CONVERT
+
+# run vep
+SPECIES=canis_lupus_familiaris
+vep --cache --format vcf --vcf \
+--dir_cache $VEP_CACHE \
+--dir_plugins $VEP_CACHE/Plugins \
+--input_file $INPUT \
+--output_file $OUTDIR/$INPUT \
+--species $SPECIES --assembly $ASSEMBLY \
+--max_sv_size 1000000000 \
+--force_overwrite \
+--plugin Blosum62 --plugin Downstream --plugin Phenotypes --plugin TSSDistance --plugin miRNA \
+--variant_class --sift b --nearest gene --overlaps --gene_phenotype --regulatory --protein \
+--symbol --ccds --uniprot --biotype --domains --check_existing --no_check_alleles --pubmed \
+--verbose
+```
+
+### Add variant IDs
+
+Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) `annotate` to add variant IDs.
+
+In this example the file `canis_lupus_familiaris.sorted.vcf` has variant IDs to be transferred to `input.vcf`.
+
+```bash
+bgzip canis_lupus_familiaris.sorted.vcf
+tabix -p vcf canis_lupus_familiaris.sorted.vcf.gz
+java -jar SnpSift.jar annotate \
+canis_lupus_familiaris.sorted.vcf.gz \
+input.vcf > input.rsID.vcf
 ```
 
 ### Assess sex by calculating X-chromosome heterozygosity
@@ -4996,6 +5028,87 @@ cat plink_check_sex/input.sexcheck
 
 In the output `1` = male, `2` = female, `other` = unknown.
 
+### Change sample order
+
+First determine current order of samples:
+
+```bash
+bcftools query -l input.vcf > sample_order.txt
+```
+
+Next edit `sample_order.txt` to reflect the desired sample order.
+
+For example, change the contents from this:
+
+```text
+M-9
+M-10
+M-15
+M-16
+M-2
+```
+
+To this:
+
+```text
+M-2
+M-9
+M-10
+M-15
+M-16
+```
+
+Generate a VCF file with the new sample order:
+
+```bash
+bgzip input.vcf
+tabix -p vcf input.vcf.gz
+bcftools view -S sample_order.txt \
+input.vcf.gz > input.revised_sample_order.vcf
+```
+
+### Check relatedness between samples
+
+Use the [KING algorithm](https://academic.oup.com/bioinformatics/article/26/22/2867/228512), which is implemented in `vcftools` and is accessed using the `--relatedness2`:
+
+```bash
+mkdir relatedness
+vcftools --vcf input.vcf --not-chr X --max-missing-count 0 --relatedness2 \
+--out relatedness/input.vcf
+cat relatedness/input.vcf.relatedness2 | column -t
+```
+
+### Combine rows / concatenate files from the same set of samples
+
+Note that when using this approach the source files must have the same sample columns appearing in the same order.
+
+In this example the contents of `snps.vcf` and `indels.vcf` are combined.
+
+```bash
+bgzip snps.vcf
+bgzip indels.vcf
+tabix -p vcf snps.vcf.gz
+tabix -p vcf indels.vcf.gz
+bcftools concat --allow-overlaps \
+snps.vcf.gz \
+indels.vcf.gz \
+-Oz -o snps_and_indels.vcf.gz
+```
+
+### Convert a VCF file to an Excel file
+
+First remove header content:
+
+```bash
+grep -v '^##' input.vcf > input.tsv
+```
+
+Then use [VisiData](https://github.com/saulpw/visidata) to convert the TSV file to an Excel file:
+
+```bash
+vd input.tsv -b -o input.xlsx
+```
+
 ### Count genotypes
 
 Use [--geno-counts](https://www.cog-genomics.org/plink/2.0/basic_stats#geno_counts) in `plink2`:
@@ -5034,54 +5147,6 @@ tabix -fp vcf source.vcf.gz
 bcftools +fill-tags source.vcf.gz -Oz -o source.additional-fields.vcf.gz -- -t AC_Hom,AC_Het
 ```
 
-### Determine the proportion of missing genotypes in each sample
-
-```bash
-INPUT=SNPs.vcf
-paste \
-<(bcftools query -f '[%SAMPLE\t]\n' "$INPUT" | head -1 | tr '\t' '\n') \
-<(bcftools query -f '[%GT\t]\n' "$INPUT" | awk -v OFS="\t" '{for (i=1;i<=NF;i++) if ($i == "./.") sum[i]+=1 } END {for (i in sum) print i, sum[i] / NR }' | sort -k1,1n | cut -f 2)
-```
-
-The above produces output like:
-
-```text
-sample1 0.956705
-sample2 0.124076
-sample3 0.0281456
-```
-
-### Determine genotype concordance
-
-Use `bcftools`:
-
-```bash
-bgzip A.vcf
-tabix -fp vcf A.vcf.gz
-
-bgzip B.vcf
-tabix -fp vcf B.vcf.gz
-
-bcftools gtcheck -g A.vcf.gz B.vcf.gz
-```
-
-Or use SnpSift:
-
-```bash
-java -jar SnpSift.jar concordance A.vcf B.vcf
-```
-
-Or use Picard. In this example the comparison is limited to the sample named `HOCANF12689774`:
-
-```bash
-java -jar ~/bin/picard.jar GenotypeConcordance \
-CALL_VCF=A.vcf \
-CALL_SAMPLE=HOCANF12689774 \
-O=gc_concordance.vcf \
-TRUTH_VCF=B.vcf \
-TRUTH_SAMPLE=HOCANF12689774
-```
-
 ### Count Mendelian errors using plink
 
 Use [--mendel](https://www.cog-genomics.org/plink/1.9/basic_stats#mendel) in `plink`.
@@ -5118,6 +5183,273 @@ mkdir plink_mendelian_errors
 plink --bfile plink_bed/input --mendel --geno 0 --allow-extra-chr \
 --$species --out plink_mendelian_errors/input
 cat plink_mendelian_errors/input.imendel
+```
+
+### Count sites
+
+```bash
+grep -c -v '^#' input.ann.vcf
+```
+
+Or:
+
+```bash
+zgrep -c -v '^#' input.ann.vcf.gz
+```
+
+### Determine genotype concordance
+
+Use `bcftools`:
+
+```bash
+bgzip A.vcf
+tabix -fp vcf A.vcf.gz
+
+bgzip B.vcf
+tabix -fp vcf B.vcf.gz
+
+bcftools gtcheck -g A.vcf.gz B.vcf.gz
+```
+
+Or use SnpSift:
+
+```bash
+java -jar SnpSift.jar concordance A.vcf B.vcf
+```
+
+Or use Picard. In this example the comparison is limited to the sample named `HOCANF12689774`:
+
+```bash
+java -jar ~/bin/picard.jar GenotypeConcordance \
+CALL_VCF=A.vcf \
+CALL_SAMPLE=HOCANF12689774 \
+O=gc_concordance.vcf \
+TRUTH_VCF=B.vcf \
+TRUTH_SAMPLE=HOCANF12689774
+```
+
+### Determine the proportion of missing genotypes in each sample
+
+```bash
+INPUT=SNPs.vcf
+paste \
+<(bcftools query -f '[%SAMPLE\t]\n' "$INPUT" | head -1 | tr '\t' '\n') \
+<(bcftools query -f '[%GT\t]\n' "$INPUT" | awk -v OFS="\t" '{for (i=1;i<=NF;i++) if ($i == "./.") sum[i]+=1 } END {for (i in sum) print i, sum[i] / NR }' | sort -k1,1n | cut -f 2)
+```
+
+The above produces output like:
+
+```text
+sample1 0.956705
+sample2 0.124076
+sample3 0.0281456
+```
+
+### Extract biallelic SNPs
+
+```bash
+bgzip input.vcf
+tabix -fp vcf input.vcf.gz
+bcftools view -Oz --min-alleles 2 --max-alleles 2 --types snps --output-file biallelic-snp.vcf.gz input.vcf.gz
+```
+
+### Extract indels
+
+```bash
+bgzip input.vcf
+tabix -fp vcf input.vcf.gz
+bcftools view -Oz --types indels --output-file indels.vcf.gz input.vcf.gz
+```
+
+### Extract sites found in all VCF files
+
+In this example there are `5` VCF files in the directory `vcfs`.
+
+Prepare index files:
+
+```bash
+cd vcfs
+find . -name "*.vcf" -exec bgzip {} \;
+find . -name "*.vcf.gz" -exec tabix -p vcf {} \;
+```
+
+Determine the intersection (change `5` to match the number of input files):
+
+```bash
+mkdir overlaps
+bcftools isec -p overlaps \
+-n=5 -c all -w1 \
+*.vcf.gz
+mv overlaps/0000.vcf overlaps/intersection.vcf
+```
+
+Count the number of variants in `overlaps/intersection.vcf`:
+
+```bash
+grep -c -v '^#' overlaps/intersection.vcf
+```
+
+### Extract sites found in either but not both VCFs
+
+Use the [bcftools isec command](https://samtools.github.io/bcftools/bcftools.html#isec).
+
+Extract records private to A or B comparing by position only:
+
+```bash
+bcftools isec -p dir -n-1 -c all A.vcf.gz B.vcf.gz
+```
+
+### Extract sites from the first file that are found in the second
+
+Use the [bcftools isec command](https://samtools.github.io/bcftools/bcftools.html#isec).
+
+Extract and write records from A shared by both A and B using exact allele match:
+
+```bash
+bcftools isec -p dir -n=2 -w1 A.vcf.gz B.vcf.gz
+```
+
+### Extract sites not found in a second VCF
+
+Use the [bcftools isec command](https://samtools.github.io/bcftools/bcftools.html#isec).
+
+```bash
+bcftools isec --complement -c some \
+file1.vcf.gz \
+file2.vcf.gz \
+-p sites-in-file-1-not-in-file-2
+```
+
+The sites in `file1.vcf.gz` that are not in `file2.vcf.gz` can be found in `sites-in-file-1-not-in-file-2/0000.vcf`.
+
+The `-c some` causes sites to be considered equivalent when some subset of ALT alleles match. To require identical REF and ALT alleles use `-c none`. To match based only on position, use `-c all`.
+
+### Extract SNPs
+
+```bash
+bgzip input.vcf
+tabix -fp vcf input.vcf.gz
+bcftools view -Oz --types snps --output-file snp.vcf.gz input.vcf.gz
+```
+
+### Extract variants from a region of interest
+
+Note that if the VCF file is gzip compressed (i.e. has a `.gz` extension), use `--gzvcf` instead of `--vcf`.
+
+```bash
+vcftools --vcf Chr5.vcf --out Chr5_filtered --chr 5 --from-bp 1 --to-bp 100000 --recode --recode-INFO-all
+```
+
+### Extract variants from multiple regions of interest
+
+```bash
+bgzip Chr5.vcf
+tabix -p vcf Chr5.vcf.gz
+bcftools view -r 5:1-10000,5:200000-210000 -o output.vcf Chr5.vcf.gz
+```
+
+### Extract variants from multiple regions of interest described in a file
+
+In this example the regions of interest are stored in a text file called `regions.txt`. Each line describes the chromosome, start, and end of a region:
+
+```text
+3 62148416 62200719
+4 54643953 54720351
+4 63732381 63795159
+5 10163746 10218801
+5 10784272 10841310
+```
+
+```bash
+bgzip input.vcf
+tabix -p vcf input.vcf.gz
+tabix --print-header -R regions.txt input.vcf.gz > regions_of_interest.vcf
+```
+
+### Extract variants where FILTER is PASS
+
+Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files.
+
+The following keeps variants that have a `FILTER` value of `PASS`:
+
+```bash
+cat input.vcf | SnpSift filter "( FILTER = 'PASS' )" > input.PASS.vcf
+```
+
+Or, use `bcftools`:
+
+```bash
+bcftools view -f PASS input.vcf > input.PASS.vcf
+```
+
+### Extract variants with a missing ID
+
+```bash
+awk -F $'\t' '$1 ~ /^#/ {print; next} $3~/^\./' input.vcf > input.noID.vcf
+```
+
+### Extract variants with an assigned ID
+
+```bash
+awk -F $'\t' '$1 ~ /^#/ {print; next} $3~/^\./ {next} {print}' input.vcf > input.ID.vcf
+```
+
+### Filter sites based on genotypes and other criteria
+
+Use [bcftools view](https://samtools.github.io/bcftools/bcftools.html#view) to filter sites based on an [expression](https://samtools.github.io/bcftools/bcftools.html#expressions). Sites for which the expression is true can be kept using the `-i` option or excluded using the `-e` option.
+
+In the following example, sites are excluded (`-e`) if any sample is homozygous for an alternate allele and has a genotype quality greater than 30 (note that the `&` operator is used to indicate that both conditions must be met within a single sample):
+
+```bash
+bcftools view -e 'GT[*]="AA" & GQ[*]>30' SNPs.vcf
+```
+
+In the following example, sites are kept (`-i`) if the first sample is heterozygous with one reference allele and one alternate allele and the second sample is homozygous for an alternate allele (note that the `&&` operator is used to indicate that the conditions can be met in different samples):
+
+```bash
+bcftools view -i 'GT[0]="RA" && GT[1]="AA"' SNPs.vcf
+```
+
+[SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) can also be used to filter VCF files based on sample genotypes.
+
+The following approach can be used to exclude sites where any sample meets the following criteria: is homozygous and the genotype quality is greater than `30` and the genotype is not `0/0`. Worded another way, a site is kept if no sample exhibits a good-quality homozygous alternate genotype.
+
+In this example there are 6 samples in the VCF file.
+
+First generate the filter string:
+
+```bash
+FILTER=$(perl -e '@array = (); foreach(0..5) {push @array, "( isHom( GEN[$_] ) & GEN[$_].GQ > 30 & isVariant( GEN[$_] ) )";} print " !( " . join(" | ", @array) . " )\n";')
+```
+
+Examine the filter string:
+
+```bash
+echo $FILTER
+```
+
+This produces:
+
+```text
+!( ( isHom( GEN[0] ) & GEN[0].GQ > 30 & isVariant( GEN[0] ) ) | ( isHom( GEN[1] ) & GEN[1].GQ > 30 & isVariant( GEN[1] ) ) | ( isHom( GEN[2] ) & GEN[2].GQ > 30 & isVariant( GEN[2] ) ) | ( isHom( GEN[3] ) & GEN[3].GQ > 30 & isVariant( GEN[3] ) ) | ( isHom( GEN[4] ) & GEN[4].GQ > 30 & isVariant( GEN[4] ) ) | ( isHom( GEN[5] ) & GEN[5].GQ > 30 & isVariant( GEN[5] ) ) )
+```
+
+Use the filter string and `SnpSift.jar` to complete the filtering step (the `set +H` is used so that the `!` in the filter string doesn't activate Bash history expansion):
+
+```bash
+set +H
+cat snps.vcf | java -jar SnpSift.jar filter "$FILTER" > snps_with_no_homozygous_alt_genotypes.vcf
+set -H
+```
+
+### Filter variants based on predicted consequences
+
+Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files that have been annotated using [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/).
+
+The following keeps variants that are predicted to have `HIGH` or `MODERATE` impacts:
+
+```bash
+cat input.ann.vcf | SnpSift filter "((ANN[*].IMPACT = 'HIGH') | (ANN[*].IMPACT = 'MODERATE'))" > input.ann.high_or_moderate.vcf
 ```
 
 ### Find runs of homozygosity using plink
@@ -5197,6 +5529,89 @@ bgzip input.vcf
 tabix -p vcf input.vcf.gz
 tabix --print-header -R plink_roh/plink.hom.overlap.filtered \
 input.vcf.gz > input.hom.vcf
+```
+
+### Interpreting INFO tags
+
+Suppose a site has one ALT allele and the following genotype counts: 4627 homozygous REF, 429 heterozygous, and 60 homozygous ALT.
+
+The resulting tag values are as follows:
+
+- AC = 549 = 429 + (60 * 2); this is the number of ALT alleles in the genotypes.
+- AN = 10232 = (4627 + 429 + 60) * 2; this is the number of alleles in the genotypes.
+- AF = AC / AN = 549 / 10232 = 0.054; this is the frequency of the ALT allele.
+- AC_Het = 429 = the number of ALT alleles in heterozygous genotypes = the number of heterozygous genotypes.
+- AC_Hom = 120 is the number of ALT alleles in homozygous genotypes = 2 * the number of homozygous ALT genotypes.
+- MAF = 0.054 = the lesser of AF or 1 - AF.
+- NS = 5116 = AN / 2.
+
+### Keep a subset of samples
+
+In this example the samples to keep are in a text file called `sample_list.txt`, one sample per line. The `--min-ac` option is used to remove sites that are monomorphic in the subset of samples:
+
+```bash
+bcftools view input.vcf.gz -Oz --samples-file sample_list.txt --min-ac=1 --output-file output.vcf.gz
+```
+
+### Keep sites from chromosomes and reheader based on reference genome
+
+The following is used to create a new VCF file containing sites from chromosomes `1` to `18` and `X` and `MT`. The VCF header is then updated using a sequence dictionary from a reference genome.
+
+The starting VCF is `input.vcf.gz`. The reference genome is `reference.fa`. The final output VCF is `filtered.reheadered.vcf.gz`.
+
+This uses GATK, `bcftools`, and `tabix`.
+
+```bash
+# create index files incase they don't exist
+samtools faidx reference.fa
+tabix -p vcf input.vcf.gz
+
+# create sequence dictionary
+docker pull broadinstitute/gatk
+docker run -it --rm \
+-u "$(id -u)":"$(id -g)" \
+-v "$(pwd)":/directory \
+-w /directory \
+broadinstitute/gatk \
+  gatk CreateSequenceDictionary\
+    -R reference.fa \
+    -O reference.dict
+
+# extract sites from chromosomes 1 to 18, X, and MT
+bcftools view -r 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,X,Y,MT \
+input.vcf.gz -o filtered.vcf.gz -O z
+
+tabix -p vcf filtered.vcf.gz
+
+# reheader VCF using sequence dictionary
+docker run -it --rm \
+-u "$(id -u)":"$(id -g)" \
+-v "$(pwd)":/directory \
+-w /directory \
+broadinstitute/gatk \
+  gatk UpdateVCFSequenceDictionary \
+    -V filtered.vcf.gz \
+    -R reference.fa \
+    --output filtered.reheadered.vcf.gz \
+    --replace true
+
+tabix -p vcf filtered.reheadered.vcf.gz
+```
+
+### Keep sites that are homozygous reference in all samples
+
+Use [bcftools view](https://samtools.github.io/bcftools/bcftools.html#view) to filter sites based on an [expression](https://samtools.github.io/bcftools/bcftools.html#expressions). Sites for which the expression is true can be kept using the `-i` option or excluded using the `-e` option.
+
+In the following example, sites are kept (`-i`) if all `10` samples are homozygous for the reference allele:
+
+```bash
+bcftools view -i 'COUNT(GT="RR")=10' variants.vcf.gz
+```
+
+In the following example, sites are removed (`-e`) if any sample contains an alternate allele:
+
+```bash
+bcftools view -e 'GT[*]="alt"' variants.vcf.gz
 ```
 
 ### Merge files from non-overlapping sample sets
@@ -5409,79 +5824,64 @@ merge-vcfs-job-array.sbatch final_merge_file_list.txt $final_merge_batch_size fi
 
 The final merged file will be named `0.final.merged.vcf.gz`.
 
-### Check relatedness between samples
+### Perform case-control analysis
 
-Use the [KING algorithm](https://academic.oup.com/bioinformatics/article/26/22/2867/228512), which is implemented in `vcftools` and is accessed using the `--relatedness2`:
+[SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) can generate p-values for different models.
 
-```bash
-mkdir relatedness
-vcftools --vcf input.vcf --not-chr X --max-missing-count 0 --relatedness2 \
---out relatedness/input.vcf
-cat relatedness/input.vcf.relatedness2 | column -t
-```
-
-### Filter sites based on genotypes and other criteria
-
-Use [bcftools view](https://samtools.github.io/bcftools/bcftools.html#view) to filter sites based on an [expression](https://samtools.github.io/bcftools/bcftools.html#expressions). Sites for which the expression is true can be kept using the `-i` option or excluded using the `-e` option.
-
-In the following example, sites are excluded (`-e`) if any sample is homozygous for an alternate allele and has a genotype quality greater than 30 (note that the `&` operator is used to indicate that both conditions must be met within a single sample):
+In this example the `+++++` specifies that the first five samples are cases. The `-------` specifies that the next seven samples are controls. The `000` specifies that the last three samples should be ignored.
 
 ```bash
-bcftools view -e 'GT[*]="AA" & GQ[*]>30' SNPs.vcf
+cat input.vcf | java -jar SnpSift.jar caseControl "+++++-------000" > input.case-control.vcf
 ```
 
-In the following example, sites are kept (`-i`) if the first sample is heterozygous with one reference allele and one alternate allele and the second sample is homozygous for an alternate allele (note that the `&&` operator is used to indicate that the conditions can be met in different samples):
+The results can be filtered based on p-value. The following keeps variants where the p-value under the recessive model is less than `0.001`:
 
 ```bash
-bcftools view -i 'GT[0]="RA" && GT[1]="AA"' SNPs.vcf
+cat input.case-control.vcf | java -jar SnpSift.jar filter "CC_REC[0] < 0.001" > input.case-control.sig.vcf
 ```
 
-[SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) can also be used to filter VCF files based on sample genotypes.
-
-The following approach can be used to exclude sites where any sample meets the following criteria: is homozygous and the genotype quality is greater than `30` and the genotype is not `0/0`. Worded another way, a site is kept if no sample exhibits a good-quality homozygous alternate genotype.
-
-In this example there are 6 samples in the VCF file.
-
-First generate the filter string:
+### Print samples
 
 ```bash
-FILTER=$(perl -e '@array = (); foreach(0..5) {push @array, "( isHom( GEN[$_] ) & GEN[$_].GQ > 30 & isVariant( GEN[$_] ) )";} print " !( " . join(" | ", @array) . " )\n";')
+bcftools query -l input.vcf.gz
 ```
 
-Examine the filter string:
+Or:
 
 ```bash
-echo $FILTER
+bcftools query -l input.vcf
 ```
 
-This produces:
+### Remove a sample
 
-```text
-!( ( isHom( GEN[0] ) & GEN[0].GQ > 30 & isVariant( GEN[0] ) ) | ( isHom( GEN[1] ) & GEN[1].GQ > 30 & isVariant( GEN[1] ) ) | ( isHom( GEN[2] ) & GEN[2].GQ > 30 & isVariant( GEN[2] ) ) | ( isHom( GEN[3] ) & GEN[3].GQ > 30 & isVariant( GEN[3] ) ) | ( isHom( GEN[4] ) & GEN[4].GQ > 30 & isVariant( GEN[4] ) ) | ( isHom( GEN[5] ) & GEN[5].GQ > 30 & isVariant( GEN[5] ) ) )
-```
-
-Use the filter string and `SnpSift.jar` to complete the filtering step (the `set +H` is used so that the `!` in the filter string doesn't activate Bash history expansion):
+In this example sample `GM-2` is removed:
 
 ```bash
-set +H
-cat snps.vcf | java -jar SnpSift.jar filter "$FILTER" > snps_with_no_homozygous_alt_genotypes.vcf
-set -H
+vcftools --remove-indv GM-2 --vcf input.vcf --recode --out output.vcf
 ```
 
-### Keep sites that are homozygous reference in all samples
-
-Use [bcftools view](https://samtools.github.io/bcftools/bcftools.html#view) to filter sites based on an [expression](https://samtools.github.io/bcftools/bcftools.html#expressions). Sites for which the expression is true can be kept using the `-i` option or excluded using the `-e` option.
-
-In the following example, sites are kept (`-i`) if all `10` samples are homozygous for the reference allele:
+### Remove all genotypes
 
 ```bash
-bcftools view -i 'COUNT(GT="RR")=10' variants.vcf.gz
+bgzip input.vcf
+tabix -p vcf input.vcf.gz
+bcftools view -G input.vcf.gz -Oz -o output.vcf.gz
 ```
 
-In the following example, sites are removed (`-e`) if any sample contains an alternate allele:
+Or:
 
 ```bash
-bcftools view -e 'GT[*]="alt"' variants.vcf.gz
+bcftools view -G input.vcf > output.vcf
+```
+
+### Remove annotations
+
+Use `bcftools` `annotate`.
+
+The following removes all `INFO` fields and all `FORMAT` fields except for `GT` and `GQ`:
+
+```bash
+bcftools annotate -x INFO,^FORMAT/GT,FORMAT/GQ input.vcf > input_GT_GQ.vcf
 ```
 
 ### Remove sites that are homozygous reference in all samples
@@ -5500,101 +5900,19 @@ In the following example, sites are kept (`-i`) if any sample contains an altern
 bcftools view -i 'GT[*]="alt"' variants.vcf.gz
 ```
 
-### Add predicted consequences
-
-Use [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/) to predict variant effects.
-
-List available pre-built databases for annotation:
+### Remove sites with any missing genotypes
 
 ```bash
-java -jar snpEff.jar databases
+bcftools view -e 'GT[*]="mis"' input.vcf > output.vcf
 ```
 
-Download a database:
+### Rename samples
+
+In this example the new sample names are in the file `new_sample_names.txt`, one name per line, in the same order as they appear in the VCF file:
 
 ```bash
-java -jar snpEff.jar snpEff download -v CanFam3.1.99
+bcftools reheader input.vcf.gz --samples new_sample_names.txt --output output.vcf.gz 
 ```
-
-Annotate a VCF file:
-
-```bash
-java -jar snpEff.jar -Xmx8g CanFam3.1.99 input.vcf > input.ann.vcf
-```
-
-Alternatively, use Ensembl VEP to predict variant effects. VEP can be used to annotate structural variants.
-
-```bash
-SPECIES=canis_lupus
-ASSEMBLY=CanFam3.1
-INPUT=input.vcf
-VEP_CACHE=vep
-OUTDIR=vep_annotated
-WD="$(pwd)"
-export PERL5LIB="$PERL5LIB:$WD/$VEP_CACHE"
-export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$WD/$VEP_CACHE/htslib"
-
-# create cache directory and output directory
-mkdir -p $OUTDIR
-mkdir -p $VEP_CACHE
-
-# build cache
-vep_install -a cfp -s $SPECIES -y $ASSEMBLY \
--c $VEP_CACHE \
--d $VEP_CACHE \
---PLUGINS all --CONVERT
-
-# run vep
-SPECIES=canis_lupus_familiaris
-vep --cache --format vcf --vcf \
---dir_cache $VEP_CACHE \
---dir_plugins $VEP_CACHE/Plugins \
---input_file $INPUT \
---output_file $OUTDIR/$INPUT \
---species $SPECIES --assembly $ASSEMBLY \
---max_sv_size 1000000000 \
---force_overwrite \
---plugin Blosum62 --plugin Downstream --plugin Phenotypes --plugin TSSDistance --plugin miRNA \
---variant_class --sift b --nearest gene --overlaps --gene_phenotype --regulatory --protein \
---symbol --ccds --uniprot --biotype --domains --check_existing --no_check_alleles --pubmed \
---verbose
-```
-
-### Add variant IDs
-
-Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) `annotate` to add variant IDs.
-
-In this example the file `canis_lupus_familiaris.sorted.vcf` has variant IDs to be transferred to `input.vcf`.
-
-```bash
-bgzip canis_lupus_familiaris.sorted.vcf
-tabix -p vcf canis_lupus_familiaris.sorted.vcf.gz
-java -jar SnpSift.jar annotate \
-canis_lupus_familiaris.sorted.vcf.gz \
-input.vcf > input.rsID.vcf
-```
-
-### Add all INFO tags
-
-To add all tags, e.g. `AC_Hom`, `AC_Het`, etc:
-
-```bash
-bcftools +fill-tags input.vcf -o output.vcf
-```
-
-### Interpreting INFO tags
-
-Suppose a site has one ALT allele and the following genotype counts: 4627 homozygous REF, 429 heterozygous, and 60 homozygous ALT.
-
-The resulting tag values are as follows:
-
-- AC = 549 = 429 + (60 * 2); this is the number of ALT alleles in the genotypes.
-- AN = 10232 = (4627 + 429 + 60) * 2; this is the number of alleles in the genotypes.
-- AF = AC / AN = 549 / 10232 = 0.054; this is the frequency of the ALT allele.
-- AC_Het = 429 = the number of ALT alleles in heterozygous genotypes = the number of heterozygous genotypes.
-- AC_Hom = 120 is the number of ALT alleles in homozygous genotypes = 2 * the number of homozygous ALT genotypes.
-- MAF = 0.054 = the lesser of AF or 1 - AF.
-- NS = 5116 = AN / 2.
 
 ### Transfer annotations from another VCF
 
@@ -5643,325 +5961,63 @@ vcfanno config.toml input.vcf.gz > out.vcf
 
 The file `out.vcf` should now include `INFO` tags `source.AF`, `source.AC_Hom`, and `source.AC_Het` with values calculated from the samples in `source.vcf`.
 
-### Filter variants based on predicted consequences
-
-Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files that have been annotated using [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/).
-
-The following keeps variants that are predicted to have `HIGH` or `MODERATE` impacts:
-
-```bash
-cat input.ann.vcf | SnpSift filter "((ANN[*].IMPACT = 'HIGH') | (ANN[*].IMPACT = 'MODERATE'))" > input.ann.high_or_moderate.vcf
-```
-
-### Extract variants with a missing ID
-
-```bash
-awk -F $'\t' '$1 ~ /^#/ {print; next} $3~/^\./' input.vcf > input.noID.vcf
-```
-
-### Extract variants with an assigned ID
-
-```bash
-awk -F $'\t' '$1 ~ /^#/ {print; next} $3~/^\./ {next} {print}' input.vcf > input.ID.vcf
-```
-
-### Extract variants where FILTER is PASS
-
-Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files.
-
-The following keeps variants that have a `FILTER` value of `PASS`:
-
-```bash
-cat input.vcf | SnpSift filter "( FILTER = 'PASS' )" > input.PASS.vcf
-```
-
-Or, use `bcftools`:
-
-```bash
-bcftools view -f PASS input.vcf > input.PASS.vcf
-```
-
-### Extract biallelic SNPs
-
-```bash
-bgzip input.vcf
-tabix -fp vcf input.vcf.gz
-bcftools view -Oz --min-alleles 2 --max-alleles 2 --types snps --output-file biallelic-snp.vcf.gz input.vcf.gz
-```
-
-### Extract SNPs
-
-```bash
-bgzip input.vcf
-tabix -fp vcf input.vcf.gz
-bcftools view -Oz --types snps --output-file snp.vcf.gz input.vcf.gz
-```
-
-### Extract indels
-
-```bash
-bgzip input.vcf
-tabix -fp vcf input.vcf.gz
-bcftools view -Oz --types indels --output-file indels.vcf.gz input.vcf.gz
-```
-
-### Extract sites not found in a second VCF
-
-Use the [bcftools isec command](https://samtools.github.io/bcftools/bcftools.html#isec).
-
-```bash
-bcftools isec --complement -c some \
-file1.vcf.gz \
-file2.vcf.gz \
--p sites-in-file-1-not-in-file-2
-```
-
-The sites in `file1.vcf.gz` that are not in `file2.vcf.gz` can be found in `sites-in-file-1-not-in-file-2/0000.vcf`.
-
-The `-c some` causes sites to be considered equivalent when some subset of ALT alleles match. To require identical REF and ALT alleles use `-c none`. To match based only on position, use `-c all`.
-
-### Extract sites from the first file that are found in the second
-
-Use the [bcftools isec command](https://samtools.github.io/bcftools/bcftools.html#isec).
-
-Extract and write records from A shared by both A and B using exact allele match:
-
-```bash
-bcftools isec -p dir -n=2 -w1 A.vcf.gz B.vcf.gz
-```
-
-### Extract sites found in either but not both VCFs
-
-Use the [bcftools isec command](https://samtools.github.io/bcftools/bcftools.html#isec).
-
-Extract records private to A or B comparing by position only:
-
-```bash
-bcftools isec -p dir -n-1 -c all A.vcf.gz B.vcf.gz
-```
-
-### Extract sites found in all VCF files
-
-In this example there are `5` VCF files in the directory `vcfs`.
-
-Prepare index files:
-
-```bash
-cd vcfs
-find . -name "*.vcf" -exec bgzip {} \;
-find . -name "*.vcf.gz" -exec tabix -p vcf {} \;
-```
-
-Determine the intersection (change `5` to match the number of input files):
-
-```bash
-mkdir overlaps
-bcftools isec -p overlaps \
--n=5 -c all -w1 \
-*.vcf.gz
-mv overlaps/0000.vcf overlaps/intersection.vcf
-```
-
-Count the number of variants in `overlaps/intersection.vcf`:
-
-```bash
-grep -c -v '^#' overlaps/intersection.vcf
-```
-
-### Count sites
-
-```bash
-grep -c -v '^#' input.ann.vcf
-```
-
-Or:
-
-```bash
-zgrep -c -v '^#' input.ann.vcf.gz
-```
-
-### Change sample order
-
-First determine current order of samples:
-
-```bash
-bcftools query -l input.vcf > sample_order.txt
-```
-
-Next edit `sample_order.txt` to reflect the desired sample order.
-
-For example, change the contents from this:
-
-```text
-M-9
-M-10
-M-15
-M-16
-M-2
-```
-
-To this:
-
-```text
-M-2
-M-9
-M-10
-M-15
-M-16
-```
-
-Generate a VCF file with the new sample order:
-
-```bash
-bgzip input.vcf
-tabix -p vcf input.vcf.gz
-bcftools view -S sample_order.txt \
-input.vcf.gz > input.revised_sample_order.vcf
-```
-
-### Combine rows / concatenate files from the same set of samples
-
-Note that when using this approach the source files must have the same sample columns appearing in the same order.
-
-In this example the contents of `snps.vcf` and `indels.vcf` are combined.
-
-```bash
-bgzip snps.vcf
-bgzip indels.vcf
-tabix -p vcf snps.vcf.gz
-tabix -p vcf indels.vcf.gz
-bcftools concat --allow-overlaps \
-snps.vcf.gz \
-indels.vcf.gz \
--Oz -o snps_and_indels.vcf.gz
-```
-
-### Convert a VCF file to an Excel file
-
-First remove header content:
-
-```bash
-grep -v '^##' input.vcf > input.tsv
-```
-
-Then use [VisiData](https://github.com/saulpw/visidata) to convert the TSV file to an Excel file:
-
-```bash
-vd input.tsv -b -o input.xlsx
-```
-
-### Perform case-control analysis
-
-[SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) can generate p-values for different models.
-
-In this example the `+++++` specifies that the first five samples are cases. The `-------` specifies that the next seven samples are controls. The `000` specifies that the last three samples should be ignored.
-
-```bash
-cat input.vcf | java -jar SnpSift.jar caseControl "+++++-------000" > input.case-control.vcf
-```
-
-The results can be filtered based on p-value. The following keeps variants where the p-value under the recessive model is less than `0.001`:
-
-```bash
-cat input.case-control.vcf | java -jar SnpSift.jar filter "CC_REC[0] < 0.001" > input.case-control.sig.vcf
-```
-
-### Remove annotations
-
-Use `bcftools` `annotate`.
-
-The following removes all `INFO` fields and all `FORMAT` fields except for `GT` and `GQ`:
-
-```bash
-bcftools annotate -x INFO,^FORMAT/GT,FORMAT/GQ input.vcf > input_GT_GQ.vcf
-```
-
-### Remove a sample
-
-In this example sample `GM-2` is removed:
-
-```bash
-vcftools --remove-indv GM-2 --vcf input.vcf --recode --out output.vcf
-```
-
-### Remove sites with any missing genotypes
-
-```bash
-bcftools view -e 'GT[*]="mis"' input.vcf > output.vcf
-```
-
-### Remove all genotypes
-
-```bash
-bgzip input.vcf
-tabix -p vcf input.vcf.gz
-bcftools view -G input.vcf.gz -Oz -o output.vcf.gz
-```
-
-Or:
-
-```bash
-bcftools view -G input.vcf > output.vcf
-```
-
-### Print samples
-
-```bash
-bcftools query -l input.vcf.gz
-```
-
-Or:
-
-```bash
-bcftools query -l input.vcf
-```
-
-### Keep sites from chromosomes and reheader based on reference genome
-
-The following is used to create a new VCF file containing sites from chromosomes `1` to `18` and `X` and `MT`. The VCF header is then updated using a sequence dictionary from a reference genome.
-
-The starting VCF is `input.vcf.gz`. The reference genome is `reference.fa`. The final output VCF is `filtered.reheadered.vcf.gz`.
-
-This uses GATK, `bcftools`, and `tabix`.
-
-```bash
-# create index files incase they don't exist
-samtools faidx reference.fa
-tabix -p vcf input.vcf.gz
-
-# create sequence dictionary
-docker pull broadinstitute/gatk
-docker run -it --rm \
--u "$(id -u)":"$(id -g)" \
--v "$(pwd)":/directory \
--w /directory \
-broadinstitute/gatk \
-  gatk CreateSequenceDictionary\
-    -R reference.fa \
-    -O reference.dict
-
-# extract sites from chromosomes 1 to 18, X, and MT
-bcftools view -r 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,X,Y,MT \
-input.vcf.gz -o filtered.vcf.gz -O z
-
-tabix -p vcf filtered.vcf.gz
-
-# reheader VCF using sequence dictionary
-docker run -it --rm \
--u "$(id -u)":"$(id -g)" \
--v "$(pwd)":/directory \
--w /directory \
-broadinstitute/gatk \
-  gatk UpdateVCFSequenceDictionary \
-    -V filtered.vcf.gz \
-    -R reference.fa \
-    --output filtered.reheadered.vcf.gz \
-    --replace true
-
-tabix -p vcf filtered.reheadered.vcf.gz
-```
-
 ## vim
+
+### Check the value of a setting
+
+To check the value of a setting, in this example the `paste` setting, use:
+
+```text
+:set paste?
+```
+
+Or:
+
+```text
+echo &paste
+```
+
+### Compare two files
+
+```bash
+vimdiff file1 file2
+```
+
+### Copy to the clipboard
+
+```text
+"+y
+```
+
+### Paste text without auto-indenting
+
+First, turn on paste mode so that auto-indenting is turned off:
+
+```text
+:set paste
+```
+
+Now paste the text.
+
+Then turn off paste mode:
+
+```text
+:set nopaste
+```
+
+To allow quick toggling of paste mode using F2, add the following to `.vimrc`:
+
+```text
+set pastetoggle=<F2>
+```
+
+Now you can avoid auto-indenting of pasted text as follows: press F2, paste the text, press F2 again.
+
+### Remove trailing whitespace
+
+```text
+:%s/\s\+$//e
+```
 
 ### Search and replace across multiple files
 
@@ -5991,68 +6047,12 @@ In replacement syntax use `\r` instead of `\n` to represent newlines. For exampl
 :%s/,/\r/g
 ```
 
-### Compare two files
+### Type tab characters
 
-```bash
-vimdiff file1 file2
-```
-
-### Copy to the clipboard
-
-```text
-"+y
-```
-
-### Remove trailing whitespace
-
-```text
-:%s/\s\+$//e
-```
+In insert mode type `Ctrl`-`v` then `tab`.
 
 ### View ^M characters
 
 ```text
 :e ++ff=unix
-```
-
-### Type tab characters
-
-In insert mode type `Ctrl`-`v` then `tab`.
-
-### Paste text without auto-indenting
-
-First, turn on paste mode so that auto-indenting is turned off:
-
-```text
-:set paste
-```
-
-Now paste the text.
-
-Then turn off paste mode:
-
-```text
-:set nopaste
-```
-
-To allow quick toggling of paste mode using F2, add the following to `.vimrc`:
-
-```text
-set pastetoggle=<F2>
-```
-
-Now you can avoid auto-indenting of pasted text as follows: press F2, paste the text, press F2 again.
-
-### Check the value of a setting
-
-To check the value of a setting, in this example the `paste` setting, use:
-
-```text
-:set paste?
-```
-
-Or:
-
-```text
-echo &paste
 ```
