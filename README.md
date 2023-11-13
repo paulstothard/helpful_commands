@@ -2471,6 +2471,14 @@ git push -u origin main
 
 Git merge conflicts can arise easily. For information on resolving a merge conflict, see [Resolving a merged conflict using the command line](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line).
 
+### List the files being tracked in the repository
+
+The following will list all the files in the main branch:
+
+```bash
+git ls-tree -r main --name-only
+```
+
 ### Mark changed files to be included in the next commit
 
 To add one or more files:
@@ -2614,6 +2622,40 @@ To undo all changes:
 
 ```bash
 git reset
+```
+
+### View the changes you haven't staged for commit
+
+```bash
+git diff
+```
+
+### View the commit history
+
+You can see past changes, including who made them and when:
+
+```bash
+git log
+```
+
+View the commit history with a list of the files that were changed:
+
+```bash
+git log --stat
+```
+
+View the commit history along with the actual changes (patches) made in each commit:
+
+```bash
+git log -p
+```
+
+### View the status of files in your working directory
+
+`git status` lets you see which changes have been staged, which haven't, and which files aren't being tracked by Git.
+
+```bash
+git status
 ```
 
 ## grep
