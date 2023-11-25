@@ -88,6 +88,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Annotate a bacterial genome using Bakta](#annotate-a-bacterial-genome-using-bakta)
   - [Annotate a bacterial genome using Prokka](#annotate-a-bacterial-genome-using-prokka)
   - [Compare sequence reads to a bacterial genome to find SNPs using Snippy](#compare-sequence-reads-to-a-bacterial-genome-to-find-snps-using-snippy)
+  - [Convert documents using Pandoc](#convert-documents-using-pandoc)
   - [Delete all containers that are not running](#delete-all-containers-that-are-not-running)
   - [Delete all images](#delete-all-images)
   - [Get an interactive bash shell in a Docker container](#get-an-interactive-bash-shell-in-a-docker-container)
