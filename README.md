@@ -1122,6 +1122,31 @@ quay.io/biocontainers/snippy:4.6.0--hdfd78af_1 \
 snippy --cpus 4 --outdir output --reference sequence.gbk --R1 J10_S210_R1_001.fastq --R2 J10_S210_R2_001.fastq
 ```
 
+### Convert documents using Pandoc
+
+Download a Pandoc Docker image:
+
+```bash
+docker pull pandoc/extra
+```
+
+Create a container from the image and run `pandoc` to convert a Markdown file to a PDF file. In this example the Markdown file is called `example.md` and the PDF file is called `example.pdf`:
+
+```bash
+docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir \
+pandoc/extra:latest \
+example.md -o example.pdf \
+--pdf-engine xelatex \
+--template eisvogel.tex \
+-H head.tex \
+--highlight-style zenburn \
+-M "colorlinks: TRUE" \
+-M "code-block-font-size: \scriptsize" \
+-M "date: `date +%Y-%m-%d`" \
+-M "author=$AUTHOR" \
+-M "title=$TITLE"
+```
+
 ### Delete all containers that are not running
 
 ```bash
