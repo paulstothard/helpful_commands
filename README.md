@@ -2812,6 +2812,8 @@ convert input.png -resize 4000 output.png
 
 To keep the drop shadow perform the last step without holding `Option`.
 
+To copy the screenshot to the clipboard instead of saving it to a file, use `Command+Control+Shift+4`.
+
 ### Take a webpage screenshot using Firefox
 
 1. Press `F12` to open the Firefox Developer Tools.
@@ -2822,6 +2824,8 @@ To save a high-DPI webpage screenshot use `:screenshot --dpr 4`.
 To save a high-DPI full-page webpage screenshot use `:screenshot --dpr 4 --fullpage`.
 
 To delay the screenshot, to capture a menu for example, use `:screenshot --dpr 4 --fullpage --delay 5`.
+
+To copy the screenshot to the clipboard instead of saving it to a file, use `:screenshot --clipboard`.
 
 ## join
 
