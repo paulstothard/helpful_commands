@@ -1891,6 +1891,22 @@ Or use [VisiData](https://github.com/saulpw/visidata). Change `Sheet1` in the co
 vd input.xls +:Sheet1:1:1 -b -o output.csv
 ```
 
+### Convert GenBank to FASTA
+
+Use [any2fasta](https://github.com/tseemann/any2fasta):
+
+```bash
+any2fasta input.gb > output.fa
+```
+
+### Convert GenBank to GFF
+
+Install [perl-bioperl](https://anaconda.org/bioconda/perl-bioperl) and then use [bp_genbank2gff3](https://github.com/bioperl/bioperl-live/blob/master/bin/bp_genbank2gff3):
+
+```bash
+bp_genbank2gff3 input.gb --outdir output_directory
+```
+
 ### Convert HTML to PDF
 
 The following uses [wkhtmltopdf](https://wkhtmltopdf.org):
@@ -1948,6 +1964,14 @@ The `--reference-doc` parameter is optional and can be used to supply a [PowerPo
 
 ```bash
 pandoc input.md -o output.pptx --reference-doc template.potx
+```
+
+### Convert PDF to Markdown
+
+Use [marker](https://github.com/VikParuchuri/marker):
+
+```bash
+python convert_single.py input.pdf output.md
 ```
 
 ### Convert PDF to PNG
