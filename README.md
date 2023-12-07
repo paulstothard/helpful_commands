@@ -2052,6 +2052,16 @@ vd input.tsv -b -o output.xlsx
 
 ## File downloads
 
+### Download a complete web page as a single HTML file
+
+Use [SingleFile](https://github.com/gildas-lormeau/SingleFile) or [single-file-cli](https://github.com/gildas-lormeau/single-file-cli).
+
+The following uses single-file-cli to save [https://www.wikipedia.org](https://www.wikipedia.org) as `wikipedia.html` in the current folder:
+
+```bash
+single-file https://www.wikipedia.org wikipedia.html
+```
+
 ### Download a GenBank file with bio
 
 See the [bio repository](https://github.com/ialbert/bio) and [examples](https://github.com/ialbert/bio/blob/master/biorun/data/usage.sh).
