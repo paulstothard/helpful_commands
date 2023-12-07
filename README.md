@@ -144,6 +144,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Convert TSV to CSV](#convert-tsv-to-csv)
   - [Convert TSV to Excel](#convert-tsv-to-excel)
 - [File downloads](#file-downloads)
+  - [Download a complete web page as a single HTML file](#download-a-complete-web-page-as-a-single-html-file)
   - [Download a GenBank file with bio](#download-a-genbank-file-with-bio)
   - [Download a GenBank file with curl](#download-a-genbank-file-with-curl)
   - [Download a reference genome GTF file from Ensembl](#download-a-reference-genome-gtf-file-from-ensembl)
