@@ -1866,6 +1866,14 @@ Or use [VisiData](https://github.com/saulpw/visidata):
 vd input.csv -b -o output.tab
 ```
 
+### Convert EPUB to PDF
+
+The following uses [calibre](https://calibre-ebook.com):
+
+```bash
+ebook-convert input.epub output.pdf
+```
+
 ### Convert DOCX to PDF
 
 The following uses [LibreOffice](https://www.libreoffice.org):
