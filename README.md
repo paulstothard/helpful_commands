@@ -126,6 +126,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Convert CSV to HTML](#convert-csv-to-html)
   - [Convert CSV to Markdown](#convert-csv-to-markdown)
   - [Convert CSV to TSV](#convert-csv-to-tsv)
+  - [Convert EPUB to PDF](#convert-epub-to-pdf)
   - [Convert DOCX to PDF](#convert-docx-to-pdf)
   - [Convert Excel to CSV using csvkit](#convert-excel-to-csv-using-csvkit)
   - [Convert GenBank to FASTA](#convert-genbank-to-fasta)
