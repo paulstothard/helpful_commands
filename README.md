@@ -2799,13 +2799,13 @@ grep -f ensembl_ids.txt annotated_variants.vcf >> annotated_variants.candidates.
 
 ### Create an animated GIF from a YouTube video
 
-The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl), [mplayer](https://mplayerhq.hu/), [ImageMagick](https://imagemagick.org), and [gifsicle](https://www.lcdf.org/gifsicle/):
+The following requires [yt-dlp](https://github.com/yt-dlp/yt-dlp), [mplayer](https://mplayerhq.hu/), [ImageMagick](https://imagemagick.org), and [gifsicle](https://www.lcdf.org/gifsicle/):
 
 ```bash
 mkdir gif; cd gif
 url=https://youtu.be/_YUAu0aP4DA
 start=00:37; length=10
-youtube-dl -f mp4 -o video_for_gif.mp4 $url
+yt-dlp -f mp4 -o video_for_gif.mp4 $url
 mplayer video_for_gif.mp4 -ao null -ss $start -endpos $length -vo png -vf scale=400:225
 mogrify -format gif *.png
 gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > animation.gif
@@ -3300,11 +3300,11 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub user@remote-host.com
 
 ### Create a collection of MP3 files from a YouTube playlist
 
-The following requires [youtube-dl](https://github.com/ytdl-org/youtube-dl) and [ffmpeg](https://ffmpeg.org/):
+The following requires [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://ffmpeg.org/):
 
 ```bash
 playlist_URL=https://www.youtube.com/playlist?list=PL92319EECC1754042
-youtube-dl -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass --rm-cache-dir --continue "$playlist_URL"
+yt-dlp -x -i --audio-format mp3 --audio-quality 320K --embed-thumbnail --geo-bypass --rm-cache-dir --continue "$playlist_URL"
 ```
 
 ### Edit a PDF file
