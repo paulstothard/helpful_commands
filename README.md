@@ -3403,6 +3403,28 @@ The command can be stopped using `kill` and the PID, e.g.:
 kill -9 1963
 ```
 
+### Remove duplicate files
+
+Use [fdupes](https://github.com/adrianlopezroche/fdupes) to find and remove duplicate files.
+
+The following command finds duplicate files in the current directory and its subdirectories:
+
+```bash
+fdupes -r /path/to/directory
+```
+
+Use the `-d` option to delete duplicates (you will be prompted to confirm each deletion):
+
+```bash
+fdupes -d -r /path/to/directory
+```
+
+To delete duplicates without being prompted, use the `-N` option:
+
+```bash
+fdupes -dN -r /path/to/directory
+```
+
 ### Reverse the order of lines in a file
 
 ```bash
