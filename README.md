@@ -253,6 +253,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Perform a remote BLAST search](#perform-a-remote-blast-search)
   - [Perform a calculation using qalc](#perform-a-calculation-using-qalc)
   - [Prevent a command from stopping when you log out or exit the shell](#prevent-a-command-from-stopping-when-you-log-out-or-exit-the-shell)
+  - [Remove duplicate files](#remove-duplicate-files)
   - [Reverse the order of lines in a file](#reverse-the-order-of-lines-in-a-file)
   - [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
   - [Use SQL-like queries to work with a CSV or TSV file](#use-sql-like-queries-to-work-with-a-csv-or-tsv-file)
