@@ -37,6 +37,7 @@ Command-line tools, commands, and code snippets for performing routine data proc
   - [Extract part of filename](#extract-part-of-filename)
   - [Perform a calculation on the command line](#perform-a-calculation-on-the-command-line)
   - [Redirect STDERR to STDOUT and view both and append both to a file](#redirect-stderr-to-stdout-and-view-both-and-append-both-to-a-file)
+  - [Run groups of commands in parallel using a Bash function and xargs](#run-groups-of-commands-in-parallel-using-a-bash-function-and-xargs)
   - [Save the output of a command in a variable](#save-the-output-of-a-command-in-a-variable)
   - [Set variables using values from a CSV file](#set-variables-using-values-from-a-csv-file)
   - [View STDOUT and append it to a file](#view-stdout-and-append-it-to-a-file)
