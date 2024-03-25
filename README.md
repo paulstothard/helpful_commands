@@ -692,6 +692,72 @@ answer="$(( n - 1 * 2 ))"
 some_command 2>&1 | tee -a log
 ```
 
+### Run groups of commands in parallel using a Bash function and xargs
+
+The following code processes sequence files using the `filtlong`. Files are processed in parallel using `xargs` and a Bash function called `process_file`:
+
+```bash
+# Define the directory paths
+input_dir="fastq-input"
+output_dir="filtlong-output"
+
+# Define the number of processes
+num_processes=10
+
+# Define a function to process each file
+process_file() {
+    input="$1"
+    # Create a unique log file for this process
+    log_file="${output_dir}/$(basename "${input}").log"
+
+    # Extract the directory part from the log file path and create the directory
+    log_dir=$(dirname "${log_file}")
+    mkdir -p "${log_dir}"  # Ensure the log file's directory exists
+    
+    # Get the relative path of the input file
+    relative_path=${input#${input_dir}/}
+    
+    # Get the directory and filename of the relative path
+    relative_dir=$(dirname "${relative_path}")
+    relative_file=$(basename "${relative_path}")
+    
+    echo "Processing ${relative_file}..." >> "${log_file}"
+    
+    # Define the output file
+    output="${output_dir}/${relative_dir}/${relative_file}"
+    
+    # If the output file already exists, inform and skip
+    if [[ -f "${output}" ]]; then
+        echo "Output file ${output} already exists, skipping ${relative_file}..." >> "${log_file}"
+        return 0 # Skip this file
+    fi
+    
+    # Create the corresponding directory in the output directory if it doesn't exist
+    mkdir -p "${output_dir}/${relative_dir}"
+    
+    # Run filtlong and pipe the results into bgzip, then write the results to the output file
+    # Direct process output to individual log file
+    if filtlong --min_length 200 "${input}" 2>> "${log_file}" | bgzip > "${output}"; then
+        echo "Writing output to ${output}..." >> "${log_file}"
+    else
+        echo "Error processing ${input}..." >> "${log_file}"
+    fi
+}
+
+export -f process_file
+
+# Find each .fq.gz file in the input directory and its subdirectories, then use xargs to process them in parallel
+find "${input_dir}" -name "*.fq.gz" -print0 | xargs -0 -n 1 -P "${num_processes}" -I {} bash -c 'process_file "$@"' _ {}
+```
+
+The above reads compressed FASTQ files from an input directory and uses the `filtlong` tool to filter reads based on sequence length.
+
+The output generated for each input file is compressed using `bgzip` and written to a separate file. The script creates an output directory structure to match the input directory structure. For example, if the input file is `fastq-input/sample1/sample1.fq.gz`, the output file will be written to `filtlong-output/sample1/sample1.fq.gz`.
+
+For every file processed, a unique log file is created within the output directory.
+
+Input files are not processed if their output folder already exist in the output directory.
+
 ### Save the output of a command in a variable
 
 Use a subshell:
