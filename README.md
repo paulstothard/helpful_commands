@@ -256,6 +256,7 @@ Table of Contents
     - [Remove duplicate files](#remove-duplicate-files)
     - [Reverse the order of lines in a file](#reverse-the-order-of-lines-in-a-file)
     - [Run commands at scheduled times using cron](#run-commands-at-scheduled-times-using-cron)
+    - [Use MMseqs2 for bacterial contig taxonomic assignment](#use-mmseqs2-for-bacterial-contig-taxonomic-assignment)
     - [Use SQL-like queries to work with a CSV or TSV file](#use-sql-like-queries-to-work-with-a-csv-or-tsv-file)
   - [parallel](#parallel)
     - [Compress files in parallel](#compress-files-in-parallel)
