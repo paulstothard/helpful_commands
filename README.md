@@ -3436,6 +3436,62 @@ out=ILFGCMKP_01075_nr.tab
 blastp -query "$in" -remote -db nr -out "$out" -outfmt '7 qseqid stitle sstart send qcovs qcovhsp pident evalue' -evalue 1e-10
 ```
 
+In this example, remote BLAST is used to examine the taxonomy of contigs:
+
+```bash
+# First, create the taxonomy database that will be used by BLAST:
+mkdir -p taxonomy_database
+wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz
+mv taxdb.tar.gz taxonomy_database
+tar -xvzf taxonomy_database/taxdb.tar.gz -C taxonomy_database
+export BLASTDB=/home/paul/taxonomy_database
+
+# Perform the BLAST search:
+mkdir -p blast_output
+blastn -query contigs.fa \
+-db nr -out blast_output/contigs.out \
+-max_target_seqs 5 -outfmt "6 qseqid sseqid sscinames scomnames pident evalue" -remote
+```
+
+Large contigs may exceed the maximum query length for remote BLAST searches. The following script can be used to extract the first 1000 bp from each contig:
+
+```python
+import argparse
+from Bio import SeqIO
+
+def trim_contigs(input_file, output_file, min_length=1000):
+    with open(output_file, 'w') as out_f:
+        for record in SeqIO.parse(input_file, 'fasta'):
+            if len(record.seq) >= min_length:
+                trimmed_record = record[:min_length]  # Get the first 1000 bases
+                SeqIO.write(trimmed_record, out_f, 'fasta')
+
+def main():
+    parser = argparse.ArgumentParser(description="Trim DNA contigs to the first 1000 bases if they are at least 1000 bases long.")
+    parser.add_argument("-i", "--input", required=True, help="Input FASTA file containing DNA contigs.")
+    parser.add_argument("-o", "--output", required=True, help="Output FASTA file to store trimmed contigs.")
+    args = parser.parse_args()
+
+    trim_contigs(args.input, args.output)
+
+if __name__ == "__main__":
+    main()
+```
+
+To use the script, save it as `trim_contigs.py` and run it as follows (you may need to install the Biopython package first using `pip install biopython`):
+
+```bash
+python trim_contigs.py -i contigs.fa -o contigs_trimmed.fa
+```
+
+Then use the trimmed contigs as the query in the BLAST search:
+
+```bash
+blastn -query contigs_trimmed.fa \
+-db nr -out blast_output/contigs_trimmed.out \
+-max_target_seqs 5 -outfmt "6 qseqid sseqid sscinames scomnames pident evalue" -remote
+```
+
 ### Perform a calculation using qalc
 
 [qalc](https://github.com/Qalculate/libqalculate) is a calculator with support for units. The following uses qalc to convert 1.5 hours to minutes:
