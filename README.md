@@ -3606,6 +3606,25 @@ Alternatively, use the following to run the script once per hour between 8 am an
 
 To display the crontab use `crontab -l`.
 
+### Use MMseqs2 for bacterial contig taxonomic assignment
+
+The following uses [MMseqs2](https://github.com/soedinglab/MMseqs2) and the [GTDB](https://gtdb.ecogenomic.org) database to classify bacterial contigs:
+
+```bash
+# Pull the MMseqs2 Docker image
+docker pull ghcr.io/soedinglab/mmseqs2
+
+# Download and prepare the GTDB database
+mkdir -p db
+docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir \
+ghcr.io/soedinglab/mmseqs2 databases GTDB db/gtdb /tmp
+
+# Analyze the contigs
+mkdir -p mmseqs2_output/gtdb
+docker run --rm -v "$(pwd)":/dir -u "$(id -u)":"$(id -g)" -w /dir \
+ghcr.io/soedinglab/mmseqs2 easy-taxonomy contigs.fa db/gtdb mmseqs2_output/gtdb/contigs /tmp --lca-mode 4
+```
+
 ### Use SQL-like queries to work with a CSV or TSV file
 
 The following uses [q](https://github.com/harelba/q) to count distinct values in the column named `SNP`:
