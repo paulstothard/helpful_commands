@@ -282,6 +282,8 @@ Table of Contents
     - [Search and replace text on each line](#search-and-replace-text-on-each-line)
     - [Sort sections in a Markdown file based on headings](#sort-sections-in-a-markdown-file-based-on-headings)
     - [Split a Markdown file into separate files based on a heading](#split-a-markdown-file-into-separate-files-based-on-a-heading)
+  - [Python](#python)
+    - [Create a Python virtual environment](#create-a-python-virtual-environment)
   - [R](#r)
     - [Add columns from one tibble to another](#add-columns-from-one-tibble-to-another)
     - [Add comment lines to output](#add-comment-lines-to-output)
@@ -3868,6 +3870,18 @@ some answer
 ```bash
 perl -ne 'BEGIN {$section_name=shift; $output_file_prefix=shift; undef $/;} $section_count = 1; $file = $ARGV; while (m/(\Q$section_name\E.*?)((?=\Q$section_name\E)|$)/sg) {open(w, ">", "$output_file_prefix-$section_count.md"); print w "$1"; $section_count++; close(w)}' "# Answer" "output" input.md
 ```
+## Python
+
+### Create a Python virtual environment
+
+```bash
+python3 -m venv myenv
+source myenv/bin/activate
+# install packages, e.g.
+pip install beautifulsoup4
+```
+
+Once the virtual environment is activated, the packages installed will only be available within that environment. To exit the virtual environment use `deactivate`. To activate the environment again use `source myenv/bin/activate` in the directory where the environment was created.
 
 ## R
 
