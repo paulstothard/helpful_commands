@@ -63,6 +63,9 @@ Table of Contents
     - [List packages installed in the active environment](#list-packages-installed-in-the-active-environment)
     - [Remove an environment](#remove-an-environment)
     - [Search for a specific package](#search-for-a-specific-package)
+    - [Create an environment on Apple silicon when packages are not available](#create-an-environment-on-apple-silicon-when-packages-are-not-available)
+    - [Register an environment with Jupyter as a Bash kernel](#register-an-environment-with-jupyter-as-a-bash-kernel)
+    - [Register an environment with Jupyter as a Python kernel](#register-an-environment-with-jupyter-as-a-python-kernel)
   - [csvkit](#csvkit)
     - [Convert Excel to CSV](#convert-excel-to-csv)
     - [Convert JSON to CSV](#convert-json-to-csv)
@@ -220,6 +223,9 @@ Table of Contents
     - [List packages installed in the active environment with mamba](#list-packages-installed-in-the-active-environment-with-mamba)
     - [Remove an environment with mamba](#remove-an-environment-with-mamba)
     - [Search for a specific package with mamba](#search-for-a-specific-package-with-mamba)
+    - [Create an environment on Apple silicon when packages are not available](#create-an-environment-on-apple-silicon-when-packages-are-not-available-1)
+    - [Register an environment with Jupyter as a Bash kernel](#register-an-environment-with-jupyter-as-a-bash-kernel-1)
+    - [Register an environment with Jupyter as a Python kernel](#register-an-environment-with-jupyter-as-a-python-kernel-1)
   - [md5sum](#md5sum)
     - [Generate a file of checksums](#generate-a-file-of-checksums)
     - [Validate checksums](#validate-checksums)
@@ -979,6 +985,38 @@ conda env remove --name my-env
 
 ```bash
 conda search -c bioconda -c conda-forge blast
+```
+
+### Create an environment on Apple silicon when packages are not available
+
+If packages are not available for `osx-arm64` use `conda config --env --set subdir osx-64`. For example:
+
+```bash
+conda create -y --name vcf
+conda activate vcf
+conda config --env --set subdir osx-64
+conda install -y -c conda-forge -c bioconda bcftools vcftools tabix
+```
+
+### Register an environment with Jupyter as a Bash kernel
+
+```bash
+conda create -y --name sv-bash
+conda activate sv-bash
+# Use conda 'config --env --set subdir osx-64' on macOS if packages are not available for osx-arm64
+conda config --env --set subdir osx-64
+conda install -y -c conda-forge -c bioconda jupyter bash_kernel bcftools vcftools tabix
+python -m ipykernel install --user --name sv-bash --display-name "Python (sv-bash)"
+```
+
+### Register an environment with Jupyter as a Python kernel
+
+```bash
+conda create -y --name sv-python
+conda activate
+conda install Jupyter
+conda install ipykernel
+python -m ipykernel install --user --name sv-python_env --display-name "Python (sv-python_env)"
 ```
 
 ## csvkit
@@ -3115,6 +3153,39 @@ mamba env remove --name my-env
 ```bash
 mamba search -c bioconda -c conda-forge blast
 ```
+
+### Create an environment on Apple silicon when packages are not available
+
+If packages are not available for `osx-arm64` use `conda config --env --set subdir osx-64`. For example:
+
+```bash
+mamba create -y --name vcf
+mamba activate vcf
+conda config --env --set subdir osx-64
+mamba install -y -c conda-forge -c bioconda bcftools vcftools tabix
+```
+
+### Register an environment with Jupyter as a Bash kernel
+
+```bash
+mamba create -y --name sv-bash
+mamba activate sv-bash
+# Use conda 'config --env --set subdir osx-64' on macOS if packages are not available for osx-arm64
+conda config --env --set subdir osx-64
+mamba install -y -c conda-forge -c bioconda jupyter bash_kernel bcftools vcftools tabix
+python -m ipykernel install --user --name sv-bash --display-name "Python (sv-bash)"
+```
+
+### Register an environment with Jupyter as a Python kernel
+
+```bash
+mamba create -y --name sv-python
+mamba activate
+mamba install Jupyter
+mamba install ipykernel
+python -m ipykernel install --user --name sv-python_env --display-name "Python (sv-python_env)"
+```
+
 
 ## md5sum
 
