@@ -3154,7 +3154,7 @@ mamba env remove --name my-env
 mamba search -c bioconda -c conda-forge blast
 ```
 
-### Create an environment on Apple silicon when packages are not available
+### Create a mamba environment on Apple silicon when packages are not available
 
 If packages are not available for `osx-arm64` use `conda config --env --set subdir osx-64`. For example:
 
@@ -3165,7 +3165,7 @@ conda config --env --set subdir osx-64
 mamba install -y -c conda-forge -c bioconda bcftools vcftools tabix
 ```
 
-### Register an environment with Jupyter as a Bash kernel
+### Register a mamba environment with Jupyter as a Bash kernel
 
 ```bash
 mamba create -y --name sv-bash
@@ -3176,7 +3176,7 @@ mamba install -y -c conda-forge -c bioconda jupyter bash_kernel bcftools vcftool
 python -m ipykernel install --user --name sv-bash --display-name "Python (sv-bash)"
 ```
 
-### Register an environment with Jupyter as a Python kernel
+### Register a mamba environment with Jupyter as a Python kernel
 
 ```bash
 mamba create -y --name sv-python
