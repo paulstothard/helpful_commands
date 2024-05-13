@@ -3186,7 +3186,6 @@ mamba install ipykernel
 python -m ipykernel install --user --name sv-python_env --display-name "Python (sv-python_env)"
 ```
 
-
 ## md5sum
 
 ### Generate a file of checksums
