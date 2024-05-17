@@ -752,7 +752,11 @@ process_file() {
     fi
 }
 
+# Export the function so it can be used by xargs
 export -f process_file
+
+# Export the output directory so it can be used by xargs
+export output_dir
 
 # Find each .fq.gz file in the input directory and its subdirectories, then use xargs to process them in parallel
 find "${input_dir}" -name "*.fq.gz" -print0 | xargs -0 -n 1 -P "${num_processes}" -I {} bash -c 'process_file "$@"' _ {}
@@ -1677,26 +1681,26 @@ find . \( -name "*_R1_*" -name "*.fastq.gz" \) -type f \
 | while IFS= read -r file; do
   fnx=$(basename -- "$file")
   fn="${fnx%%.*}"
-  
+
   # Construct name of other file
   file2="${file/_R1_/_R2_}"
   fnx2=$(basename -- "$file2")
   fn2="${fnx2%%.*}"
-  
+
   # $file: ./6613_S82_L001_R1_001.fastq.gz
   # $fnx: 6613_S82_L001_R1_001.fastq.gz
   # $fn: 6613_S82_L001_R1_001
-  
+
   # $file2: ./6613_S82_L001_R2_001.fastq.gz
   # $fnx2: 6613_S82_L001_R2_001.fastq.gz
   # $fn2: 6613_S82_L001_R2_001
-  
+
   echo "Processing file '$fnx' and '$fnx2'"
-  
+
   # place commands here that work on file pairs
   lines_R1=$(zcat < "$file" | wc -l)
   lines_R2=$(zcat < "$file2" | wc -l)
-  
+
   if [ "$lines_R1" == "$lines_R2" ] ; then
     echo "Both files contain $lines_R1 lines"
   else
@@ -1895,7 +1899,7 @@ There are numerous programs available for this task.
 See [bio](https://github.com/ialbert/bio) and the [example commands](https://github.com/ialbert/bio/blob/master/biorun/data/usage.sh).
 
 Some example commands taken from the [bio documentation](https://github.com/ialbert/bio/blob/master/README.md):
-  
+
 ```bash
 # fetch GenBank data
 bio fetch NC_045512 MN996532 > genomes.gb
@@ -1907,7 +1911,7 @@ bio fasta genomes.gb --end 10
 bio fasta genomes.gb --gene S --protein | bio align | head
 
 # print the GFF record that corresponds to the coding sequence for gene S
-bio gff genomes.gb --gene S 
+bio gff genomes.gb --gene S
 
 # show the descendants of taxid 117565
 bio taxon 117565 | head
@@ -5074,7 +5078,7 @@ chrY Information
 MT !
 chr1 Some
 chr2 Data
-chr3 Or    
+chr3 Or
 chr3 Annotation
 chr10 Or
 chr21 Any
@@ -5091,7 +5095,7 @@ The above generates the following output:
 ```text
 chr1 Some
 chr2 Data
-chr3 Or    
+chr3 Or
 chr3 Annotation
 chr10 Or
 chr21 Any
