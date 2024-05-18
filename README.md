@@ -721,28 +721,28 @@ process_file() {
     # Extract the directory part from the log file path and create the directory
     log_dir=$(dirname "${log_file}")
     mkdir -p "${log_dir}"  # Ensure the log file's directory exists
-    
+
     # Get the relative path of the input file
     relative_path=${input#${input_dir}/}
-    
+
     # Get the directory and filename of the relative path
     relative_dir=$(dirname "${relative_path}")
     relative_file=$(basename "${relative_path}")
-    
+
     echo "Processing ${relative_file}..." >> "${log_file}"
-    
+
     # Define the output file
     output="${output_dir}/${relative_dir}/${relative_file}"
-    
+
     # If the output file already exists, inform and skip
     if [[ -f "${output}" ]]; then
         echo "Output file ${output} already exists, skipping ${relative_file}..." >> "${log_file}"
         return 0 # Skip this file
     fi
-    
+
     # Create the corresponding directory in the output directory if it doesn't exist
     mkdir -p "${output_dir}/${relative_dir}"
-    
+
     # Run filtlong and pipe the results into bgzip, then write the results to the output file
     # Direct process output to individual log file
     if filtlong --min_length 200 "${input}" 2>> "${log_file}" | bgzip > "${output}"; then
@@ -752,11 +752,14 @@ process_file() {
     fi
 }
 
-# Export the function so it can be used by xargs
+# Export the function so it can be used in subshells
 export -f process_file
 
-# Export the output directory so it can be used by xargs
+# Export the output directory so it can be used in subshells
 export output_dir
+
+# Export the input directory so it can be used by subshells
+export input_dir
 
 # Find each .fq.gz file in the input directory and its subdirectories, then use xargs to process them in parallel
 find "${input_dir}" -name "*.fq.gz" -print0 | xargs -0 -n 1 -P "${num_processes}" -I {} bash -c 'process_file "$@"' _ {}
