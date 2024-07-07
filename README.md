@@ -702,7 +702,7 @@ some_command 2>&1 | tee -a log
 
 ### Run groups of commands in parallel using a Bash function and xargs
 
-The following code processes sequence files using the `filtlong`. Files are processed in parallel using `xargs` and a Bash function called `process_file`:
+The following code processes sequence files using [filtlong](https://github.com/rrwick/Filtlong). Files are processed in parallel using `xargs` and a Bash function called `process_file`:
 
 ```bash
 # Define the directory paths
@@ -765,9 +765,9 @@ export input_dir
 find "${input_dir}" -name "*.fq.gz" -print0 | xargs -0 -n 1 -P "${num_processes}" -I {} bash -c 'process_file "$@"' _ {}
 ```
 
-The above reads compressed FASTQ files from an input directory and uses the `filtlong` tool to filter reads based on sequence length.
+The above processes compressed FASTQ files from an input directory.
 
-The output generated for each input file is compressed using `bgzip` and written to a separate file. The script creates an output directory structure to match the input directory structure. For example, if the input file is `fastq-input/sample1/sample1.fq.gz`, the output file will be written to `filtlong-output/sample1/sample1.fq.gz`.
+The `filtlong` output generated for each input file is compressed using `bgzip` and written to a separate file. The script creates an output directory structure to match the input directory structure. For example, if the input file is `fastq-input/sample1/sample1.fq.gz`, the output file will be written to `filtlong-output/sample1/sample1.fq.gz`.
 
 For every file processed, a unique log file is created within the output directory.
 
