@@ -3066,221 +3066,217 @@ Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-col
 
 ### Use a local Conda environment as a Python kernel
 
-1. Create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal):
+Create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal):
 
-    ```bash
-    # Create a new Conda environment, changing the name as needed
-    NEW_ENV_NAME=plot-python
-    PYTHON_VERSION=3.12
-    mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
-    mamba activate "$NEW_ENV_NAME"
-    # Use the next command if using Apple silicon and osx-arm64 packages aren't available
-    conda config --env --set subdir osx-64
-    # Install the jupyter and ipykernel packages
-    mamba install -y -c conda-forge jupyter ipykernel
-    # Install the desired packages, e.g.
-    mamba install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
-    # Add the Python kernel to Jupyter
-    python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
-    # Deactivate the Conda environment
-    mamba deactivate
-    ```
+```bash
+# Create a new Conda environment, changing the name as needed
+NEW_ENV_NAME=plot-python
+PYTHON_VERSION=3.12
+mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+mamba activate "$NEW_ENV_NAME"
+# Use the next command if using Apple silicon and osx-arm64 packages aren't available
+conda config --env --set subdir osx-64
+# Install the jupyter and ipykernel packages
+mamba install -y -c conda-forge jupyter ipykernel
+# Install the desired packages, e.g.
+mamba install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
+# Add the Python kernel to Jupyter
+python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
+# Deactivate the Conda environment
+mamba deactivate
+```
 
-1. Restart VS Code or Jupyter Notebook.
-1. Open a notebook and select the Jupyter kernel that you created.
+Restart VS Code or Jupyter Notebook and open a notebook and select the Jupyter kernel that you created.
 
 ### Use a remote Conda environment as a Python kernel
 
-1. On the remote system create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal on the remote system):
+On the remote system create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal on the remote system):
 
-    ```bash
-    # Create a new Conda environment, changing the name as needed
-    NEW_ENV_NAME=plot-python
-    PYTHON_VERSION=3.12
-    mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
-    mamba activate "$NEW_ENV_NAME"
-    # Use the next command if using Apple silicon and osx-arm64 packages aren't available
-    conda config --env --set subdir osx-64
-    # Install the jupyter and ipykernel packages
-    mamba install -y -c conda-forge jupyter ipykernel
-    # Install the desired packages, e.g.
-    mamba install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
-    # Add the Python kernel to Jupyter
-    python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
-    # Deactivate the Conda environment
-    mamba deactivate
-    ```
+```bash
+# Create a new Conda environment, changing the name as needed
+NEW_ENV_NAME=plot-python
+PYTHON_VERSION=3.12
+mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+mamba activate "$NEW_ENV_NAME"
+# Use the next command if using Apple silicon and osx-arm64 packages aren't available
+conda config --env --set subdir osx-64
+# Install the jupyter and ipykernel packages
+mamba install -y -c conda-forge jupyter ipykernel
+# Install the desired packages, e.g.
+mamba install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
+# Add the Python kernel to Jupyter
+python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
+# Deactivate the Conda environment
+mamba deactivate
+```
 
-1. On the remote system launch `tmux`, activate the environment, and start Jupyter:
+On the remote system launch `tmux`, activate the environment, and start Jupyter:
 
-    ```bash
-    tmux new -s jupyter
-    NEW_ENV_NAME=plot-python
-    mamba activate "$NEW_ENV_NAME"
-    jupyter notebook --no-browser --port=8888
-    ```
+```bash
+tmux new -s jupyter
+NEW_ENV_NAME=plot-python
+mamba activate "$NEW_ENV_NAME"
+jupyter notebook --no-browser --port=8888
+```
 
-    Note the token that is displayed in the output of the `jupyter notebook` command.
+Note the token that is displayed in the output of the `jupyter notebook` command.
 
-    For example:
+For example:
 
-    ```text
-    399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
-    ```
+```text
+399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+```
 
-    Now disconnect from the tmux session by pressing `Ctrl-b` then `d`.
+Now disconnect from the tmux session by pressing `Ctrl-b` then `d`.
 
-1. On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to **user@host**):
+On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to **user@host**):
 
-    ```bash
-    ssh -L 8888:localhost:8888 gentec
-    ```
+```bash
+ssh -L 8888:localhost:8888 gentec
+```
 
-    The above will forward port 8888 on the remote machine to port 8888 on the local machine. Leave this terminal open.
+The above will forward port 8888 on the remote machine to port 8888 on the local machine. Leave this terminal open.
 
-1. Open a Jupyter Notebook in a VS Code and click **Select Kernel** and then **Existing Jupyter Server**. Enter the following URL (appending the token from the remote system):
+Open a Jupyter Notebook in a VS Code and click **Select Kernel** and then **Existing Jupyter Server**. Enter the following URL (appending the token from the remote system):
 
-    ```text
-    http://localhost:8888/?token=399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
-    ```
+```text
+http://localhost:8888/?token=399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+```
 
-    Then choose the kernel that you created, from the available kernels.
+Then choose the kernel that you created, from the available kernels.
 
-1. To end the session, close the Jupyter Notebook and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter Notebook server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
+To end the session, close the Jupyter Notebook and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter Notebook server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
 
 ### Use a Python virtual environment as a Python kernel
 
-1. Create a Python virtual environment and add it as a kernel to Jupyter (run the following commands in the terminal, in the project root directory):
+Create a Python virtual environment and add it as a kernel to Jupyter (run the following commands in the terminal, in the project root directory):
 
-    ```bash
-    # Create a new Python virtual environment, changing the name as needed
-    NEW_ENV_NAME=plot-venv
-    PYTHON_VERSION=python3.12
-    echo "${NEW_ENV_NAME}/" >> .gitignore
-    $PYTHON_VERSION -m venv "$NEW_ENV_NAME"
-    source "${NEW_ENV_NAME}/bin/activate"
-    # Install the desired packages, e.g.
-    pip install numpy pandas matplotlib seaborn scikit-learn
-    # Install the jupyter and ipykernel packages
-    pip install jupyter ipykernel
-    # Add the virtual environment kernel to Jupyter
-    python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
-    # Deactivate the virtual environment
-    deactivate
-    ```
+```bash
+# Create a new Python virtual environment, changing the name as needed
+NEW_ENV_NAME=plot-venv
+PYTHON_VERSION=python3.12
+echo "${NEW_ENV_NAME}/" >> .gitignore
+$PYTHON_VERSION -m venv "$NEW_ENV_NAME"
+source "${NEW_ENV_NAME}/bin/activate"
+# Install the desired packages, e.g.
+pip install numpy pandas matplotlib seaborn scikit-learn
+# Install the jupyter and ipykernel packages
+pip install jupyter ipykernel
+# Add the virtual environment kernel to Jupyter
+python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
+# Deactivate the virtual environment
+deactivate
+```
 
-1. Restart VS Code or Jupyter Notebook.
-1. Open a notebook and select the Jupyter kernel that you created.
+Restart VS Code or Jupyter Notebook and open a notebook and select the Jupyter kernel that you created.
 
 ### Use a Python virtual environment created using venv_wrapper
 
 The `venv_wrapper` script simplifies the creation of Python virtual environments. It is in my dotfiles and is based [on this script](https://gist.github.com/dbtek/fb2ddccb18f0cf63a654ea2cc94c8f19).
 
-1. Create a Python virtual environment and add it as a kernel to Jupyter (run the following commands in the terminal, in the project root directory):
+Create a Python virtual environment and add it as a kernel to Jupyter (run the following commands in the terminal, in the project root directory):
 
-    ```bash
-    # Create a new Python virtual environment, changing the name and Python version as needed
-    NEW_ENV_NAME=plot-venv
-    PYTHON_VERSION=3.12
-    echo "$HOME/.venv/${NEW_ENV_NAME}/" >> .gitignore
-    # Create and activate the new virtual environment using the wrapper commands
-    mkvenv "$NEW_ENV_NAME" "$PYTHON_VERSION"
-    # Install the desired packages, e.g.
-    pip install numpy pandas matplotlib seaborn scikit-learn
-    # Install the jupyter and ipykernel packages
-    pip install jupyter ipykernel
-    # Add the virtual environment kernel to Jupyter
-    python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
-    # Deactivate the virtual environment
-    deactivate
-    ```
+```bash
+# Create a new Python virtual environment, changing the name and Python version as needed
+NEW_ENV_NAME=plot-venv
+PYTHON_VERSION=3.12
+echo "$HOME/.venv/${NEW_ENV_NAME}/" >> .gitignore
+# Create and activate the new virtual environment using the wrapper commands
+mkvenv "$NEW_ENV_NAME" "$PYTHON_VERSION"
+# Install the desired packages, e.g.
+pip install numpy pandas matplotlib seaborn scikit-learn
+# Install the jupyter and ipykernel packages
+pip install jupyter ipykernel
+# Add the virtual environment kernel to Jupyter
+python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
+# Deactivate the virtual environment
+deactivate
+```
 
-1. Restart VS Code or Jupyter Notebook.
-1. Open a notebook and select the Jupyter kernel that you created.
+Restart VS Code or Jupyter Notebook and open a notebook and select the Jupyter kernel that you created.
 
 ### Use a local Conda environment as a Bash kernel
 
-1. Create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal):
+Create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal):
 
-    ```bash
-    # Create a new Conda environment, changing the name as needed
-    NEW_ENV_NAME=vep-bash
-    PYTHON_VERSION=3.12
-    mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
-    mamba activate "$NEW_ENV_NAME"
-    # Use the next command if using Apple silicon and osx-arm64 packages aren't available
-    conda config --env --set subdir osx-64
-    # Install the desired packages, e.g.
-    mamba install -y -c conda-forge -c bioconda ensembl-vep
-    # Install the jupyter and bash_kernel packages
-    mamba install -y -c conda-forge jupyter bash_kernel
-    # Install the Bash kernel within the environment
-    python -m bash_kernel.install
-    # Deactivate the Conda environment
-    mamba deactivate
-    ```
+```bash
+# Create a new Conda environment, changing the name as needed
+NEW_ENV_NAME=vep-bash
+PYTHON_VERSION=3.12
+mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+mamba activate "$NEW_ENV_NAME"
+# Use the next command if using Apple silicon and osx-arm64 packages aren't available
+conda config --env --set subdir osx-64
+# Install the desired packages, e.g.
+mamba install -y -c conda-forge -c bioconda ensembl-vep
+# Install the jupyter and bash_kernel packages
+mamba install -y -c conda-forge jupyter bash_kernel
+# Install the Bash kernel within the environment
+python -m bash_kernel.install
+# Deactivate the Conda environment
+mamba deactivate
+```
 
-1. Restart VS Code or Jupyter Notebook.
-1. Open a notebook and select the Jupyter kernel that you created.
+Restart VS Code or Jupyter Notebook and open a notebook and select the Jupyter kernel that you created.
 
 ### Use a remote Conda environment as a Bash kernel
 
-1. On the remote system create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal on the remote system):
+On the remote system create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal on the remote system):
 
-    ```bash
-    # Create a new Conda environment, changing the name as needed
-    NEW_ENV_NAME=vep-bash
-    PYTHON_VERSION=3.12
-    mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
-    mamba activate "$NEW_ENV_NAME"
-    # Use the next command if using Apple silicon and osx-arm64 packages aren't available
-    conda config --env --set subdir osx-64
-    # Install the desired packages, e.g.
-    mamba install -y -c conda-forge -c bioconda ensembl-vep
-    # Install the jupyter and bash_kernel packages
-    mamba install -y -c conda-forge jupyter bash_kernel
-    # Install the Bash kernel within the environment
-    python -m bash_kernel.install
-    # Deactivate the Conda environment
-    mamba deactivate
-    ```
+```bash
+# Create a new Conda environment, changing the name as needed
+NEW_ENV_NAME=vep-bash
+PYTHON_VERSION=3.12
+mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+mamba activate "$NEW_ENV_NAME"
+# Use the next command if using Apple silicon and osx-arm64 packages aren't available
+conda config --env --set subdir osx-64
+# Install the desired packages, e.g.
+mamba install -y -c conda-forge -c bioconda ensembl-vep
+# Install the jupyter and bash_kernel packages
+mamba install -y -c conda-forge jupyter bash_kernel
+# Install the Bash kernel within the environment
+python -m bash_kernel.install
+# Deactivate the Conda environment
+mamba deactivate
+```
 
-1. On the remote system launch `tmux`, activate the environment, and start Jupyter:
+On the remote system launch `tmux`, activate the environment, and start Jupyter:
 
-    ```bash
-    tmux new -s jupyter
-    NEW_ENV_NAME=vep-bash
-    mamba activate "$NEW_ENV_NAME"
-    jupyter notebook --no-browser --port=8888
-    ```
+```bash
+tmux new -s jupyter
+NEW_ENV_NAME=vep-bash
+mamba activate "$NEW_ENV_NAME"
+jupyter notebook --no-browser --port=8888
+```
 
-    Note the token that is displayed in the output of the `jupyter notebook` command.
+Note the token that is displayed in the output of the `jupyter notebook` command.
 
-    For example:
+For example:
 
-    ```text
-    399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
-    ```
+```text
+399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+```
 
-    Now disconnect from the tmux session by pressing `Ctrl-b` then `d`.
+Now disconnect from the tmux session by pressing `Ctrl-b` then `d`.
 
-1. On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to **user@host**):
+On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to **user@host**):
 
-    ```bash
-    ssh -L 8888:localhost:8888 gentec
-    ```
+```bash
+ssh -L 8888:localhost:8888 gentec
+```
 
-    The above will forward port 8888 on the remote machine to port 8888 on the local machine. Leave this terminal open.
+The above will forward port 8888 on the remote machine to port 8888 on the local machine. Leave this terminal open.
 
-1. Open a Jupyter Notebook in a VS Code and click **Select Kernel** and then **Existing Jupyter Server**. Enter the following URL (appending the token from the remote system):
+Open a Jupyter Notebook in a VS Code and click **Select Kernel** and then **Existing Jupyter Server**. Enter the following URL (appending the token from the remote system):
 
-    ```text
-    http://localhost:8888/?token=399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
-    ```
+```text
+http://localhost:8888/?token=399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+```
 
-    Then choose the kernel that you created, from the available kernels.
+Then choose the kernel that you created, from the available kernels.
 
-1. To end the session, close the Jupyter Notebook and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter Notebook server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
+To end the session, close the Jupyter Notebook and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter Notebook server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
 
 ## Mamba
 
