@@ -64,8 +64,6 @@ Table of Contents
     - [Remove an environment](#remove-an-environment)
     - [Search for a specific package](#search-for-a-specific-package)
     - [Create an environment on Apple silicon when packages are not available](#create-an-environment-on-apple-silicon-when-packages-are-not-available)
-    - [Register an environment with Jupyter as a Bash kernel](#register-an-environment-with-jupyter-as-a-bash-kernel)
-    - [Register an environment with Jupyter as a Python kernel](#register-an-environment-with-jupyter-as-a-python-kernel)
   - [csvkit](#csvkit)
     - [Convert Excel to CSV](#convert-excel-to-csv)
     - [Convert JSON to CSV](#convert-json-to-csv)
@@ -210,6 +208,13 @@ Table of Contents
   - [join](#join)
     - [Combine rows and print a subset of columns using join](#combine-rows-and-print-a-subset-of-columns-using-join)
     - [Combine rows based on shared keys with join](#combine-rows-based-on-shared-keys-with-join)
+  - [Jupyter](#jupyter)
+    - [Use a local Conda environment as a Python kernel](#use-a-local-conda-environment-as-a-python-kernel)
+    - [Use a remote Conda environment as a Python kernel](#use-a-remote-conda-environment-as-a-python-kernel)
+    - [Use a Python virtual environment as a Python kernel](#use-a-python-virtual-environment-as-a-python-kernel)
+    - [Use a Python virtual environment created using venv\_wrapper](#use-a-python-virtual-environment-created-using-venv_wrapper)
+    - [Use a local Conda environment as a Bash kernel](#use-a-local-conda-environment-as-a-bash-kernel)
+    - [Use a remote Conda environment as a Bash kernel](#use-a-remote-conda-environment-as-a-bash-kernel)
   - [Mamba](#mamba)
     - [Activate an environment with mamba](#activate-an-environment-with-mamba)
     - [Add additional packages to an environment with mamba](#add-additional-packages-to-an-environment-with-mamba)
@@ -302,6 +307,7 @@ Table of Contents
     - [Split two-allele genotypes into two columns](#split-two-allele-genotypes-into-two-columns)
     - [Transpose a data frame](#transpose-a-data-frame)
     - [Understand an object](#understand-an-object)
+    - [Use an R virtual environment](#use-an-r-virtual-environment)
     - [Visualize the degree of overlap among gene sets](#visualize-the-degree-of-overlap-among-gene-sets)
   - [rsync](#rsync)
     - [Sync a directory from a remote system](#sync-a-directory-from-a-remote-system)
@@ -1003,27 +1009,6 @@ conda create -y --name vcf
 conda activate vcf
 conda config --env --set subdir osx-64
 conda install -y -c conda-forge -c bioconda bcftools vcftools tabix
-```
-
-### Register an environment with Jupyter as a Bash kernel
-
-```bash
-conda create -y --name sv-bash
-conda activate sv-bash
-# Use conda 'config --env --set subdir osx-64' on macOS if packages are not available for osx-arm64
-conda config --env --set subdir osx-64
-conda install -y -c conda-forge -c bioconda jupyter bash_kernel bcftools vcftools tabix
-python -m ipykernel install --user --name sv-bash --display-name "Python (sv-bash)"
-```
-
-### Register an environment with Jupyter as a Python kernel
-
-```bash
-conda create -y --name sv-python
-conda activate
-conda install Jupyter
-conda install ipykernel
-python -m ipykernel install --user --name sv-python_env --display-name "Python (sv-python_env)"
 ```
 
 ## csvkit
@@ -3077,6 +3062,226 @@ gene f  .                   0
 
 Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-columns) from [csvkit](#csvkit).
 
+## Jupyter
+
+### Use a local Conda environment as a Python kernel
+
+1. Create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal):
+
+    ```bash
+    # Create a new Conda environment, changing the name as needed
+    NEW_ENV_NAME=plot-python
+    PYTHON_VERSION=3.12
+    mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+    mamba activate "$NEW_ENV_NAME"
+    # Use the next command if using Apple silicon and osx-arm64 packages aren't available
+    conda config --env --set subdir osx-64
+    # Install the jupyter and ipykernel packages
+    mamba install -y -c conda-forge jupyter ipykernel
+    # Install the desired packages, e.g.
+    mamba install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
+    # Add the Python kernel to Jupyter
+    python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
+    # Deactivate the Conda environment
+    mamba deactivate
+    ```
+
+1. Restart VS Code or Jupyter Notebook.
+1. Open a notebook and select the Jupyter kernel that you created.
+
+### Use a remote Conda environment as a Python kernel
+
+1. On the remote system create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal on the remote system):
+
+    ```bash
+    # Create a new Conda environment, changing the name as needed
+    NEW_ENV_NAME=plot-python
+    PYTHON_VERSION=3.12
+    mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+    mamba activate "$NEW_ENV_NAME"
+    # Use the next command if using Apple silicon and osx-arm64 packages aren't available
+    conda config --env --set subdir osx-64
+    # Install the jupyter and ipykernel packages
+    mamba install -y -c conda-forge jupyter ipykernel
+    # Install the desired packages, e.g.
+    mamba install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
+    # Add the Python kernel to Jupyter
+    python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
+    # Deactivate the Conda environment
+    mamba deactivate
+    ```
+
+1. On the remote system launch `tmux`, activate the environment, and start Jupyter:
+
+    ```bash
+    tmux new -s jupyter
+    NEW_ENV_NAME=plot-python
+    mamba activate "$NEW_ENV_NAME"
+    jupyter notebook --no-browser --port=8888
+    ```
+
+    Note the token that is displayed in the output of the `jupyter notebook` command.
+
+    For example:
+
+    ```text
+    399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+    ```
+
+    Now disconnect from the tmux session by pressing `Ctrl-b` then `d`.
+
+1. On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to **user@host**):
+
+    ```bash
+    ssh -L 8888:localhost:8888 gentec
+    ```
+
+    The above will forward port 8888 on the remote machine to port 8888 on the local machine. Leave this terminal open.
+
+1. Open a Jupyter Notebook in a VS Code and click **Select Kernel** and then **Existing Jupyter Server**. Enter the following URL (appending the token from the remote system):
+
+    ```text
+    http://localhost:8888/?token=399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+    ```
+
+    Then choose the kernel that you created, from the available kernels.
+
+1. To end the session, close the Jupyter Notebook and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter Notebook server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
+
+### Use a Python virtual environment as a Python kernel
+
+1. Create a Python virtual environment and add it as a kernel to Jupyter (run the following commands in the terminal, in the project root directory):
+
+    ```bash
+    # Create a new Python virtual environment, changing the name as needed
+    NEW_ENV_NAME=plot-venv
+    PYTHON_VERSION=python3.12
+    echo "${NEW_ENV_NAME}/" >> .gitignore
+    $PYTHON_VERSION -m venv "$NEW_ENV_NAME"
+    source "${NEW_ENV_NAME}/bin/activate"
+    # Install the desired packages, e.g.
+    pip install numpy pandas matplotlib seaborn scikit-learn
+    # Install the jupyter and ipykernel packages
+    pip install jupyter ipykernel
+    # Add the virtual environment kernel to Jupyter
+    python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
+    # Deactivate the virtual environment
+    deactivate
+    ```
+
+1. Restart VS Code or Jupyter Notebook.
+1. Open a notebook and select the Jupyter kernel that you created.
+
+### Use a Python virtual environment created using venv_wrapper
+
+The `venv_wrapper` script simplifies the creation of Python virtual environments. It is in my dotfiles and is based [on this script](https://gist.github.com/dbtek/fb2ddccb18f0cf63a654ea2cc94c8f19).
+
+1. Create a Python virtual environment and add it as a kernel to Jupyter (run the following commands in the terminal, in the project root directory):
+
+    ```bash
+    # Create a new Python virtual environment, changing the name and Python version as needed
+    NEW_ENV_NAME=plot-venv
+    PYTHON_VERSION=3.12
+    echo "$HOME/.venv/${NEW_ENV_NAME}/" >> .gitignore
+    # Create and activate the new virtual environment using the wrapper commands
+    mkvenv "$NEW_ENV_NAME" "$PYTHON_VERSION"
+    # Install the desired packages, e.g.
+    pip install numpy pandas matplotlib seaborn scikit-learn
+    # Install the jupyter and ipykernel packages
+    pip install jupyter ipykernel
+    # Add the virtual environment kernel to Jupyter
+    python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
+    # Deactivate the virtual environment
+    deactivate
+    ```
+
+1. Restart VS Code or Jupyter Notebook.
+1. Open a notebook and select the Jupyter kernel that you created.
+
+### Use a local Conda environment as a Bash kernel
+
+1. Create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal):
+
+    ```bash
+    # Create a new Conda environment, changing the name as needed
+    NEW_ENV_NAME=vep-bash
+    PYTHON_VERSION=3.12
+    mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+    mamba activate "$NEW_ENV_NAME"
+    # Use the next command if using Apple silicon and osx-arm64 packages aren't available
+    conda config --env --set subdir osx-64
+    # Install the desired packages, e.g.
+    mamba install -y -c conda-forge -c bioconda ensembl-vep
+    # Install the jupyter and bash_kernel packages
+    mamba install -y -c conda-forge jupyter bash_kernel
+    # Install the Bash kernel within the environment
+    python -m bash_kernel.install
+    # Deactivate the Conda environment
+    mamba deactivate
+    ```
+
+1. Restart VS Code or Jupyter Notebook.
+1. Open a notebook and select the Jupyter kernel that you created.
+
+### Use a remote Conda environment as a Bash kernel
+
+1. On the remote system create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal on the remote system):
+
+    ```bash
+    # Create a new Conda environment, changing the name as needed
+    NEW_ENV_NAME=vep-bash
+    PYTHON_VERSION=3.12
+    mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+    mamba activate "$NEW_ENV_NAME"
+    # Use the next command if using Apple silicon and osx-arm64 packages aren't available
+    conda config --env --set subdir osx-64
+    # Install the desired packages, e.g.
+    mamba install -y -c conda-forge -c bioconda ensembl-vep
+    # Install the jupyter and bash_kernel packages
+    mamba install -y -c conda-forge jupyter bash_kernel
+    # Install the Bash kernel within the environment
+    python -m bash_kernel.install
+    # Deactivate the Conda environment
+    mamba deactivate
+    ```
+
+1. On the remote system launch `tmux`, activate the environment, and start Jupyter:
+
+    ```bash
+    tmux new -s jupyter
+    NEW_ENV_NAME=vep-bash
+    mamba activate "$NEW_ENV_NAME"
+    jupyter notebook --no-browser --port=8888
+    ```
+
+    Note the token that is displayed in the output of the `jupyter notebook` command.
+
+    For example:
+
+    ```text
+    399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+    ```
+
+    Now disconnect from the tmux session by pressing `Ctrl-b` then `d`.
+
+1. On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to **user@host**):
+
+    ```bash
+    ssh -L 8888:localhost:8888 gentec
+    ```
+
+    The above will forward port 8888 on the remote machine to port 8888 on the local machine. Leave this terminal open.
+
+1. Open a Jupyter Notebook in a VS Code and click **Select Kernel** and then **Existing Jupyter Server**. Enter the following URL (appending the token from the remote system):
+
+    ```text
+    http://localhost:8888/?token=399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+    ```
+
+    Then choose the kernel that you created, from the available kernels.
+
+1. To end the session, close the Jupyter Notebook and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter Notebook server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
+
 ## Mamba
 
 [Mamba](https://github.com/mamba-org/mamba) is a reimplementation of the conda package manager in C++.
@@ -4504,6 +4709,66 @@ is.list(object)
 is.matrix(object)
 #> Returns TRUE or FALSE
 ```
+
+### Use an R virtual environment
+
+To create an R virtual environment using `renv`:
+
+1. Launch R in the terminal, in your project root directory:
+
+    ```bash
+    r
+    ```
+
+1. Install the `renv` package and initialize the project:
+
+    ```r
+    install.packages("renv")
+    renv::init()
+    ```
+
+1. Install any required packages:
+
+    ```r
+    required_packages <- c(
+    "data.table", "ggfortify", "ggplot2", "janitor",
+    "openxlsx", "tidyverse", "writexl"
+    )
+    install.packages(required_packages)
+    renv::snapshot()
+    ```
+
+To export an R virtual environment, run the following within an R notebook to create an `renv.lock` lock file:
+
+```r
+if (requireNamespace("renv", quietly = TRUE) && renv::status()$active) {
+  renv::snapshot()
+  message("renv snapshot taken to save the current state of the project library.")
+} else {
+  message("renv is not active. No snapshot taken.")
+}
+```
+
+Or, in the terminal in the project root:
+
+```bash
+r -e 'if (requireNamespace("renv", quietly = TRUE) && renv::status()$active) renv::snapshot()'
+```
+
+To create renv from the lock file:
+
+1. Launch R in the terminal, in the project root directory:
+
+    ```bash
+    r
+    ```
+
+1. Install the `renv` package and restore the project:
+
+    ```r
+    install.packages("renv")
+    renv::restore()
+    ```
 
 ### Visualize the degree of overlap among gene sets
 
