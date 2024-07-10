@@ -2354,9 +2354,13 @@ find output -type f \( -name "*.vcf.gz" -o -name "*.vcf.gz.tbi" \) -exec cp {} v
 
 ### Copy the files returned by find, naming the copies after a directory in the path
 
-The command below finds files named `star-fusion.fusion_candidates.preliminary` and parses the sample name from a directory name in the path to the file. The sample name is then used to construct a name for the copy. For example, `./231_S12_R1_001/star-fusion.fusion_candidates.preliminary` is copied to `./fusion-candidates/231_S12_R1_001.fusion_candidates.preliminary`.
+The command below finds files of interest and parses the sample name from a directory name in the path to the file. The sample name is then used to construct a name for the copy.
 
 ```bash
+# Parse the sample name from the path to the file
+# Use the sample name to construct the name of the copy
+# e.g. ./231_S12_R1_001/star-fusion.fusion_candidates.preliminary is copied to
+# ./fusion-candidates/231_S12_R1_001.fusion_candidates.preliminary
 find . -name star-fusion.fusion_candidates.preliminary -exec sh -c $'sample=$(perl -e \'if($ARGV[0] =~ m/^\.\/([^\/]+)/){print "$1\n"}\' $1); cp "$1" "./fusion-candidates/${sample}.fusion_candidates.preliminary"' -- {} \;
 ```
 
