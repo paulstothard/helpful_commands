@@ -438,7 +438,7 @@ awk -F, '{print ">"$1"\n"$3"\n"}' input.csv
 
 ### Create a new column from two existing columns
 
-In this example the values in columns `3` and `4` are added to create a new  column:
+In this example the values in columns `3` and `4` are added to create a new column:
 
 ```bash
 awk -F, '{print $0,$3+$4}' input.txt
