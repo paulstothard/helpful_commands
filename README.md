@@ -391,7 +391,7 @@ Table of Contents
     - [Keep sites that are homozygous reference in all samples](#keep-sites-that-are-homozygous-reference-in-all-samples)
     - [Merge files from non-overlapping sample sets](#merge-files-from-non-overlapping-sample-sets)
     - [Merge VCF files in batches using Slurm](#merge-vcf-files-in-batches-using-slurm)
-    - [Merge VCF files in batches using using Slurm and a job array](#merge-vcf-files-in-batches-using-using-slurm-and-a-job-array)
+    - [Merge VCF files in batches using Slurm and a job array](#merge-vcf-files-in-batches-using-slurm-and-a-job-array)
     - [Perform case-control analysis](#perform-case-control-analysis)
     - [Print samples](#print-samples)
     - [Remove a sample](#remove-a-sample)
@@ -3385,14 +3385,14 @@ mamba activate sv-bash
 # Use conda 'config --env --set subdir osx-64' on macOS if packages are not available for osx-arm64
 conda config --env --set subdir osx-64
 mamba install -y -c conda-forge -c bioconda jupyter bash_kernel bcftools vcftools tabix
-python -m ipykernel install --user --name sv-bash --display-name "Python (sv-bash)"
+python -m bash_kernel.install
 ```
 
 ### Register a mamba environment with Jupyter as a Python kernel
 
 ```bash
 mamba create -y --name sv-python
-mamba activate
+mamba activate sv-python
 mamba install Jupyter
 mamba install ipykernel
 python -m ipykernel install --user --name sv-python_env --display-name "Python (sv-python_env)"
@@ -6351,7 +6351,7 @@ sbatch -o final.merged.out -e final.merged.err merge-vcfs.sbatch final *.merged.
 
 The final merged file will be named `final.merged.vcf.gz`.
 
-### Merge VCF files in batches using using Slurm and a job array
+### Merge VCF files in batches using Slurm and a job array
 
 In this example VCF files are merged in batches by submitting one job array to Slurm using `sbatch`. Using a job array instead of a large number of separate serial jobs can make it easier to monitor jobs and can make the scheduler run more efficiently.
 
