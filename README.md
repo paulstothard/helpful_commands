@@ -10,9 +10,9 @@ The commands below are intended as starting points. Adjust filenames, paths, opt
 
 - Most examples assume a Bash shell and standard Unix command-line tools.
 - Some commands differ between macOS/BSD and GNU/Linux, for example `sed -i`, `zcat`, `tail -r`, `rename`, and some `find` and `sort` options.
-- Some examples require additional programs to be installed, such as `parallel`, `csvkit`, `mlr`, `samtools`, `bcftools`, `seqkit`, `SnpEff`, `SnpSift`, `Docker`, `Singularity`, `mamba`, or `conda`.
+- Some examples require additional programs to be installed, such as `parallel`, `csvkit`, `mlr`, `samtools`, `bcftools`, `seqkit`, `DuckDB`, `yq`, `Poppler`, `ImageMagick`, `Ghostscript`, `OCRmyPDF`, `SnpEff`, `SnpSift`, `Docker`, `Singularity`, `Apptainer`, `mamba`, `micromamba`, or `conda`.
 - Replace placeholders such as `<filename>`, `<jobid>`, `<username>`, `{source UUID}`, `someuser`, and `user@host` before running the commands.
-- Test destructive commands before running them on important data. This includes commands using `rm`, `git rm`, `sed -i`, `docker container prune`, `docker system prune`, and commands that overwrite output files.
+- Test destructive commands before running them on important data. This includes commands using `rm`, `git rm`, `sed -i`, `docker container prune`, `docker image prune`, and commands that overwrite output files.
 - Avoid placing passwords or tokens directly in commands when possible, since they may be stored in shell history or visible to other users on the system.
 - When adapting examples to real files, quote filenames and paths unless there is a specific reason not to.
 
@@ -76,6 +76,7 @@ Table of Contents
     - [List packages installed in the active environment](#list-packages-installed-in-the-active-environment)
     - [Remove an environment](#remove-an-environment)
     - [Search for a specific package](#search-for-a-specific-package)
+    - [Use the libmamba solver](#use-the-libmamba-solver)
     - [Create an environment on Apple silicon when packages are not available](#create-an-environment-on-apple-silicon-when-packages-are-not-available)
   - [csvkit](#csvkit)
     - [Convert Excel to CSV](#convert-excel-to-csv)
@@ -136,28 +137,42 @@ Table of Contents
     - [Convert a website to PDF](#convert-a-website-to-pdf)
     - [Convert between audiovisual file formats](#convert-between-audiovisual-file-formats)
     - [Convert between sequence file formats](#convert-between-sequence-file-formats)
+    - [Convert BAM to CRAM](#convert-bam-to-cram)
     - [Convert CSV to Excel](#convert-csv-to-excel)
     - [Convert CSV to HTML](#convert-csv-to-html)
     - [Convert CSV to Markdown](#convert-csv-to-markdown)
+    - [Convert CSV to Parquet](#convert-csv-to-parquet)
     - [Convert CSV to TSV](#convert-csv-to-tsv)
     - [Convert EPUB to PDF](#convert-epub-to-pdf)
     - [Convert DOCX to PDF](#convert-docx-to-pdf)
     - [Convert Excel to CSV using csvkit](#convert-excel-to-csv-using-csvkit)
+    - [Convert FASTQ to FASTA](#convert-fastq-to-fasta)
     - [Convert GenBank to FASTA](#convert-genbank-to-fasta)
     - [Convert GenBank to GFF](#convert-genbank-to-gff)
+    - [Convert HEIC to JPEG](#convert-heic-to-jpeg)
     - [Convert HTML to PDF](#convert-html-to-pdf)
     - [Convert HTML to PNG](#convert-html-to-png)
+    - [Convert JSON to YAML](#convert-json-to-yaml)
     - [Convert Markdown to HTML](#convert-markdown-to-html)
     - [Convert Markdown to PDF](#convert-markdown-to-pdf)
     - [Convert Markdown to PPTX](#convert-markdown-to-pptx)
+    - [Convert Parquet to CSV](#convert-parquet-to-csv)
+    - [Convert PDF to compressed PDF](#convert-pdf-to-compressed-pdf)
     - [Convert PDF to Markdown](#convert-pdf-to-markdown)
     - [Convert PDF to PNG](#convert-pdf-to-png)
+    - [Convert PDF to text](#convert-pdf-to-text)
     - [Convert PNG to PDF](#convert-png-to-pdf)
     - [Convert PPTX to PDF](#convert-pptx-to-pdf)
     - [Convert PPTX to PNG](#convert-pptx-to-png)
+    - [Convert SAM to BAM](#convert-sam-to-bam)
     - [Convert SVG to PNG](#convert-svg-to-png)
     - [Convert TSV to CSV](#convert-tsv-to-csv)
     - [Convert TSV to Excel](#convert-tsv-to-excel)
+    - [Convert VCF to BCF](#convert-vcf-to-bcf)
+    - [Convert WebP to PNG](#convert-webp-to-png)
+    - [Convert YAML to JSON](#convert-yaml-to-json)
+    - [Merge PDF files](#merge-pdf-files)
+    - [OCR a PDF file](#ocr-a-pdf-file)
   - [File downloads](#file-downloads)
     - [Download a complete web page as a single HTML file](#download-a-complete-web-page-as-a-single-html-file)
     - [Download a GenBank file with bio](#download-a-genbank-file-with-bio)
@@ -189,13 +204,20 @@ Table of Contents
     - [Clone all your repositories](#clone-all-your-repositories)
     - [Create a new Git repository](#create-a-new-git-repository)
     - [Create and merge Git branches](#create-and-merge-git-branches)
+    - [Create and apply a stash](#create-and-apply-a-stash)
+    - [Delete branches](#delete-branches)
+    - [Discard changes in a file](#discard-changes-in-a-file)
+    - [Fetch changes and prune deleted remote branches](#fetch-changes-and-prune-deleted-remote-branches)
     - [List the files being tracked in the repository](#list-the-files-being-tracked-in-the-repository)
     - [Mark changed files to be included in the next commit](#mark-changed-files-to-be-included-in-the-next-commit)
     - [Move or rename a file or directory](#move-or-rename-a-file-or-directory)
+    - [Preview and remove untracked files](#preview-and-remove-untracked-files)
     - [Pull a change from a remote repository to your local branch](#pull-a-change-from-a-remote-repository-to-your-local-branch)
     - [Push a commit on your local branch to a remote repository](#push-a-commit-on-your-local-branch-to-a-remote-repository)
     - [Remove files from the repository](#remove-files-from-the-repository)
+    - [Revert a commit](#revert-a-commit)
     - [Save the marked files to the local Git repository](#save-the-marked-files-to-the-local-git-repository)
+    - [Show a commit](#show-a-commit)
     - [Specify files to ignore](#specify-files-to-ignore)
     - [Sync a repository to your local machine](#sync-a-repository-to-your-local-machine)
     - [Tag a release](#tag-a-release)
@@ -228,22 +250,12 @@ Table of Contents
     - [Use a Python virtual environment created using venv\_wrapper](#use-a-python-virtual-environment-created-using-venv_wrapper)
     - [Use a local Conda environment as a Bash kernel](#use-a-local-conda-environment-as-a-bash-kernel)
     - [Use a remote Conda environment as a Bash kernel](#use-a-remote-conda-environment-as-a-bash-kernel)
+    - [List Jupyter kernels](#list-jupyter-kernels)
+    - [Remove a Jupyter kernel](#remove-a-jupyter-kernel)
   - [Mamba](#mamba)
-    - [Activate an environment with mamba](#activate-an-environment-with-mamba)
-    - [Add additional packages to an environment with mamba](#add-additional-packages-to-an-environment-with-mamba)
-    - [Create an environment and install some packages with mamba](#create-an-environment-and-install-some-packages-with-mamba)
-    - [Create an environment from a yaml file with mamba](#create-an-environment-from-a-yaml-file-with-mamba)
-    - [Deactivate an environment with mamba](#deactivate-an-environment-with-mamba)
-    - [Export an environment to a yaml file with mamba](#export-an-environment-to-a-yaml-file-with-mamba)
     - [Install Mamba](#install-mamba)
-    - [List available packages with mamba](#list-available-packages-with-mamba)
-    - [List environments with mamba](#list-environments-with-mamba)
-    - [List packages installed in the active environment with mamba](#list-packages-installed-in-the-active-environment-with-mamba)
-    - [Remove an environment with mamba](#remove-an-environment-with-mamba)
-    - [Search for a specific package with mamba](#search-for-a-specific-package-with-mamba)
-    - [Create a mamba environment on Apple silicon when packages are not available](#create-a-mamba-environment-on-apple-silicon-when-packages-are-not-available)
-    - [Register a mamba environment with Jupyter as a Bash kernel](#register-a-mamba-environment-with-jupyter-as-a-bash-kernel)
-    - [Register a mamba environment with Jupyter as a Python kernel](#register-a-mamba-environment-with-jupyter-as-a-python-kernel)
+    - [Use mamba in place of conda](#use-mamba-in-place-of-conda)
+    - [Use micromamba without a base conda install](#use-micromamba-without-a-base-conda-install)
   - [md5sum](#md5sum)
     - [Generate a file of checksums](#generate-a-file-of-checksums)
     - [Validate checksums](#validate-checksums)
@@ -924,6 +936,8 @@ To view packages available from the core tap via the Homebrew package manager fo
 
 ## Conda
 
+`conda` v23.9 and later use the `libmamba` solver by default. This means that for most uses the `conda` commands below are a good default, even when fast dependency solving is important.
+
 ### Activate an environment
 
 ```bash
@@ -978,7 +992,7 @@ source ~/.bashrc
 conda update -y -n base -c defaults conda
 ```
 
-To install Conda with included support for [Mamba](#mamba), use [Miniforge](https://github.com/conda-forge/miniforge).
+To install a conda distribution from the conda-forge community, use [Miniforge](https://github.com/conda-forge/miniforge).
 
 ### List available packages
 
@@ -1011,6 +1025,26 @@ conda env remove --name my-env
 
 ```bash
 conda search -c bioconda -c conda-forge blast
+```
+
+### Use the libmamba solver
+
+To check the solver being used:
+
+```bash
+conda config --show solver
+```
+
+To set the solver to `libmamba`:
+
+```bash
+conda config --set solver libmamba
+```
+
+To use `libmamba` for a single command:
+
+```bash
+conda install --solver=libmamba -c conda-forge numpy
 ```
 
 ### Create an environment on Apple silicon when packages are not available
@@ -1277,7 +1311,7 @@ docker container prune
 ### Delete unused images
 
 ```bash
-docker system prune --all
+docker image prune --all
 ```
 
 ### Get an interactive bash shell in a Docker container
@@ -1399,7 +1433,7 @@ done
 ### Convert a FASTA file to a CSV file with column names
 
 ```bash
-cat input.fasta | perl -n -0777 -e 'BEGIN{print "SNP_Name,Sequence\n"}' -e 'while ($_ =~ m/^>([^\n]+)\n([^>]+)/gm) {$name = $1; $seq = $2; $seq =~s/\s//g; print $name . "," . $seq . "\n"}' > output.csv
+perl -n -0777 -e 'BEGIN{print "SNP_Name,Sequence\n"}' -e 'while ($_ =~ m/^>([^\n]+)\n([^>]+)/gm) {$name = $1; $seq = $2; $seq =~s/\s//g; print $name . "," . $seq . "\n"}' input.fasta > output.csv
 ```
 
 ### Count reads in compressed FASTQ files using Slurm and parallel
@@ -1891,7 +1925,7 @@ find . -maxdepth 1 -name "*.pdf" ! -name "merged-output.pdf" -print0 | sort -z |
 
 ### Convert between audiovisual file formats
 
-See [ffmprovisr](https://amiaopensource.github.io/ffmprovisr/) for commands to modify and covert audiovisual files.
+See [ffmprovisr](https://amiaopensource.github.io/ffmprovisr/) for commands to modify and convert audiovisual files.
 
 ### Convert between sequence file formats
 
@@ -1930,6 +1964,15 @@ bio define exon
 bio define food vacuole
 ```
 
+### Convert BAM to CRAM
+
+The following uses `samtools`. The reference FASTA file must be the same reference used to produce the BAM file:
+
+```bash
+samtools view -C -T reference.fa -o output.cram input.bam
+samtools index output.cram
+```
+
 ### Convert CSV to Excel
 
 The following uses `ssconvert`, which is distributed with [Gnumeric](http://gnumeric.org):
@@ -1965,6 +2008,14 @@ Or use [VisiData](https://github.com/saulpw/visidata):
 
 ```bash
 vd input.csv -b -o output.md
+```
+
+### Convert CSV to Parquet
+
+The following uses [DuckDB](https://duckdb.org):
+
+```bash
+duckdb -c "COPY (SELECT * FROM read_csv_auto('input.csv')) TO 'output.parquet' (FORMAT PARQUET);"
 ```
 
 ### Convert CSV to TSV
@@ -2015,6 +2066,14 @@ Or use [VisiData](https://github.com/saulpw/visidata). Change `Sheet1` in the co
 vd input.xls +:Sheet1:1:1 -b -o output.csv
 ```
 
+### Convert FASTQ to FASTA
+
+The following uses [seqkit](https://bioinf.shenwei.me/seqkit/):
+
+```bash
+seqkit fq2fa reads.fastq.gz > reads.fa
+```
+
 ### Convert GenBank to FASTA
 
 Use [any2fasta](https://github.com/tseemann/any2fasta):
@@ -2029,6 +2088,14 @@ Install [perl-bioperl](https://anaconda.org/bioconda/perl-bioperl) and then use 
 
 ```bash
 bp_genbank2gff3 input.gb --outdir output_directory
+```
+
+### Convert HEIC to JPEG
+
+The following uses [ImageMagick](https://imagemagick.org):
+
+```bash
+magick input.heic output.jpg
 ```
 
 ### Convert HTML to PDF
@@ -2051,6 +2118,14 @@ Another approach, which may work better for complex web sites, is to use [pagere
 
 ```bash
 pageres http://google.com 897x1090 --crop --scale=5 --filename='google'
+```
+
+### Convert JSON to YAML
+
+The following uses [yq](https://github.com/mikefarah/yq):
+
+```bash
+yq -P input.json > output.yaml
 ```
 
 ### Convert Markdown to HTML
@@ -2090,6 +2165,22 @@ The `--reference-doc` parameter is optional and can be used to supply a [PowerPo
 pandoc input.md -o output.pptx --reference-doc template.potx
 ```
 
+### Convert Parquet to CSV
+
+The following uses [DuckDB](https://duckdb.org):
+
+```bash
+duckdb -c "COPY (SELECT * FROM 'input.parquet') TO 'output.csv' (HEADER, DELIMITER ',');"
+```
+
+### Convert PDF to compressed PDF
+
+The following uses [Ghostscript](https://www.ghostscript.com):
+
+```bash
+gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile=output.pdf input.pdf
+```
+
 ### Convert PDF to Markdown
 
 Use [marker](https://github.com/VikParuchuri/marker):
@@ -2108,12 +2199,20 @@ find . -name "*.pdf" -exec pdftoppm -f 1 -l 1 -png -r 600 {} {} \;
 
 The `-r 600` option sets the resolution to 600 dpi. The `-f 1` and `-l 1` options specify the first and last pages to convert. The `{}` is used to specify the input and output file names (they are passed twice to `pdftoppm` from `find`). `pdftoppm` automatically appends the page number to the output file name.
 
+### Convert PDF to text
+
+The following uses `pdftotext` from the [poppler](https://poppler.freedesktop.org) package:
+
+```bash
+pdftotext -layout input.pdf output.txt
+```
+
 ### Convert PNG to PDF
 
 The following uses [ImageMagick](https://imagemagick.org):
 
 ```bash
-convert *.png output.pdf
+magick ./*.png output.pdf
 ```
 
 ### Convert PPTX to PDF
@@ -2130,7 +2229,17 @@ The following uses [LibreOffice](https://www.libreoffice.org) and [ImageMagick](
 
 ```bash
 soffice --headless --convert-to pdf input.pptx
-convert -density 400 -resize 3000^ -scene 1 input.pdf slide_%d.png
+magick -density 400 input.pdf -resize 3000^ -scene 1 slide_%d.png
+```
+
+### Convert SAM to BAM
+
+The following uses `samtools`:
+
+```bash
+samtools view -b -o output.bam input.sam
+samtools sort -o output.sorted.bam output.bam
+samtools index output.sorted.bam
 ```
 
 ### Convert SVG to PNG
@@ -2172,6 +2281,47 @@ Use [VisiData](https://github.com/saulpw/visidata):
 
 ```bash
 vd input.tsv -b -o output.xlsx
+```
+
+### Convert VCF to BCF
+
+The following uses `bcftools`:
+
+```bash
+bcftools view -Ob -o output.bcf input.vcf.gz
+bcftools index output.bcf
+```
+
+### Convert WebP to PNG
+
+The following uses [ImageMagick](https://imagemagick.org):
+
+```bash
+magick input.webp output.png
+```
+
+### Convert YAML to JSON
+
+The following uses [yq](https://github.com/mikefarah/yq):
+
+```bash
+yq -o=json input.yaml > output.json
+```
+
+### Merge PDF files
+
+The following uses `pdfunite` from the [poppler](https://poppler.freedesktop.org) package:
+
+```bash
+pdfunite first.pdf second.pdf third.pdf merged.pdf
+```
+
+### OCR a PDF file
+
+The following uses [OCRmyPDF](https://ocrmypdf.readthedocs.io):
+
+```bash
+ocrmypdf input.pdf output.pdf
 ```
 
 ## File downloads
@@ -2445,7 +2595,7 @@ done
 To remove the `.bak` files:
 
 ```bash
-find . -name "*.bak" -type f -exec rm -rf {} \;
+find . -name "*.bak" -type f -delete
 ```
 
 ### Redirect output to one file
@@ -2561,7 +2711,7 @@ find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | xargs -r0 -L 1 ec
 
 ## Git
 
-See [GitHub's Git documentation](https://help.github.com/en) for more information
+See [GitHub's Git documentation](https://help.github.com/en) for more information.
 
 ### Add or edit a remote repository
 
@@ -2619,8 +2769,8 @@ Optionally, to clone new repositories and update existing ones:
 gh repo list "$org_or_username" --limit 1000 | while IFS= read -r repo _; do
   gh repo clone "$repo" "$repo" -- --recurse-submodules -q 2>/dev/null || (
     cd "$repo" || exit
-    git checkout -q main 2>/dev/null || true
-    git checkout -q master 2>/dev/null || true
+    git switch -q main 2>/dev/null || true
+    git switch -q master 2>/dev/null || true
     git pull -q
   )
 done
@@ -2643,14 +2793,14 @@ git branch
 To create a new branch and switch to it:
 
 ```bash
-git checkout -b <new-branch>
+git switch -c <new-branch>
 ```
 
 To switch to a remote branch:
 
 ```bash
 git fetch --all
-git checkout <remote-branch>
+git switch <branch>
 ```
 
 After adding and committing some changes, to push this branch to remote:
@@ -2662,12 +2812,66 @@ git push -u origin <new-branch>
 To merge a branch into main (local) and push the changes to remote:
 
 ```bash
-git checkout main
+git switch main
 git merge <new-branch>
 git push -u origin main
 ```
 
 Git merge conflicts can arise easily. For information on resolving a merge conflict, see [Resolving a merged conflict using the command line](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line).
+
+### Create and apply a stash
+
+To save uncommitted changes without committing them:
+
+```bash
+git stash push -m "brief description"
+```
+
+To list saved stashes:
+
+```bash
+git stash list
+```
+
+To reapply the most recent stash and remove it from the stash list:
+
+```bash
+git stash pop
+```
+
+### Delete branches
+
+To delete a local branch that has already been merged:
+
+```bash
+git branch -d <branch>
+```
+
+To delete a remote branch:
+
+```bash
+git push origin --delete <branch>
+```
+
+### Discard changes in a file
+
+To discard unstaged changes in one file:
+
+```bash
+git restore <filename>
+```
+
+To discard all unstaged changes:
+
+```bash
+git restore .
+```
+
+### Fetch changes and prune deleted remote branches
+
+```bash
+git fetch --prune
+```
 
 ### List the files being tracked in the repository
 
@@ -2696,6 +2900,20 @@ git add --all
 ```bash
 git mv <filename-old> <filename-new>
 git commit -m "Move <filename-old> to <filename-new>"
+```
+
+### Preview and remove untracked files
+
+To preview untracked files and directories that would be removed:
+
+```bash
+git clean -nd
+```
+
+To remove untracked files and directories:
+
+```bash
+git clean -fd
 ```
 
 ### Pull a change from a remote repository to your local branch
@@ -2747,6 +2965,14 @@ git rm --cached <filename>
 git commit -m "Remove <filename>"
 ```
 
+### Revert a commit
+
+To undo a commit by creating a new commit:
+
+```bash
+git revert <commit>
+```
+
 ### Save the marked files to the local Git repository
 
 The commit should include a message using the -m option:
@@ -2765,6 +2991,14 @@ To commit any currently staged changes without rewriting the commit (this essent
 
 ```bash
 git commit --amend --no-edit
+```
+
+### Show a commit
+
+To view one commit:
+
+```bash
+git show <commit>
 ```
 
 ### Specify files to ignore
@@ -2806,20 +3040,20 @@ git tag -a v2.0.0 -m "version 2.0.0"
 git push origin v2.0.0
 ```
 
-Information on how to choose version numbers if available [here](https://semver.org).
+Information on how to choose version numbers is available [here](https://semver.org).
 
 ### Undo a Git add before a commit
 
-To undo a list of files:
+To unstage a list of files:
 
 ```bash
-git reset <filename1>
+git restore --staged <filename1>
 ```
 
-To undo all changes:
+To unstage all staged files:
 
 ```bash
-git reset
+git restore --staged .
 ```
 
 ### View the changes you haven't staged for commit
@@ -2846,6 +3080,12 @@ View the commit history along with the actual changes (patches) made in each com
 
 ```bash
 git log -p
+```
+
+View a compact commit graph:
+
+```bash
+git log --oneline --graph --decorate --all
 ```
 
 ### View the status of files in your working directory
@@ -2938,7 +3178,7 @@ gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > a
 The following uses [ImageMagick](https://imagemagick.org) to removes any edges that are exactly the same color as the corner pixels. A 30-pixel white border is then added to the sides and the top and bottom:
 
 ```bash
-convert input.png -trim -bordercolor White -border 30x30 output.png
+magick input.png -trim -bordercolor White -border 30x30 output.png
 ```
 
 ### Record your screen to an animated GIF
@@ -2970,7 +3210,7 @@ terminalizer init
 The following uses [ImageMagick](https://imagemagick.org) to scale the image so that its width is 4000 pixels:
 
 ```bash
-convert input.png -resize 4000 output.png
+magick input.png -resize 4000 output.png
 ```
 
 ### Take a screenshot of a window on macOS
@@ -3083,50 +3323,50 @@ Another option is to use [csvjoin](#merge-csv-files-on-a-specified-column-or-col
 
 ## Jupyter
 
+`conda`, `mamba`, `micromamba`, or a Python virtual environment can be used to create kernels for Jupyter. The Conda examples below use `conda`. For local use, the environment being registered as a kernel usually only needs `ipykernel`; install `jupyterlab` in the environment when the Jupyter server itself will be started from that environment.
+
 ### Use a local Conda environment as a Python kernel
 
-Create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal):
+Create the Conda environment and add it as a kernel to Jupyter:
 
 ```bash
 # Create a new Conda environment, changing the name as needed
 NEW_ENV_NAME=plot-python
 PYTHON_VERSION=3.12
-mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
-mamba activate "$NEW_ENV_NAME"
+conda create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+conda activate "$NEW_ENV_NAME"
 # Use the next command if using Apple silicon and osx-arm64 packages aren't available
 conda config --env --set subdir osx-64
-# Install the jupyter and ipykernel packages
-mamba install -y -c conda-forge jupyter ipykernel
+# Install ipykernel
+conda install -y -c conda-forge ipykernel
 # Install the desired packages, e.g.
-mamba install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
+conda install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
 # Add the Python kernel to Jupyter
 python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
 # Deactivate the Conda environment
-mamba deactivate
+conda deactivate
 ```
 
 Restart VS Code or Jupyter Notebook and open a notebook and select the Jupyter kernel that you created.
 
 ### Use a remote Conda environment as a Python kernel
 
-On the remote system create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal on the remote system):
+On the remote system, create the Conda environment, add it as a kernel to Jupyter, and install JupyterLab:
 
 ```bash
 # Create a new Conda environment, changing the name as needed
 NEW_ENV_NAME=plot-python
 PYTHON_VERSION=3.12
-mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
-mamba activate "$NEW_ENV_NAME"
+conda create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+conda activate "$NEW_ENV_NAME"
 # Use the next command if using Apple silicon and osx-arm64 packages aren't available
 conda config --env --set subdir osx-64
-# Install the jupyter and ipykernel packages
-mamba install -y -c conda-forge jupyter ipykernel
+# Install jupyterlab and ipykernel
+conda install -y -c conda-forge jupyterlab ipykernel
 # Install the desired packages, e.g.
-mamba install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
+conda install -y -c conda-forge -c bioconda numpy pandas matplotlib seaborn scikit-learn
 # Add the Python kernel to Jupyter
 python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
-# Deactivate the Conda environment
-mamba deactivate
 ```
 
 On the remote system launch `tmux`, activate the environment, and start Jupyter:
@@ -3134,37 +3374,35 @@ On the remote system launch `tmux`, activate the environment, and start Jupyter:
 ```bash
 tmux new -s jupyter
 NEW_ENV_NAME=plot-python
-mamba activate "$NEW_ENV_NAME"
-jupyter notebook --no-browser --port=8888
+conda activate "$NEW_ENV_NAME"
+jupyter lab --no-browser --ip=127.0.0.1 --port=8888
 ```
 
-Note the token that is displayed in the output of the `jupyter notebook` command.
+Note the URL containing the token that is displayed in the output. If needed, list running Jupyter servers on the remote system:
 
-For example:
-
-```text
-399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+```bash
+jupyter server list
 ```
 
 Now disconnect from the tmux session by pressing `Ctrl-b` then `d`.
 
-On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to **user@host**):
+On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to `user@host`):
 
 ```bash
-ssh -L 8888:localhost:8888 gentec
+ssh -N -L 8888:127.0.0.1:8888 gentec
 ```
 
 The above will forward port 8888 on the remote machine to port 8888 on the local machine. Leave this terminal open.
 
-Open a Jupyter Notebook in a VS Code and click **Select Kernel** and then **Existing Jupyter Server**. Enter the following URL (appending the token from the remote system):
+Open the following URL locally, replacing `<token>` with the token from the remote system:
 
 ```text
-http://localhost:8888/?token=399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+http://127.0.0.1:8888/lab?token=<token>
 ```
 
-Then choose the kernel that you created, from the available kernels.
+Then choose the kernel that you created from the available kernels.
 
-To end the session, close the Jupyter Notebook and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter Notebook server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
+To end the session, close the browser tab and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
 
 ### Use a Python virtual environment as a Python kernel
 
@@ -3179,8 +3417,8 @@ $PYTHON_VERSION -m venv "$NEW_ENV_NAME"
 source "${NEW_ENV_NAME}/bin/activate"
 # Install the desired packages, e.g.
 pip install numpy pandas matplotlib seaborn scikit-learn
-# Install the jupyter and ipykernel packages
-pip install jupyter ipykernel
+# Install ipykernel
+pip install ipykernel
 # Add the virtual environment kernel to Jupyter
 python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
 # Deactivate the virtual environment
@@ -3204,8 +3442,8 @@ echo "$HOME/.venv/${NEW_ENV_NAME}/" >> .gitignore
 mkvenv "$NEW_ENV_NAME" "$PYTHON_VERSION"
 # Install the desired packages, e.g.
 pip install numpy pandas matplotlib seaborn scikit-learn
-# Install the jupyter and ipykernel packages
-pip install jupyter ipykernel
+# Install ipykernel
+pip install ipykernel
 # Add the virtual environment kernel to Jupyter
 python -m ipykernel install --user --name "$NEW_ENV_NAME" --display-name="Python ($NEW_ENV_NAME)"
 # Deactivate the virtual environment
@@ -3216,48 +3454,46 @@ Restart VS Code or Jupyter Notebook and open a notebook and select the Jupyter k
 
 ### Use a local Conda environment as a Bash kernel
 
-Create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal):
+Create the Conda environment and add it as a kernel to Jupyter:
 
 ```bash
 # Create a new Conda environment, changing the name as needed
 NEW_ENV_NAME=vep-bash
 PYTHON_VERSION=3.12
-mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
-mamba activate "$NEW_ENV_NAME"
+conda create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+conda activate "$NEW_ENV_NAME"
 # Use the next command if using Apple silicon and osx-arm64 packages aren't available
 conda config --env --set subdir osx-64
 # Install the desired packages, e.g.
-mamba install -y -c conda-forge -c bioconda ensembl-vep
-# Install the jupyter and bash_kernel packages
-mamba install -y -c conda-forge jupyter bash_kernel
+conda install -y -c conda-forge -c bioconda ensembl-vep
+# Install bash_kernel
+conda install -y -c conda-forge bash_kernel
 # Install the Bash kernel within the environment
 python -m bash_kernel.install
 # Deactivate the Conda environment
-mamba deactivate
+conda deactivate
 ```
 
 Restart VS Code or Jupyter Notebook and open a notebook and select the Jupyter kernel that you created.
 
 ### Use a remote Conda environment as a Bash kernel
 
-On the remote system create the Conda environment and add it as a kernel to Jupyter (run the following commands in the terminal on the remote system):
+On the remote system, create the Conda environment, add it as a kernel to Jupyter, and install JupyterLab:
 
 ```bash
 # Create a new Conda environment, changing the name as needed
 NEW_ENV_NAME=vep-bash
 PYTHON_VERSION=3.12
-mamba create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
-mamba activate "$NEW_ENV_NAME"
+conda create -y --name "$NEW_ENV_NAME" python=$PYTHON_VERSION
+conda activate "$NEW_ENV_NAME"
 # Use the next command if using Apple silicon and osx-arm64 packages aren't available
 conda config --env --set subdir osx-64
 # Install the desired packages, e.g.
-mamba install -y -c conda-forge -c bioconda ensembl-vep
-# Install the jupyter and bash_kernel packages
-mamba install -y -c conda-forge jupyter bash_kernel
+conda install -y -c conda-forge -c bioconda ensembl-vep
+# Install jupyterlab and bash_kernel
+conda install -y -c conda-forge jupyterlab bash_kernel
 # Install the Bash kernel within the environment
 python -m bash_kernel.install
-# Deactivate the Conda environment
-mamba deactivate
 ```
 
 On the remote system launch `tmux`, activate the environment, and start Jupyter:
@@ -3265,84 +3501,53 @@ On the remote system launch `tmux`, activate the environment, and start Jupyter:
 ```bash
 tmux new -s jupyter
 NEW_ENV_NAME=vep-bash
-mamba activate "$NEW_ENV_NAME"
-jupyter notebook --no-browser --port=8888
+conda activate "$NEW_ENV_NAME"
+jupyter lab --no-browser --ip=127.0.0.1 --port=8888
 ```
 
-Note the token that is displayed in the output of the `jupyter notebook` command.
+Note the URL containing the token that is displayed in the output. If needed, list running Jupyter servers on the remote system:
 
-For example:
-
-```text
-399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+```bash
+jupyter server list
 ```
 
 Now disconnect from the tmux session by pressing `Ctrl-b` then `d`.
 
-On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to **user@host**):
+On the local system, create an SSH tunnel to the remote system (`gentec` is an entry in the SSH configuration file, `~/.ssh/config`; change the name as needed, for example to `user@host`):
 
 ```bash
-ssh -L 8888:localhost:8888 gentec
+ssh -N -L 8888:127.0.0.1:8888 gentec
 ```
 
 The above will forward port 8888 on the remote machine to port 8888 on the local machine. Leave this terminal open.
 
-Open a Jupyter Notebook in a VS Code and click **Select Kernel** and then **Existing Jupyter Server**. Enter the following URL (appending the token from the remote system):
+Open the following URL locally, replacing `<token>` with the token from the remote system:
 
 ```text
-http://localhost:8888/?token=399401bd7d1259c4f7d51bd005602f30a0c28e184bf3313e
+http://127.0.0.1:8888/lab?token=<token>
 ```
 
-Then choose the kernel that you created, from the available kernels.
+Then choose the kernel that you created from the available kernels.
 
-To end the session, close the Jupyter Notebook and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter Notebook server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
+To end the session, close the browser tab and the terminal running the SSH tunnel. Connect to the server and stop the Jupyter server by pressing `Ctrl-c` in the terminal where the server is running (use `tmux a -t jupyter` to attach to the session). Then close the tmux session by running `exit` in the tmux session.
+
+### List Jupyter kernels
+
+```bash
+jupyter kernelspec list
+```
+
+### Remove a Jupyter kernel
+
+In this example the kernel to remove is called `old-kernel`:
+
+```bash
+jupyter kernelspec remove old-kernel
+```
 
 ## Mamba
 
-[Mamba](https://github.com/mamba-org/mamba) is a reimplementation of the conda package manager in C++.
-
-### Activate an environment with mamba
-
-```bash
-mamba activate ngs
-```
-
-### Add additional packages to an environment with mamba
-
-```bash
-mamba activate ngs
-mamba install -y -c bioconda -c conda-forge picard
-```
-
-### Create an environment and install some packages with mamba
-
-In this example an environment called `ngs` is created:
-
-```bash
-mamba create -y --name ngs
-mamba activate ngs
-mamba install -y -c bioconda -c conda-forge multiqc fastqc trimmomatic bowtie2 subread samtools
-```
-
-### Create an environment from a yaml file with mamba
-
-```bash
-mamba env create --file env-environment.yaml
-```
-
-### Deactivate an environment with mamba
-
-```bash
-mamba deactivate
-```
-
-### Export an environment to a yaml file with mamba
-
-Use the `export` command while the environment is active:
-
-```bash
-mamba env export > env-environment.yaml
-```
+[Mamba](https://github.com/mamba-org/mamba) is a separate command-line tool for working with conda environments. `conda` v23.9 and later use the `libmamba` solver by default, so start with [Conda](#conda) unless you specifically want to use the `mamba` or `micromamba` command.
 
 ### Install Mamba
 
@@ -3350,71 +3555,27 @@ mamba env export > env-environment.yaml
 conda install mamba -n base -c conda-forge
 ```
 
-To install Conda with included support for [Mamba](#mamba), use [Miniforge](https://github.com/conda-forge/miniforge).
+### Use mamba in place of conda
 
-### List available packages with mamba
-
-```bash
-mamba search -c bioconda -c conda-forge
-```
-
-### List environments with mamba
+Most `conda` commands have similar `mamba` commands:
 
 ```bash
-mamba env list
-```
-
-### List packages installed in the active environment with mamba
-
-```bash
-mamba list
-```
-
-### Remove an environment with mamba
-
-In this example the environment to remove is called `my-env`:
-
-```bash
+mamba create -y --name ngs
+mamba activate ngs
+mamba install -y -c bioconda -c conda-forge multiqc fastqc trimmomatic bowtie2 subread samtools
+mamba env export > env-environment.yaml
 mamba deactivate
-mamba env remove --name my-env
 ```
 
-### Search for a specific package with mamba
+### Use micromamba without a base conda install
+
+`micromamba` is useful on systems where you want a small standalone environment manager:
 
 ```bash
-mamba search -c bioconda -c conda-forge blast
-```
-
-### Create a mamba environment on Apple silicon when packages are not available
-
-If packages are not available for `osx-arm64` use `conda config --env --set subdir osx-64`. For example:
-
-```bash
-mamba create -y --name vcf
-mamba activate vcf
-conda config --env --set subdir osx-64
-mamba install -y -c conda-forge -c bioconda bcftools vcftools tabix
-```
-
-### Register a mamba environment with Jupyter as a Bash kernel
-
-```bash
-mamba create -y --name sv-bash
-mamba activate sv-bash
-# Use conda 'config --env --set subdir osx-64' on macOS if packages are not available for osx-arm64
-conda config --env --set subdir osx-64
-mamba install -y -c conda-forge -c bioconda jupyter bash_kernel bcftools vcftools tabix
-python -m bash_kernel.install
-```
-
-### Register a mamba environment with Jupyter as a Python kernel
-
-```bash
-mamba create -y --name sv-python
-mamba activate sv-python
-mamba install Jupyter
-mamba install ipykernel
-python -m ipykernel install --user --name sv-python_env --display-name "Python (sv-python_env)"
+micromamba create -y --name ngs -c bioconda -c conda-forge samtools bcftools
+eval "$(micromamba shell hook --shell bash)"
+micromamba activate ngs
+micromamba deactivate
 ```
 
 ## md5sum
@@ -3594,7 +3755,7 @@ In this example the header is added to `.tab` files and comes from a file called
 for f in *.tab; do new="${f%.tab}.tab.new"; paste -sd'\n' header.txt "$f" > "$new"; done
 ```
 
-To replace the `.tab` files the `.new` files:
+To replace the `.tab` files with the `.new` files:
 
 ```bash
 for f in *.new; do new="${f%.new}"; mv -- "$f" "$new"; done
@@ -3701,7 +3862,7 @@ cat *.txt | sort | uniq -c | sed -n -e "s/^ *$number_of_files \(.*\)/\1/p"
 The `perl` portion is used to handle empty fields:
 
 ```bash
-cat data.csv | perl -pe 's/((?<=,)|(?<=^)),/ ,/g;' | column -t -s, | less -S
+perl -pe 's/((?<=,)|(?<=^)),/ ,/g;' data.csv | column -t -s, | less -S
 ```
 
 ### Format code
@@ -4732,7 +4893,7 @@ To create an R virtual environment using `renv`:
 1. Launch R in the terminal, in your project root directory:
 
     ```bash
-    r
+    R
     ```
 
 1. Install the `renv` package and initialize the project:
@@ -4767,7 +4928,7 @@ if (requireNamespace("renv", quietly = TRUE) && renv::status()$active) {
 Or, in the terminal in the project root:
 
 ```bash
-r -e 'if (requireNamespace("renv", quietly = TRUE) && renv::status()$active) renv::snapshot()'
+R -e 'if (requireNamespace("renv", quietly = TRUE) && renv::status()$active) renv::snapshot()'
 ```
 
 To create renv from the lock file:
@@ -4775,7 +4936,7 @@ To create renv from the lock file:
 1. Launch R in the terminal, in the project root directory:
 
     ```bash
-    r
+    R
     ```
 
 1. Install the `renv` package and restore the project:
