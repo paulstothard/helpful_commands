@@ -1190,7 +1190,7 @@ cut -d $'\t' -f 2- bovine_genotypes.vcf
 
 ## datamash
 
-[GNU datamash](https://www.gnu.org/software/datamash/) is a command-line program which performs basic numeric, textual and statistical operations on input textual data files.
+[GNU datamash](https://www.mankier.com/1/datamash) is a command-line program which performs basic numeric, textual and statistical operations on input textual data files.
 
 ### Group records by one column and print information about each group
 
@@ -1931,7 +1931,7 @@ See [ffmprovisr](https://amiaopensource.github.io/ffmprovisr/) for commands to m
 
 There are numerous programs available for this task.
 
-See [bio](https://github.com/ialbert/bio) and the [example commands](https://github.com/ialbert/bio/blob/master/biorun/data/usage.sh).
+See [bio](https://github.com/ialbert/bio) and the [example commands](https://github.com/ialbert/bio/blob/master/src/biorun/data/usage.sh).
 
 Some example commands taken from the [bio documentation](https://github.com/ialbert/bio/blob/master/README.md):
 
@@ -1957,11 +1957,11 @@ bio taxon 117565 --lineage | head
 # get metadata on a viral sample
 bio meta 11138 -H | head
 
-# define a sequence ontology terms
-bio define exon
+# define a sequence ontology term
+bio explain exon
 
-# define a gene ontology terms
-bio define food vacuole
+# define a gene ontology term
+bio explain food vacuole
 ```
 
 ### Convert BAM to CRAM
@@ -2138,7 +2138,7 @@ pandoc -f markdown -t html -o output.html input.md --css=pandoc.css --self-conta
 
 ### Convert Markdown to PDF
 
-The command below uses [pandoc](https://pandoc.org) and the [eisvogel.tex template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex).
+The command below uses [pandoc](https://pandoc.org) and the [Eisvogel template](https://github.com/Wandmalfarbe/pandoc-latex-template/releases/latest).
 
 The `head.tex` file consists of the following:
 
@@ -2338,7 +2338,7 @@ single-file https://www.wikipedia.org wikipedia.html
 
 ### Download a GenBank file with bio
 
-See the [bio repository](https://github.com/ialbert/bio) and [examples](https://github.com/ialbert/bio/blob/master/biorun/data/usage.sh).
+See the [bio repository](https://github.com/ialbert/bio) and [examples](https://github.com/ialbert/bio/blob/master/src/biorun/data/usage.sh).
 
 To download two GenBank files and save as a single file:
 
@@ -5054,7 +5054,7 @@ sed -n "26404p" input.txt
 
 ### Search and replace on lines
 
-The `sed` command can be used to find and replace text and supports its own [regular expression syntax](https://www.gnu.org/software/sed/manual/html_node/Regular-Expressions.html).
+The `sed` command can be used to find and replace text and supports its own [regular expression syntax](https://www.mankier.com/1/sed).
 
 The following replaces all occurrences of `Red Angus` with `Angus`:
 
@@ -5729,7 +5729,7 @@ bcftools +fill-tags input.vcf -o output.vcf
 
 ### Add predicted consequences
 
-Use [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/) to predict variant effects.
+Use [SnpEff](https://pcingola.github.io/SnpEff/snpeff/introduction/) to predict variant effects.
 
 List available pre-built databases for annotation:
 
@@ -5789,7 +5789,7 @@ vep --cache --format vcf --vcf \
 
 ### Add variant IDs
 
-Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) `annotate` to add variant IDs.
+Use [SnpSift](https://pcingola.github.io/SnpEff/snpsift/introduction/) `annotate` to add variant IDs.
 
 In this example the file `canis_lupus_familiaris.sorted.vcf` has variant IDs to be transferred to `input.vcf`.
 
@@ -5891,7 +5891,7 @@ input.vcf.gz > input.revised_sample_order.vcf
 
 ### Check relatedness between samples
 
-Use the [KING algorithm](https://academic.oup.com/bioinformatics/article/26/22/2867/228512), which is implemented in `vcftools` and is accessed using the `--relatedness2`:
+Use the KING algorithm, which is implemented in [`vcftools`](https://vcftools.github.io/man_latest.html) and is accessed using the `--relatedness2`:
 
 ```bash
 mkdir relatedness
@@ -6190,7 +6190,7 @@ tabix --print-header -R regions.txt input.vcf.gz > regions_of_interest.vcf
 
 ### Extract variants where FILTER is PASS
 
-Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files.
+Use [SnpSift](https://pcingola.github.io/SnpEff/snpsift/introduction/) to filter VCF files.
 
 The following keeps variants that have a `FILTER` value of `PASS`:
 
@@ -6232,7 +6232,7 @@ In the following example, sites are kept (`-i`) if the first sample is heterozyg
 bcftools view -i 'GT[0]="RA" && GT[1]="AA"' SNPs.vcf
 ```
 
-[SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) can also be used to filter VCF files based on sample genotypes.
+[SnpSift](https://pcingola.github.io/SnpEff/snpsift/introduction/) can also be used to filter VCF files based on sample genotypes.
 
 The following approach can be used to exclude sites where any sample meets the following criteria: is homozygous and the genotype quality is greater than `30` and the genotype is not `0/0`. Worded another way, a site is kept if no sample exhibits a good-quality homozygous alternate genotype.
 
@@ -6266,7 +6266,7 @@ set -H
 
 ### Filter variants based on predicted consequences
 
-Use [SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) to filter VCF files that have been annotated using [SnpEff](http://pcingola.github.io/SnpEff/se_introduction/).
+Use [SnpSift](https://pcingola.github.io/SnpEff/snpsift/introduction/) to filter VCF files that have been annotated using [SnpEff](https://pcingola.github.io/SnpEff/snpeff/introduction/).
 
 The following keeps variants that are predicted to have `HIGH` or `MODERATE` impacts:
 
@@ -6648,7 +6648,7 @@ The final merged file will be named `0.final.merged.vcf.gz`.
 
 ### Perform case-control analysis
 
-[SnpSift](http://pcingola.github.io/SnpEff/ss_introduction/) can generate p-values for different models.
+[SnpSift](https://pcingola.github.io/SnpEff/snpsift/introduction/) can generate p-values for different models.
 
 In this example the `+++++` specifies that the first five samples are cases. The `-------` specifies that the next seven samples are controls. The `000` specifies that the last three samples should be ignored.
 
