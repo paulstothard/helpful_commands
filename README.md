@@ -4,9 +4,22 @@
 
 Command-line tools, commands, and code snippets for performing routine data processing and bioinformatics tasks.
 
+## Notes
+
+The commands below are intended as starting points. Adjust filenames, paths, options, resource requests, and versions to suit the data and system being used.
+
+- Most examples assume a Bash shell and standard Unix command-line tools.
+- Some commands differ between macOS/BSD and GNU/Linux, for example `sed -i`, `zcat`, `tail -r`, `rename`, and some `find` and `sort` options.
+- Some examples require additional programs to be installed, such as `parallel`, `csvkit`, `mlr`, `samtools`, `bcftools`, `seqkit`, `SnpEff`, `SnpSift`, `Docker`, `Singularity`, `mamba`, or `conda`.
+- Replace placeholders such as `<filename>`, `<jobid>`, `<username>`, `{source UUID}`, `someuser`, and `user@host` before running the commands.
+- Test destructive commands before running them on important data. This includes commands using `rm`, `git rm`, `sed -i`, `docker container prune`, `docker system prune`, and commands that overwrite output files.
+- Avoid placing passwords or tokens directly in commands when possible, since they may be stored in shell history or visible to other users on the system.
+- When adapting examples to real files, quote filenames and paths unless there is a specific reason not to.
+
 Table of Contents
 
 - [helpful\_commands](#helpful_commands)
+  - [Notes](#notes)
   - [awk](#awk)
     - [Add a header line to a file](#add-a-header-line-to-a-file)
     - [Add up the values in a column](#add-up-the-values-in-a-column)
@@ -91,7 +104,7 @@ Table of Contents
     - [Compare sequence reads to a bacterial genome to find SNPs using Snippy](#compare-sequence-reads-to-a-bacterial-genome-to-find-snps-using-snippy)
     - [Convert documents using Pandoc](#convert-documents-using-pandoc)
     - [Delete all containers that are not running](#delete-all-containers-that-are-not-running)
-    - [Delete all images](#delete-all-images)
+    - [Delete unused images](#delete-unused-images)
     - [Get an interactive bash shell in a Docker container](#get-an-interactive-bash-shell-in-a-docker-container)
     - [Kill all running containers](#kill-all-running-containers)
     - [List images](#list-images)
@@ -687,7 +700,7 @@ without_upstream_and_downstream=${without_upstream%_*}
 
 # check the result
 # 9.2032929-45-1
-echo $without_upstream_and_downstream
+echo "$without_upstream_and_downstream"
 ```
 
 ### Perform a calculation on the command line
@@ -777,7 +790,7 @@ The `filtlong` output generated for each input file is compressed using `bgzip` 
 
 For every file processed, a unique log file is created within the output directory.
 
-Input files are not processed if their output folder already exist in the output directory.
+Input files are not processed if their output file already exists in the output directory.
 
 ### Save the output of a command in a variable
 
@@ -834,7 +847,7 @@ Use the values stored in the arrays to construct `esearch` and `efetch` commands
 ```bash
 for i in "${!gene[@]}"; do
   printf "processing gene %s and accession %s\n" "${gene[i]}" "${accession[i]}"
-  esearch -db protein -query "${accession[i]}[ACCESSION]" | efetch -format fasta > ${gene[i]}.faa
+  esearch -db protein -query "${accession[i]}[ACCESSION]" | efetch -format fasta > "${gene[i]}.faa"
   sleep 1
 done
 ```
@@ -1258,10 +1271,10 @@ example.md -o example.pdf \
 ### Delete all containers that are not running
 
 ```bash
-docker container rm $(docker ps -a -q)
+docker container prune
 ```
 
-### Delete all images
+### Delete unused images
 
 ```bash
 docker system prune --all
@@ -1282,13 +1295,13 @@ docker run --rm -it --entrypoint bash nidhaloff/igel
 ### Kill all running containers
 
 ```bash
-docker container kill $(docker ps -q)
+docker ps -q | while IFS= read -r container; do docker container kill "$container"; done
 ```
 
 Or to continually kill containers:
 
 ```bash
-while true; do docker container kill $(docker ps -q); sleep 2; done
+while true; do docker ps -q | while IFS= read -r container; do docker container kill "$container"; done; sleep 2; done
 ```
 
 ### List images
@@ -1410,11 +1423,11 @@ First create an `sbatch` script called `count-reads.sbatch` (replace `someuser` 
 #SBATCH --ntasks=1
 #SBATCH --mem=1000M
 
-READS=$(expr $(zcat $1 | wc -l) / 4)
+READS=$(( $(zcat -- "$1" | wc -l) / 4 ))
 echo "$1 $READS"
 ```
 
-The above uses `zcat` to output the file contents to `wc` which counts the lines. `expr` then takes the count from `wc` and divides by `4` to give the number of sequence reads.
+The above uses `zcat` to output the file contents to `wc` which counts the lines. The count from `wc` is divided by `4` to give the number of sequence reads.
 
 `parallel` can then be used to apply `count-reads.sbatch` to each `.fastq.gz` file. The `--dryrun` option causes `parallel` to print out the commands instead of running them. The `--delay 1` inserts a one second delay between printing or running jobs. Use the following to print the `sbatch` commands that will be run later on:
 
@@ -1483,14 +1496,14 @@ cat SRR13388732_1.fastq | paste - - - - | cut -f 2 | tr -d '\n' | wc -c
 
 ```bash
 file=SRR13388732_1.fastq
-READS=$(expr $(cat $file | wc -l) / 4)
-echo $READS
+READS=$(( $(wc -l < "$file") / 4 ))
+echo "$READS"
 ```
 
 ```bash
 file=SRR13388732_1.fastq.gz
-READS=$(expr $(zcat < $file | wc -l) / 4)
-echo $READS
+READS=$(( $(zcat -- "$file" | wc -l) / 4 ))
+echo "$READS"
 ```
 
 ### Download a reference genome FASTA file from Ensembl
@@ -1580,7 +1593,7 @@ cat names.txt | xargs -I{} perl -w -076 -e '$count = 0; open(SEQ, "<" . $ARGV[0]
 In the following example the `sequences` folder contains paired-end data, in files like `S00EC-0001_S30_1.fastq.gz` and `S00EC-0001_S30_2.fastq.gz`. The goal is to merge all the forward reads into one file and all the reverse reads into another file.
 
 ```bash
-cd sequences
+cd sequences || exit
 rm -f merged_1.fastq.gz
 rm -f merged_2.fastq.gz
 
@@ -1596,13 +1609,13 @@ find . \( -name "*_1.*" -name "*.fastq.gz" \) -type f \
   echo "Processing file '$file1' and '$file2'"
   
   # check that number of lines match
-  lines_R1=$(zcat < "$file1" | wc -l)
-  lines_R2=$(zcat < "$file2" | wc -l)
+  lines_R1=$(zcat -- "$file1" | wc -l)
+  lines_R2=$(zcat -- "$file2" | wc -l)
   
   if [ "$lines_R1" == "$lines_R2" ] ; then
     echo "Both files contain $lines_R1 lines, proceeding with merge"
-    cat $file1 >> merged_1.fastq.gz
-    cat $file2 >> merged_2.fastq.gz
+    cat -- "$file1" >> merged_1.fastq.gz
+    cat -- "$file2" >> merged_2.fastq.gz
   else
     echo "WARNING:"
     echo "$file1 contains $lines_R1 lines"
@@ -1621,16 +1634,16 @@ flank=100
 pos=42234774
 sequence=Y
 fasta=ARS-UCD1.2_Btau5.0.1Y.fa
-ustart=$(expr $pos - $flank)
-uend=$(expr $pos - 1)
-dstart=$(expr $pos + 1)
-dend=$(expr $pos + $flank)
+ustart=$((pos - flank))
+uend=$((pos - 1))
+dstart=$((pos + 1))
+dend=$((pos + flank))
 echo "Upstream flank:" && \
-samtools faidx "$fasta" "$sequence":$ustart-$uend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
+samtools faidx "$fasta" "${sequence}:${ustart}-${uend}" | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
 echo "SNP site" && \
-samtools faidx "$fasta" "$sequence":$pos-$pos | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
+samtools faidx "$fasta" "${sequence}:${pos}-${pos}" | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm' && \
 echo "Downstream flank:" && \
-samtools faidx "$fasta" "$sequence":$dstart-$dend | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm'
+samtools faidx "$fasta" "${sequence}:${dstart}-${dend}" | perl -0777 -p -e 's/(?<=[A-Z])\n(?=[A-Z])//gm'
 ```
 
 The `perl` command is used to remove spaces within the sequence.
@@ -1686,8 +1699,8 @@ find . \( -name "*_R1_*" -name "*.fastq.gz" \) -type f \
   echo "Processing file '$fnx' and '$fnx2'"
 
   # place commands here that work on file pairs
-  lines_R1=$(zcat < "$file" | wc -l)
-  lines_R2=$(zcat < "$file2" | wc -l)
+  lines_R1=$(zcat -- "$file" | wc -l)
+  lines_R2=$(zcat -- "$file2" | wc -l)
 
   if [ "$lines_R1" == "$lines_R2" ] ; then
     echo "Both files contain $lines_R1 lines"
@@ -1871,9 +1884,9 @@ The following uses [wkhtmltopdf](https://wkhtmltopdf.org) and [gs](https://www.g
 
 ```bash
 url=https://sites.ualberta.ca/~stothard/; depth=1
-wget --spider --force-html -r -l${depth} ${url} 2>&1 | grep '^--' | awk '{ print $3 }' | grep -i '\.\(html\|htm\)$' | uniq > url-list.txt
-while read i; do wkhtmltopdf "$i" "$(echo "$i" | sed -e 's/https\?:\/\///' -e 's/\//-/g' ).pdf"; done < url-list.txt
-gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged-output.pdf $(ls -lrt -1 *.pdf)
+wget --spider --force-html -r -l"${depth}" "${url}" 2>&1 | grep '^--' | awk '{ print $3 }' | grep -i '\.\(html\|htm\)$' | uniq > url-list.txt
+while IFS= read -r i; do wkhtmltopdf "$i" "$(echo "$i" | sed -e 's/https\?:\/\///' -e 's/\//-/g').pdf"; done < url-list.txt
+find . -maxdepth 1 -name "*.pdf" ! -name "merged-output.pdf" -print0 | sort -z | xargs -0 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged-output.pdf
 ```
 
 ### Convert between audiovisual file formats
@@ -2192,7 +2205,7 @@ i=NC_045512.2
 curl -s  "https://eutils.ncbi.nlm.nih.gov\
 /entrez/eutils/efetch.fcgi?db=nucleotide\
 &id=${i}&rettype=gbwithparts&retmode=txt" \
-> $i.gbk
+> "${i}.gbk"
 ```
 
 ### Download a reference genome GTF file from Ensembl
@@ -2310,11 +2323,13 @@ The commands below download protein sequences derived from Psychrobacter assembl
 esearch -db assembly -query '"Psychrobacter"[Organism] AND "latest refseq"[filter]' \
 | efetch -format docsum \
 | xtract -pattern DocumentSummary -element FtpPath_RefSeq \
-| awk -F"/" '{print "curl -o "$NF"_protein.faa.gz " $0"/"$NF"_protein.faa.gz"}' \
-| xargs -0 bash -c
+| while IFS= read -r url; do
+  assembly=$(basename "$url")
+  curl -o "${assembly}_protein.faa.gz" "${url}/${assembly}_protein.faa.gz"
+done
 ```
 
-Other file types can be downloaded by changing the `_protein.faa.gz` portions of the `awk` command. For example, use `_genomic.fna.gz` to download genomic sequences, or `_genomic.gff.gz` to download annotations of the genomic sequences in Generic Feature Format Version 3.
+Other file types can be downloaded by changing the `_protein.faa.gz` portions of the command. For example, use `_genomic.fna.gz` to download genomic sequences, or `_genomic.gff.gz` to download annotations of the genomic sequences in Generic Feature Format Version 3.
 
 The example below is similar but includes the species name in the name of the output files (e.g. `Psychrobacter-arcticus_GCF_000012305.1.faa.gz` instead of `GCF_000012305.1_ASM1230v1_protein.faa.gz`):
 
@@ -2322,8 +2337,11 @@ The example below is similar but includes the species name in the name of the ou
 esearch -db assembly -query '"Psychrobacter"[Organism] AND "latest refseq"[filter]' \
 | efetch -format docsum \
 | xtract -pattern DocumentSummary -element SpeciesName -element AssemblyAccession -element FtpPath_RefSeq \
-| perl -ne 'if (m/([^\t]+)\t([^\t]+)\t([^\t\n]+)/) {$out="$1_$2"; $url=$3; $out=~s/ /-/g; if ($url=~m/([^\/]+)$/) {print "curl -o $out.faa.gz $url/$1_protein.faa.gz\n"}}' \
-| xargs -0 bash -c
+| while IFS=$'\t' read -r species accession url; do
+  assembly=$(basename "$url")
+  species=${species// /-}
+  curl -o "${species}_${accession}.faa.gz" "${url}/${assembly}_protein.faa.gz"
+done
 ```
 
 ## find
@@ -2333,7 +2351,7 @@ esearch -db assembly -query '"Psychrobacter"[Organism] AND "latest refseq"[filte
 The following finds files in the directory `output` ending in `.vcf.gz` or `.vcf.gz.tbi` and copies them to the `vcfs` directory:
 
 ```bash
-mkdir vcfs
+mkdir -p vcfs
 find output -type f \( -name "*.vcf.gz" -o -name "*.vcf.gz.tbi" \) -exec cp {} vcfs \;
 ```
 
@@ -2346,7 +2364,8 @@ The command below finds files of interest and parses the sample name from a dire
 # Use the sample name to construct the name of the copy
 # e.g. ./231_S12_R1_001/star-fusion.fusion_candidates.preliminary is copied to
 # ./fusion-candidates/231_S12_R1_001.fusion_candidates.preliminary
-find . -name star-fusion.fusion_candidates.preliminary -exec sh -c $'sample=$(perl -e \'if($ARGV[0] =~ m/^\.\/([^\/]+)/){print "$1\n"}\' $1); cp "$1" "./fusion-candidates/${sample}.fusion_candidates.preliminary"' -- {} \;
+mkdir -p fusion-candidates
+find . -name star-fusion.fusion_candidates.preliminary -exec sh -c 'sample=${1#./}; sample=${sample%%/*}; cp -- "$1" "./fusion-candidates/${sample}.fusion_candidates.preliminary"' -- {} \;
 ```
 
 ### Determine the total size of certain files using find
@@ -2381,7 +2400,7 @@ The command below finds `.gff` files and then each file is processed as follows:
 4. The results are redirected to a file named after the input file but with `.cog_counts.txt` appended.
 
 ```bash
-find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1> "$1.cog_counts.txt"' -- {}
+find . -type f -name "*.gff" -print0 | xargs -0 -I{} sh -c $'tail -n +2 "$1" | awk -F $\'\t\' \'{count[$3]++}END{for(j in count) print j,count[j]}\' | sort -k 2,2nr -k 1,1 > "$1.cog_counts.txt"' -- {}
 ```
 
 The command below finds `.stats` files and then each file is processed as follows:
@@ -2411,7 +2430,7 @@ find . -name "*.maf" -type f | while IFS= read -r file; do
   # $fn: filename
 
   echo "Processing file '$fnx' in directory '$dir'"
-  cd "$dir"
+  cd "$dir" || exit
 
   # always print the first two lines
   # print lines where value in column 101 is PASS
@@ -2419,7 +2438,7 @@ find . -name "*.maf" -type f | while IFS= read -r file; do
   mv "$fnx" "${fnx}.bak"
   mv "${fn}.new" "$fnx"
 
-  cd "$wd"
+  cd "$wd" || exit
 done
 ```
 
@@ -2434,7 +2453,7 @@ find . -name "*.bak" -type f -exec rm -rf {} \;
 Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to a single file:
 
 ```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" >> output.txt; done
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while IFS= read -r f; do wc -l "$f" >> output.txt; done
 ```
 
 Or:
@@ -2454,7 +2473,7 @@ find . -type f \( -name "*.csv" -o -name "*.tab" \) -print0 | xargs -0 -I{} wc -
 Print the number of lines in every `.csv` or `.tab` file in or below current directory and redirect the results to separate files:
 
 ```bash
-find . -type f \( -name "*.csv" -o -name "*.tab" \) | while read f; do wc -l "$f" > "${f}.output.txt"; done
+find . -type f \( -name "*.csv" -o -name "*.tab" \) | while IFS= read -r f; do wc -l "$f" > "${f}.output.txt"; done
 ```
 
 Or:
@@ -2496,7 +2515,7 @@ find . -name "*.vcf.gz" -type f -print0 | sort -z -k2,2n -t- | \
 while IFS="" read -r -d "" file; do
   fnx=$(basename -- "$file")
   echo "'$fnx' contains these samples:"
-  bcftools query -l $file
+  bcftools query -l "$file"
 done
 ```
 
@@ -2505,7 +2524,7 @@ done
 Use `ls` as in the following example:
 
 ```bash
-find . -name "*.png" -type f -exec ls -rt "{}" + | while read file; do
+find . -name "*.png" -type f -exec ls -rt "{}" + | while IFS= read -r file; do
   echo "$file"
 done
 ```
@@ -2589,7 +2608,7 @@ gh auth login
 Clone up to 1000 repositories under the `$org_or_username` folder:
 
 ```bash
-gh repo list "$org_or_username" --limit 1000 | while read -r repo _; do
+gh repo list "$org_or_username" --limit 1000 | while IFS= read -r repo _; do
   gh repo clone "$repo" "$repo" -- --recurse-submodules
 done
 ```
@@ -2597,9 +2616,9 @@ done
 Optionally, to clone new repositories and update existing ones:
 
 ```bash
-gh repo list "$org_or_username" --limit 1000 | while read -r repo _; do
+gh repo list "$org_or_username" --limit 1000 | while IFS= read -r repo _; do
   gh repo clone "$repo" "$repo" -- --recurse-submodules -q 2>/dev/null || (
-    cd "$repo"
+    cd "$repo" || exit
     git checkout -q main 2>/dev/null || true
     git checkout -q master 2>/dev/null || true
     git pull -q
@@ -2868,7 +2887,7 @@ grep -v '^#' input.txt
 In this example `.fasta` files are removed that contain the text `complete genome` on a single line:
 
 ```bash
-grep -l "complete genome" *.fasta | xargs -I{} rm -f {}
+grep -Z -l "complete genome" *.fasta | xargs -0 rm -f
 ```
 
 ### Remove files that do not contain a match
@@ -2876,7 +2895,7 @@ grep -l "complete genome" *.fasta | xargs -I{} rm -f {}
 In this example `.fasta` files are removed that do not contain the text `complete genome` on a single line:
 
 ```bash
-grep -L "complete genome" *.fasta | xargs -I{} rm -f {}
+grep -Z -L "complete genome" *.fasta | xargs -0 rm -f
 ```
 
 ### Search using patterns from a file
@@ -2905,11 +2924,11 @@ grep -f ensembl_ids.txt annotated_variants.vcf >> annotated_variants.candidates.
 The following requires [yt-dlp](https://github.com/yt-dlp/yt-dlp), [mplayer](https://mplayerhq.hu/), [ImageMagick](https://imagemagick.org), and [gifsicle](https://www.lcdf.org/gifsicle/):
 
 ```bash
-mkdir gif; cd gif
+mkdir -p gif; cd gif || exit
 url=https://youtu.be/_YUAu0aP4DA
 start=00:37; length=10
-yt-dlp -f mp4 -o video_for_gif.mp4 $url
-mplayer video_for_gif.mp4 -ao null -ss $start -endpos $length -vo png -vf scale=400:225
+yt-dlp -f mp4 -o video_for_gif.mp4 "$url"
+mplayer video_for_gif.mp4 -ao null -ss "$start" -endpos "$length" -vo png -vf scale=400:225
 mogrify -format gif *.png
 gifsicle --threads=2 --colors=256 --delay=4 --loopcount=0 --dither -O3 *.gif > animation.gif
 ```
@@ -3572,13 +3591,13 @@ mlr --icsv --opprint stats1 -a sum,count,min,max,mean,mode -f Coverage example.c
 In this example the header is added to `.tab` files and comes from a file called `header.txt`. The files with the header added are saved with a `.new` extension added:
 
 ```bash
-for f in *.tab; do new=`echo $f | sed 's/\(.*\)\.tab/\1.tab.new/'`; paste -sd'\n' \header.txt "$f" > "$new"; done
+for f in *.tab; do new="${f%.tab}.tab.new"; paste -sd'\n' header.txt "$f" > "$new"; done
 ```
 
 To replace the `.tab` files the `.new` files:
 
 ```bash
-for f in *.new; do new=`echo $f | sed 's/\(.*\)\.new/\1/'`; mv "$f" "$new"; done
+for f in *.new; do new="${f%.new}"; mv -- "$f" "$new"; done
 ```
 
 ### Add text or a header to the beginning of all files with a particular file extension
@@ -3858,16 +3877,16 @@ home=/Users/myhome
 
 target=${home}/Dropbox/backup
 
-if [[ ! -e $target ]]; then
-    mkdir -p $target
-elif [[ ! -d $target ]]; then
+if [[ ! -e "$target" ]]; then
+    mkdir -p "$target"
+elif [[ ! -d "$target" ]]; then
     echo "$target already exists but is not a directory" 1>&2
 fi
 
 #copy files and directories of interest to $target
-rsync --update -razv ${home}/.bash_profile $target/bash_profile
-rsync --update -razv ${home}/lib $target
-rsync --update -razv ${home}/bin $target
+rsync --update -razv "${home}/.bash_profile" "${target}/bash_profile"
+rsync --update -razv "${home}/lib" "$target"
+rsync --update -razv "${home}/bin" "$target"
 ```
 
 Test the script as follows:
@@ -4839,7 +4858,7 @@ sed $'1s/^/my header text\\\n&/' input
 In this example `chr30` is replaced with `chrX`:
 
 ```bash
-for f in *.fasta; do new=`echo $f | sed 's/chr30/chrX/'`; mv $f $new; done
+for f in *.fasta; do new="${f/chr30/chrX}"; mv -- "$f" "$new"; done
 ```
 
 ### Delete lines
@@ -4912,9 +4931,9 @@ The different parts of the search part of the command have the following meaning
 ## Share data with project group members
 
 ```bash
-cd projects/some_project
+cd projects/some_project || exit
 chmod g+x my_dir
-cd my_dir
+cd my_dir || exit
 mkdir shared_dir
 chmod g+x shared_dir
 chmod +t shared_dir
@@ -5084,15 +5103,15 @@ First, load some modules and install [nf-core tools](https://nf-co.re/tools) usi
 
 ```bash
 module purge && module load python/3.8 && module load postgresql/15.3
-python -m venv $HOME/nf-core-env # create a virtual environment
-source $HOME/nf-core-env/bin/activate # activate the environment
+python -m venv "$HOME/nf-core-env" # create a virtual environment
+source "$HOME/nf-core-env/bin/activate" # activate the environment
 python -m pip install nf_core==2.6 # install nf-core tools in the environment
 ```
 
 In the future you can activate the environment using:
 
 ```bash
-source $HOME/nf-core-env/bin/activate
+source "$HOME/nf-core-env/bin/activate"
 ```
 
 To deactivate the environment use:
@@ -5104,7 +5123,7 @@ deactivate
 To view a list of available nf-core pipelines use the following:
 
 ```bash
-source $HOME/nf-core-env/bin/activate
+source "$HOME/nf-core-env/bin/activate"
 nf-core list
 ```
 
@@ -5133,11 +5152,11 @@ export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity
 Download the pipeline and the containers it uses:
 
 ```bash
-cd ~/scratch
+cd ~/scratch || exit
 module load nextflow/22.10.6
 module load apptainer/1.1.6
 nf-core download --singularity-cache-only --container singularity \
---compress none -r ${PL_VERSION} -p 6 ${NFCORE_PL}
+--compress none -r "$PL_VERSION" -p 6 "$NFCORE_PL"
 ```
 
 The pipeline code is downloaded to the working directory whereas the containers are downloaded to the folder specified by the `NXF_SINGULARITY_CACHEDIR` environment variable.
@@ -5146,7 +5165,7 @@ With the pipeline and containers downloaded, we can now run the pipeline using a
 
 Create a Nextflow configuration file called `nextflow.config` containing the following:
 
-```bash
+```groovy
 singularity{
   autoMounts = true
 }
@@ -5250,8 +5269,8 @@ If the pipeline doesn't complete within the requested time (3 hours) you can re-
 Note that if you log out of the cluster you will need to set the environment variables again before re-running the pipeline:
 
 ```bash
-cd ~/scratch
-source $HOME/nf-core-env/bin/activate
+cd ~/scratch || exit
+source "$HOME/nf-core-env/bin/activate"
 export NXF_SINGULARITY_CACHEDIR=~/scratch/singularity; \
 export NFCORE_PL=sarek; export PL_VERSION=3.2.0
 ```
@@ -5582,23 +5601,23 @@ export PERL5LIB="$PERL5LIB:$WD/$VEP_CACHE"
 export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$WD/$VEP_CACHE/htslib"
 
 # create cache directory and output directory
-mkdir -p $OUTDIR
-mkdir -p $VEP_CACHE
+mkdir -p "$OUTDIR"
+mkdir -p "$VEP_CACHE"
 
 # build cache
-vep_install -a cfp -s $SPECIES -y $ASSEMBLY \
--c $VEP_CACHE \
--d $VEP_CACHE \
+vep_install -a cfp -s "$SPECIES" -y "$ASSEMBLY" \
+-c "$VEP_CACHE" \
+-d "$VEP_CACHE" \
 --PLUGINS all --CONVERT
 
 # run vep
 SPECIES=canis_lupus_familiaris
 vep --cache --format vcf --vcf \
---dir_cache $VEP_CACHE \
---dir_plugins $VEP_CACHE/Plugins \
---input_file $INPUT \
---output_file $OUTDIR/$INPUT \
---species $SPECIES --assembly $ASSEMBLY \
+--dir_cache "$VEP_CACHE" \
+--dir_plugins "$VEP_CACHE/Plugins" \
+--input_file "$INPUT" \
+--output_file "$OUTDIR/$INPUT" \
+--species "$SPECIES" --assembly "$ASSEMBLY" \
 --max_sv_size 1000000000 \
 --force_overwrite \
 --plugin Blosum62 --plugin Downstream --plugin Phenotypes --plugin TSSDistance --plugin miRNA \
@@ -5910,7 +5929,7 @@ In this example there are `5` VCF files in the directory `vcfs`.
 Prepare index files:
 
 ```bash
-cd vcfs
+cd vcfs || exit
 find . -name "*.vcf" -exec bgzip {} \;
 find . -name "*.vcf.gz" -exec tabix -p vcf {} \;
 ```
@@ -6067,7 +6086,7 @@ FILTER=$(perl -e '@array = (); foreach(0..5) {push @array, "( isHom( GEN[$_] ) &
 Examine the filter string:
 
 ```bash
-echo $FILTER
+echo "$FILTER"
 ```
 
 This produces:
@@ -6142,7 +6161,7 @@ Use `--homozyg`:
 
 ```bash
 mkdir plink_roh
-cd plink_roh
+cd plink_roh || exit
 plink --bfile ../plink_bed/input \
 --homozyg group extend \
 --$species \
@@ -6294,8 +6313,8 @@ module load tabix
 output="$1"
 shift
 
-bcftools merge "$@" -Oz -o $output.merged.vcf.gz
-tabix -p vcf $output.merged.vcf.gz
+bcftools merge "$@" -Oz -o "${output}.merged.vcf.gz"
+tabix -p vcf "${output}.merged.vcf.gz"
 ```
 
 Note that the resource requirements may need to be adjusted depending on the number of input files to be processed in each group and their sizes.
@@ -6393,15 +6412,15 @@ INPUT_FILES=()
 
 # Populate INPUT_FILES array based on FILE_LIST and computed index
 for ((i=0; i<BATCH_SIZE; i++)); do
-    FILE_TO_ADD="$(sed -n "$((INDEX + i + 1))p" $FILE_LIST)"
+    FILE_TO_ADD="$(sed -n "$((INDEX + i + 1))p" "$FILE_LIST")"
     if [[ -n $FILE_TO_ADD ]]; then
         INPUT_FILES+=("$FILE_TO_ADD")
     fi
 done
 
 # Merge VCF files using bcftools and index the result with tabix
-bcftools merge "${INPUT_FILES[@]}" -Oz -o $OUTPUT.vcf.gz
-tabix -p vcf $OUTPUT.vcf.gz
+bcftools merge "${INPUT_FILES[@]}" -Oz -o "${OUTPUT}.vcf.gz"
+tabix -p vcf "${OUTPUT}.vcf.gz"
 ```
 
 Note that the resource requirements may need to be adjusted depending on the number of input files to be processed in each group and their sizes.
@@ -6412,12 +6431,12 @@ Now perform some calculations and submit the job array:
 # This computes the ceiling of total_files/batch_size
 # You will likely want to increase batch_size to something like 50
 batch_size=4
-total_files=$(ls *.haplotypecaller.vcf.gz | wc -l)
+total_files=$(find . -maxdepth 1 -name "*.haplotypecaller.vcf.gz" | wc -l)
 num_tasks=$(( (total_files + batch_size - 1) / batch_size ))
 echo "Will submit $num_tasks tasks for $total_files files"
 
 # Create file list
-ls *.haplotypecaller.vcf.gz > file_list.txt
+find . -maxdepth 1 -name "*.haplotypecaller.vcf.gz" | sort > file_list.txt
 
 # Submit the job array
 sbatch --array=0-$((num_tasks - 1)) \
@@ -6451,11 +6470,11 @@ Once all the tasks are complete, the output VCF files can be merged again to pro
 
 ```bash
 # Calculate number of files to merge
-final_merge_batch_size=$(ls *.merged.vcf.gz | wc -l)
+final_merge_batch_size=$(find . -maxdepth 1 -name "*.merged.vcf.gz" | wc -l)
 echo "Will submit 1 task for $final_merge_batch_size files"
 
 # Create file list for final merge
-ls *.merged.vcf.gz > final_merge_file_list.txt
+find . -maxdepth 1 -name "*.merged.vcf.gz" | sort > final_merge_file_list.txt
 
 # Submit a job array with a single task
 sbatch --array=0 \
